@@ -7,6 +7,9 @@ lint:
 install:
 	uv install
 
+installrender:
+	pip install -r requirements.txt
+
 makemigrations:
 	uv run python3 manage.py makemigrations
 
