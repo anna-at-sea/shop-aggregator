@@ -13,14 +13,8 @@ makemigrations:
 migrate:
 	uv run python3 manage.py migrate
 
-freeze:
-	uv pip freeze > requirements.txt
-
-renderinstall:
-	pip install -r requirements.txt
-
-installuv:
-	if [ ! -f $(UVPATH) ]; then curl -LsSf https://astral.sh/uv/install.sh | sh; fi
+renderinstalluv:
+	curl -LsSf https://astral.sh/uv/install.sh | sh
 
 PORT ?= 8000
 UVPATH ?= /opt/render/.local/bin/uv
