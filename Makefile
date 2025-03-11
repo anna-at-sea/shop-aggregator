@@ -20,5 +20,6 @@ PORT ?= 8000
 UVPATH ?= /opt/render/.local/bin/uv
 renderstart:
 	$(UVPATH) run python3 manage.py migrate && \
+	$(UVPATH) run python3 manage.py collectstatic && \
 	$(UVPATH) run gunicorn honduras_shop_aggregator.wsgi:application \
 	--bind 0.0.0.0:$(PORT)
