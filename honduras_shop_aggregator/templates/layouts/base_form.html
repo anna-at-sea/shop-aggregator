@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<!-- {% include "partials/flash_message.html" % -->
+    <h1>{{ heading }}</h1>
+    <p></p>
+    <p>{{ delete_prompt|default:'' }}</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|default:form|crispy }}
+        <input 
+            class="{{ button_class|default:'btn btn-primary' }}"
+            type="submit"
+            value="{{ button_text }}">
+    </form>
+{% endblock %}

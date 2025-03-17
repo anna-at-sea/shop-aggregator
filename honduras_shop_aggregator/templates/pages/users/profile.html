@@ -1,0 +1,59 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<h1 class="text-primary">{% translate "Welcome," %} {{ user.username }} </h1>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Side: Profile Picture & Basic Info -->
+        <div class="col-md-4">
+            <div class="card text-center border-primary shadow-sm">
+                <img src="{% static 'images/profile_placeholder.svg' %}" class="card-img-top rounded-circle mx-auto mt-3 border border-primary" alt="User Avatar" style="width: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ user.username }}</h5>
+                    <p class="text-muted">{% translate "Member since" %}: {{ user.date_joined }}</p>
+                </div>
+            </div>
+
+            <!-- Settings Dropdown -->
+            <div class="dropdown mt-3 text-center">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    ⚙️ {% translate "Settings" %}
+                </button>
+                <ul class="dropdown-menu shadow-sm border-0">
+                    <li><a class="dropdown-item text-primary" href="#"><i class="bi bi-pencil"></i> {% translate "Edit Profile" %}</a></li>
+                    <li><a class="dropdown-item text-primary" href="#"><i class="bi bi-key"></i> {% translate "Change Password" %}</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i> {% translate "Delete Account" %}</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side: Profile Details -->
+        <div class="col-md-8">
+            <div class="card border-primary shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title text-primary">{% translate "Profile Details" %}</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>{% translate "Name" %}:</strong> {{ user.first_name }} {{ user.last_name }}</li>
+                        <li class="list-group-item"><strong>{% translate "Email" %}:</strong> {{ user.email }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved Products Section -->
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card border-primary shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title text-primary">{% translate "Saved Products" %}</h4>
+                    <p>{% translate "User's favorite items will be displayed here." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

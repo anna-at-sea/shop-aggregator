@@ -13,6 +13,12 @@ makemigrations:
 migrate:
 	uv run python3 manage.py migrate
 
+makemessages:
+	uv run python3 manage.py makemessages -l es
+
+compilemessages:
+	uv run python3 manage.py compilemessages
+
 renderinstalluv:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 

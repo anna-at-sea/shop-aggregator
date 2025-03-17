@@ -8,9 +8,11 @@ packages = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "crispy-bootstrap5>=2024.10",
     "dj-database-url>=2.3.0",
     "django>=5.1.6",
     "django-bootstrap5>=25.1",
+    "django-crispy-forms>=2.3",
     "gunicorn>=23.0.0",
     "isort>=6.0.1",
     "psycopg2-binary>=2.9.10",
