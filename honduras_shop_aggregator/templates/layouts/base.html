@@ -42,10 +42,25 @@
         
                 <!-- Right: Language Toggle & User Auth -->
                 <div class="d-flex ms-auto align-items-center">
-                    <select class="form-select bg-light text-dark me-3" id="languageSwitcher" style="font-size: 0.9rem;">
-                        <option value="en">English</option>
-                        <option value="es">Español</option>
-                    </select>
+                    <!-- <select class="form-select bg-light text-dark me-3" id="languageSwitcher" style="font-size: 0.9rem;">
+                        <option value="en"> -->
+                        <!-- </option>
+                        <option value="es"> -->
+                        <!-- </option>
+                    </select> -->
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <select name="language">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% get_available_languages as LANGUAGES %}
+                            {% for lang in LANGUAGES %}
+                                <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %}selected{% endif %}>
+                                    {{ lang.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Change Language</button>
+                    </form>
     
                     {% if user.is_authenticated %}
                     <div class="dropdown">
@@ -57,11 +72,16 @@
                             <li><a class="dropdown-item" href="#">Orders</a></li>
                             <li><a class="dropdown-item" href="#">Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#">Logout</a></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="dropdown-item text-danger" value="{% translate 'Logout' %}">
+                                </form>
+                            </li>
                         </ul>
                     </div>
                     {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-light" style="font-size: 0.9rem;">Log In</a>
+                    <a href="{% url 'user_create' %}" class="btn btn-outline-light d-flex align-items-center text-nowrap" style="font-size: 0.9rem; white-space: nowrap;">Log In | Register</a>
                     {% endif %}
                 </div>
             </div>

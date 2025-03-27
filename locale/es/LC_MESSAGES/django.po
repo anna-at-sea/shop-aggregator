@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-12 04:00+0000\n"
+"POT-Creation-Date: 2025-03-27 08:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,140 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
-#: honduras_shop_aggregator/templates/pages/index.html:5
+
+#: honduras_shop_aggregator/templates/layouts/base.html:63
+msgid "Logout"
+msgstr "Cerrar sesión"
+
+#: honduras_shop_aggregator/templates/pages/index.html:6
 msgid "Find, compare, and save"
 msgstr "Encuentra, compara y ahorra"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:7
+msgid "Welcome,"
+msgstr "Bienvenidos,"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:16
+msgid "Member since"
+msgstr "Miembro desde"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:23
+msgid "Settings"
+msgstr "Configuración"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:26
+msgid "Edit Profile"
+msgstr "Editar perfil"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:27
+msgid "Change Password"
+msgstr "Cambiar contraseña"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:29
+msgid "Delete Account"
+msgstr "Eliminar cuenta"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:38
+msgid "Profile Details"
+msgstr "Detalles del perfil"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:40
+msgid "Name"
+msgstr "Nombre"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:41
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:53
+msgid "Saved Products"
+msgstr "Productos guardados"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:54
+msgid "User's favorite items will be displayed here."
+msgstr "Los artículos favoritos del usuario se mostrarán aquí."
+
+#: honduras_shop_aggregator/users/forms.py:25
+msgid "Enter password to apply changes"
+msgstr "Ingresa tu contraseña para aplicar los cambios"
+
+#: honduras_shop_aggregator/users/forms.py:47
+msgid "Enter password to confirm account deletion"
+msgstr "Ingresa tu contraseña para confirmar la eliminación de la cuenta"
+
+#: honduras_shop_aggregator/users/models.py:12
+msgid "email address"
+msgstr "correo electrónico"
+
+#: honduras_shop_aggregator/users/models.py:14
+msgid "A user with that email already exists."
+msgstr "Ya existe un usuario con ese correo electrónico."
+
+#: honduras_shop_aggregator/users/views.py:34
+#: honduras_shop_aggregator/users/views.py:35
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: honduras_shop_aggregator/users/views.py:43
+msgid "You are logged in"
+msgstr "Has iniciado sesión"
+
+#: honduras_shop_aggregator/users/views.py:52
+msgid "You are logged out"
+msgstr "Has cerrado sesión"
+
+#: honduras_shop_aggregator/users/views.py:64
+msgid "User is registered successfully"
+msgstr "El usuario se registró con éxito"
+
+#: honduras_shop_aggregator/users/views.py:72
+msgid "Registration"
+msgstr "Registro"
+
+#: honduras_shop_aggregator/users/views.py:73
+msgid "Register"
+msgstr "Registrarse"
+
+#: honduras_shop_aggregator/users/views.py:93
+msgid "User is updated successfully"
+msgstr "El usuario se actualizó con éxito"
+
+#: honduras_shop_aggregator/users/views.py:98
+msgid "Update user"
+msgstr ""
+
+#: honduras_shop_aggregator/users/views.py:99
+msgid "Update"
+msgstr "Actualizar usuario"
+
+#: honduras_shop_aggregator/users/views.py:112
+msgid "Password is changed successfully"
+msgstr "La contraseña se cambió con éxito"
+
+#: honduras_shop_aggregator/users/views.py:117
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: honduras_shop_aggregator/users/views.py:118
+msgid "Change"
+msgstr "Cambiar"
+
+#: honduras_shop_aggregator/users/views.py:135
+msgid "Account deleted successfully"
+msgstr "Cuenta eliminada con éxito"
+
+#: honduras_shop_aggregator/users/views.py:147
+msgid "Are you sure you want to delete "
+msgstr "¿Estás seguro de que quieres eliminar "
+
+#: honduras_shop_aggregator/users/views.py:150
+msgid "Yes, delete"
+msgstr "Sí, eliminar"
+
+#: honduras_shop_aggregator/utils.py:15
+msgid "You are not logged in! Please log in."
+msgstr "¡No has iniciado sesión! Por favor, inicia sesión."
+
+#: honduras_shop_aggregator/utils.py:26
+msgid "You don't have permission to edit this user."
+msgstr "No tienes permiso para editar este usuario."

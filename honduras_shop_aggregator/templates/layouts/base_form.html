@@ -3,8 +3,8 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<!-- {% include "partials/flash_message.html" % -->
-    <h1>{{ heading }}</h1>
+{% include "partials/flash_message.html" %}
+    <h1 class="display-5">{{ heading }}</h1>
     <p></p>
     <p>{{ delete_prompt|default:'' }}</p>
     <form method="post">
@@ -15,4 +15,9 @@
             type="submit"
             value="{{ button_text }}">
     </form>
+{% if heading == "Registration" %}
+    <p class="text-center mt-3">
+        Already have an account? <a href="{% url 'login' %}">Log in here</a>.
+    </p>
+{% endif %}
 {% endblock %}
