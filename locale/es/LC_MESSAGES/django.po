@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 08:40+0000\n"
+"POT-Creation-Date: 2025-03-28 05:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,9 +19,57 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:63
+#: honduras_shop_aggregator/templates/layouts/base.html:26
+msgid "Home"
+msgstr "Inicio"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:29
+msgid "Products"
+msgstr "Productos"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:32
+msgid "Sellers"
+msgstr "Vendedores"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:39
+#: honduras_shop_aggregator/templates/layouts/base.html:40
+msgid "Search"
+msgstr "Buscar"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:79
+msgid "Profile"
+msgstr "Perfil"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:80
+msgid "Orders"
+msgstr "Pedidos"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:81
+#: honduras_shop_aggregator/templates/pages/users/profile.html:23
+msgid "Settings"
+msgstr "Configuración"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:86
 msgid "Logout"
 msgstr "Cerrar sesión"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:93
+#: honduras_shop_aggregator/users/views.py:73
+msgid "Register"
+msgstr "Registrarse"
+
+#: honduras_shop_aggregator/templates/layouts/base_form.html:18
+#: honduras_shop_aggregator/users/views.py:72
+msgid "Registration"
+msgstr "Registro"
+
+#: honduras_shop_aggregator/templates/layouts/base_form.html:20
+msgid "Already have an account?"
+msgstr "¿Ya tienes una cuenta?"
+
+#: honduras_shop_aggregator/templates/layouts/base_form.html:20
+msgid "Log in here"
+msgstr "Inicia sesión aquí"
 
 #: honduras_shop_aggregator/templates/pages/index.html:6
 msgid "Find, compare, and save"
@@ -34,10 +82,6 @@ msgstr "Bienvenidos,"
 #: honduras_shop_aggregator/templates/pages/users/profile.html:16
 msgid "Member since"
 msgstr "Miembro desde"
-
-#: honduras_shop_aggregator/templates/pages/users/profile.html:23
-msgid "Settings"
-msgstr "Configuración"
 
 #: honduras_shop_aggregator/templates/pages/users/profile.html:26
 msgid "Edit Profile"
@@ -104,25 +148,17 @@ msgstr "Has cerrado sesión"
 msgid "User is registered successfully"
 msgstr "El usuario se registró con éxito"
 
-#: honduras_shop_aggregator/users/views.py:72
-msgid "Registration"
-msgstr "Registro"
-
-#: honduras_shop_aggregator/users/views.py:73
-msgid "Register"
-msgstr "Registrarse"
-
 #: honduras_shop_aggregator/users/views.py:93
 msgid "User is updated successfully"
 msgstr "El usuario se actualizó con éxito"
 
 #: honduras_shop_aggregator/users/views.py:98
 msgid "Update user"
-msgstr ""
+msgstr "Actualizar usuario"
 
 #: honduras_shop_aggregator/users/views.py:99
 msgid "Update"
-msgstr "Actualizar usuario"
+msgstr "Actualizar"
 
 #: honduras_shop_aggregator/users/views.py:112
 msgid "Password is changed successfully"

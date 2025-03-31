@@ -1,11 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-# from django.contrib.messages import get_messages
+from django.contrib.messages import get_messages
 # from django.core.exceptions import ValidationError
 # from django.db.models import ProtectedError
 from django.shortcuts import redirect
-# from django.test import TestCase
-# from django.urls import reverse, reverse_lazy
+from django.test import TestCase
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 
 
@@ -27,3 +27,23 @@ class UserPermissionMixin:
             )
             return redirect('index')
         return super().dispatch(request, *args, **kwargs)
+
+
+class BaseTestCase(TestCase):
+    fixtures = ["users.json"]
+
+    def login_user(self, user):
+        self.client.login(
+            username=user.username,
+            password="correct_password"
+        )
+
+    def assertRedirectWithMessage(
+        self,
+        response,
+        redirect_to='login',
+        message=_("You are not logged in! Please log in.")
+    ):
+        self.assertRedirects(response, reverse(redirect_to))
+        self.assertTrue(get_messages(response.wsgi_request))
+        self.assertContains(response, message)

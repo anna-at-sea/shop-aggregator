@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from .models import User
 
@@ -18,7 +18,6 @@ class UserCreateForm(UserCreationForm):
             'password1',
             'password2'
         ]
-
 
 class UserUpdateForm(forms.ModelForm):
     password_confirm = forms.CharField(
@@ -38,7 +37,7 @@ class UserUpdateForm(forms.ModelForm):
     def clean_password_confirm(self):
         password = self.cleaned_data.get('password_confirm')
         if not authenticate(request=self.request, username=self.instance.username, password=password):
-            raise forms.ValidationError("Incorrect password.")
+            raise forms.ValidationError(_("Incorrect password."))
         return password
 
 
@@ -60,5 +59,5 @@ class UserDeleteForm(forms.ModelForm):
     def clean_password_confirm(self):
         password = self.cleaned_data.get('password_confirm')
         if not authenticate(request=self.request, username=self.request.user.username, password=password):
-            raise forms.ValidationError("Incorrect password.")
+            raise forms.ValidationError(_("Incorrect password."))
         return password

@@ -19,6 +19,9 @@ makemessages:
 compilemessages:
 	uv run python3 manage.py compilemessages
 
+test:
+	uv run pytest
+
 renderinstalluv:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 

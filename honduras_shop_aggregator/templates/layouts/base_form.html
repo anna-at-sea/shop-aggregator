@@ -15,9 +15,9 @@
             type="submit"
             value="{{ button_text }}">
     </form>
-{% if heading == "Registration" %}
+{% if heading == _("Registration") %}
     <p class="text-center mt-3">
-        Already have an account? <a href="{% url 'login' %}">Log in here</a>.
+        {% translate "Already have an account?" %} <a href="{% url 'login' %}">{% translate "Log in here" %}</a>.
     </p>
 {% endif %}
 {% endblock %}

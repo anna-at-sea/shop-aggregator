@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView
@@ -84,6 +84,8 @@ class UserFormUpdateView(
     template_name = 'layouts/base_form.html'
 
     def get_object(self):
+        # if not self.request.user.is_authenticated:
+        #     return redirect('login')
         return get_object_or_404(User, username=self.kwargs['username'])
 
     def get_success_url(self):
