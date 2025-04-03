@@ -5,16 +5,16 @@ from django.contrib.messages import get_messages
 # from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.test import TestCase
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.translation import gettext as _
 
 
 class UserLoginRequiredMixin(LoginRequiredMixin):
 
     def handle_no_permission(self):
-        messages.error(self.request, _("You are not logged in! Please log in."))
+        messages.warning(self.request, _("You are not logged in! Please log in."))
         return redirect('login')
-        
+
 
 class UserPermissionMixin:
 
@@ -22,8 +22,10 @@ class UserPermissionMixin:
         if request.user.is_authenticated and (
             kwargs.get('username') != request.user.username
         ):
-            messages.error(
-                request, _("You don't have permission to edit this user.")
+            messages.warning(
+                request, _(
+                    "You don't have permission to view or edit other user."
+                )
             )
             return redirect('index')
         return super().dispatch(request, *args, **kwargs)

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView
@@ -15,7 +15,10 @@ from honduras_shop_aggregator.users.forms import (UserCreateForm,
 from honduras_shop_aggregator.users.models import User
 
 
-class UserProfileView(DetailView):
+class UserProfileView(
+    utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
+    SuccessMessageMixin, DetailView
+):
     model = User
     template_name = 'pages/users/profile.html'
     context_object_name = 'user'
@@ -84,8 +87,6 @@ class UserFormUpdateView(
     template_name = 'layouts/base_form.html'
 
     def get_object(self):
-        # if not self.request.user.is_authenticated:
-        #     return redirect('login')
         return get_object_or_404(User, username=self.kwargs['username'])
 
     def get_success_url(self):
@@ -103,7 +104,10 @@ class UserFormUpdateView(
         return context
 
 
-class UserPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
+class UserPasswordChangeView(
+    utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
+    SuccessMessageMixin, PasswordChangeView
+):
     form_class = PasswordChangeForm
     template_name = 'layouts/base_form.html'
 
