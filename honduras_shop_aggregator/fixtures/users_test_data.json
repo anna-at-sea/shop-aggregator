@@ -1,0 +1,74 @@
+{
+    "create_complete": {
+        "username": "complete_user",
+        "password1": "correct_password",
+        "password2": "correct_password",
+        "first_name": "John",
+        "last_name": "Smith",
+        "email": "john@email.com"
+    },
+    "create_missing_field": {
+        "username": "missing_field_user",
+        "password1": "correct_password",
+        "password2": "correct_password",
+        "first_name": "John"
+    },
+    "create_duplicate_username": {
+        "username": "testuser",
+        "password1": "test",
+        "password2": "test",
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "email": "jane@email.com"
+    },
+    "create_duplicate_email": {
+        "username": "testemail",
+        "password1": "test",
+        "password2": "test",
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "email": "test@email.com"
+    },
+    "update_complete": {
+        "username": "new_username",
+        "password_confirm": "correct_password",
+        "email": "new@email.com"
+    },
+    "update_missing_field": {
+        "username": "new_username",
+        "password_confirm": "correct_password",
+        "last_name": "New"
+    },
+    "update_duplicate_username": {
+        "username": "otheruser",
+        "password_confirm": "correct_password",
+        "email": "noduplicate@email.com"
+    },
+    "update_duplicate_email": {
+        "username": "noduplicate",
+        "password_confirm": "correct_password",
+        "email": "other@email.com"
+    },
+    "password_correct": {
+        "old_password": "correct_password",
+        "new_password1": "new_password",
+        "new_password2": "new_password"
+    },
+    "password_incorrect": {
+        "old_password": "wrong_password",
+        "new_password1": "new_password",
+        "new_password2": "new_password"
+    },
+    "old_password_missing": {
+        "new_password1": "new_password",
+        "new_password2": "new_password"
+    },
+    "new_password_missing": {
+        "old_password": "correct_password"
+    },
+    "new_passwords_not_matching": {
+        "old_password": "correct_password",
+        "new_password1": "new_password1",
+        "new_password2": "new_password2"
+    }
+}

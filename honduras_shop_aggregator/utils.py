@@ -44,8 +44,9 @@ class BaseTestCase(TestCase):
         self,
         response,
         redirect_to='login',
-        message=_("You are not logged in! Please log in.")
+        message=_("You are not logged in! Please log in."),
+        reverse_kwargs=None
     ):
-        self.assertRedirects(response, reverse(redirect_to))
+        self.assertRedirects(response, reverse(redirect_to, kwargs=reverse_kwargs))
         self.assertTrue(get_messages(response.wsgi_request))
         self.assertContains(response, message)
