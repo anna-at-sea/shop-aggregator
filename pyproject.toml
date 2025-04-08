@@ -25,3 +25,7 @@ dev = [
     "pytest-django>=4.10.0",
     "ruff>=0.9.9",
 ]
+
+[tool.ruff]
+lint.select = ["E", "F"]
+exclude = ["*/migrations/*"]

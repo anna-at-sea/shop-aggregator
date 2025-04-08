@@ -112,7 +112,9 @@ class UserPasswordChangeView(
     template_name = 'layouts/base_form.html'
 
     def get_success_url(self):
-        return reverse_lazy('user_profile', kwargs={'username': self.request.user.username})
+        return reverse_lazy(
+            'user_profile', kwargs={'username': self.request.user.username}
+        )
 
     def get_success_message(self, *args, **kwargs):
         return _("Password is changed successfully")

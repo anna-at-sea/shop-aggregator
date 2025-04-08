@@ -178,7 +178,10 @@ class TestUserUpdate(BaseTestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, 'new_username')
         self.assertRedirectWithMessage(
-            response, 'user_profile', _("User is updated successfully"), {'username': self.user.username}
+            response,
+            'user_profile',
+            _("User is updated successfully"),
+            {'username': self.user.username}
         )
 
     def test_update_user_missing_field(self):
@@ -219,7 +222,9 @@ class TestUserUpdate(BaseTestCase):
         self.other_user = User.objects.get(pk=2)
         self.login_user(self.user)
         response = self.client.get(
-            reverse('user_update', kwargs={'username': self.other_user.username}), follow=True
+            reverse('user_update',
+            kwargs={'username': self.other_user.username}),
+            follow=True
         )
         self.assertRedirectWithMessage(
             response, 'index',
@@ -258,7 +263,10 @@ class TestPasswordChange(BaseTestCase):
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password('new_password'))
         self.assertRedirectWithMessage(
-            response, 'user_profile', _("Password is changed successfully"), {'username': self.user.username}
+            response,
+            'user_profile',
+            _("Password is changed successfully"),
+            {'username': self.user.username}
         )
 
     def test_change_password_incorrect(self):
@@ -268,7 +276,11 @@ class TestPasswordChange(BaseTestCase):
             self.password_incorrect
         )
         form = response.context['form']
-        self.assertFormError(form, 'old_password', _("Your old password was entered incorrectly. Please enter it again."))
+        self.assertFormError(
+            form,
+            'old_password',
+            _("Your old password was entered incorrectly. Please enter it again.")
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_change_password_missing_old(self):
@@ -298,14 +310,19 @@ class TestPasswordChange(BaseTestCase):
             self.new_passwords_not_matching
         )
         form = response.context['form']
-        self.assertFormError(form, 'new_password2', _("The two password fields didn\u2019t match."))
+        self.assertFormError(
+            form, 'new_password2', _("The two password fields didn\u2019t match.")
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_change_password_other_user(self):
         self.other_user = User.objects.get(pk=2)
         self.login_user(self.user)
         response = self.client.get(
-            reverse('user_password_change', kwargs={'username': self.other_user.username}), follow=True
+            reverse(
+                'user_password_change',
+                kwargs={'username': self.other_user.username}
+            ), follow=True
         )
         self.assertRedirectWithMessage(
             response, 'index',
@@ -314,6 +331,67 @@ class TestPasswordChange(BaseTestCase):
 
     def test_change_password_unauthorized(self):
         response = self.client.get(
-            reverse('user_password_change', kwargs={'username': self.user.username}), follow=True
+            reverse(
+                'user_password_change',
+                kwargs={'username': self.user.username}
+            ), follow=True
+        )
+        self.assertRedirectWithMessage(response)
+
+
+class TestUserDelete(BaseTestCase):
+
+    def setUp(self):
+        self.user = User.objects.all().first()
+
+    def test_delete_user_success(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                'user_delete',
+                kwargs={'username': self.user.username}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertFalse(User.objects.filter(pk=1).exists())
+        self.assertRedirectWithMessage(
+            response, 'index', _("Account deleted successfully")
+        )
+
+    def test_delete_user_wrong_password(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                'user_delete',
+                kwargs={'username': self.user.username}
+            ), {'password_confirm': 'wrong_password'}, follow=True
+        )
+        self.assertTrue(User.objects.filter(pk=1).exists())
+        form = response.context['form']
+        self.assertFormError(
+            form, 'password_confirm', _("Incorrect password.")
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_other_user(self):
+        self.login_user(self.user)
+        self.other_user = User.objects.get(pk=2)
+        response = self.client.post(
+            reverse(
+                'user_delete',
+                kwargs={'username': self.other_user.username}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertTrue(User.objects.filter(pk=2).exists())
+        self.assertRedirectWithMessage(
+            response, 'index',
+            _("You don&#x27;t have permission to view or edit other user.")
+        )
+
+    def test_delete_user_unauthorized(self):
+        response = self.client.post(
+            reverse(
+                'user_delete',
+                kwargs={'username': self.user.username}
+            ), {'password_confirm': 'correct_password'}, follow=True
         )
         self.assertRedirectWithMessage(response)
