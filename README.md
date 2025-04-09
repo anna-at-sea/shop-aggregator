@@ -1,0 +1,1 @@
+[![Python CI](https://github.com/anna-at-sea/shop-aggregator/actions/workflows/CI.yml/badge.svg)](https://github.com/anna-at-sea/shop-aggregator/actions/workflows/CI.yml)
