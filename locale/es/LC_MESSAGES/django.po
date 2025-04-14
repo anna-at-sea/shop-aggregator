@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-28 05:10+0000\n"
+"POT-Creation-Date: 2025-04-10 05:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,12 +54,18 @@ msgid "Logout"
 msgstr "Cerrar sesión"
 
 #: honduras_shop_aggregator/templates/layouts/base.html:93
-#: honduras_shop_aggregator/users/views.py:73
+#: honduras_shop_aggregator/users/views.py:37
+#: honduras_shop_aggregator/users/views.py:38
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: honduras_shop_aggregator/templates/layouts/base.html:93
+#: honduras_shop_aggregator/users/views.py:76
 msgid "Register"
 msgstr "Registrarse"
 
 #: honduras_shop_aggregator/templates/layouts/base_form.html:18
-#: honduras_shop_aggregator/users/views.py:72
+#: honduras_shop_aggregator/users/views.py:75
 msgid "Registration"
 msgstr "Registro"
 
@@ -115,11 +121,17 @@ msgstr "Productos guardados"
 msgid "User's favorite items will be displayed here."
 msgstr "Los artículos favoritos del usuario se mostrarán aquí."
 
-#: honduras_shop_aggregator/users/forms.py:25
+#: honduras_shop_aggregator/users/forms.py:24
 msgid "Enter password to apply changes"
 msgstr "Ingresa tu contraseña para aplicar los cambios"
 
-#: honduras_shop_aggregator/users/forms.py:47
+#: honduras_shop_aggregator/users/forms.py:42
+#: honduras_shop_aggregator/users/forms.py:66
+#: honduras_shop_aggregator/users/tests.py:371
+msgid "Incorrect password."
+msgstr "Contraseña incorrecta."
+
+#: honduras_shop_aggregator/users/forms.py:48
 msgid "Enter password to confirm account deletion"
 msgstr "Ingresa tu contraseña para confirmar la eliminación de la cuenta"
 
@@ -128,66 +140,108 @@ msgid "email address"
 msgstr "correo electrónico"
 
 #: honduras_shop_aggregator/users/models.py:14
+#: honduras_shop_aggregator/users/tests.py:154
+#: honduras_shop_aggregator/users/tests.py:217
 msgid "A user with that email already exists."
 msgstr "Ya existe un usuario con ese correo electrónico."
 
-#: honduras_shop_aggregator/users/views.py:34
-#: honduras_shop_aggregator/users/views.py:35
-msgid "Log in"
-msgstr "Iniciar sesión"
+#: honduras_shop_aggregator/users/tests.py:23
+msgid "User login failed"
+msgstr "Error al iniciar sesión del usuario"
 
-#: honduras_shop_aggregator/users/views.py:43
+#: honduras_shop_aggregator/users/tests.py:29
+msgid "User login should have failed but it passed"
+msgstr "La sesión del usuario debería haber fallado, pero se permitió el acceso"
+
+#: honduras_shop_aggregator/users/tests.py:40
+#: honduras_shop_aggregator/users/views.py:46
 msgid "You are logged in"
 msgstr "Has iniciado sesión"
 
-#: honduras_shop_aggregator/users/views.py:52
+#: honduras_shop_aggregator/users/tests.py:47
+msgid "User should be logged out"
+msgstr "El usuario debería haber cerrado sesión"
+
+#: honduras_shop_aggregator/users/tests.py:56
+#: honduras_shop_aggregator/users/views.py:55
 msgid "You are logged out"
 msgstr "Has cerrado sesión"
 
-#: honduras_shop_aggregator/users/views.py:64
+#: honduras_shop_aggregator/users/tests.py:95
+#: honduras_shop_aggregator/users/tests.py:231
+#: honduras_shop_aggregator/users/tests.py:329
+#: honduras_shop_aggregator/users/tests.py:387
+msgid "You don&#x27;t have permission to view or edit other user."
+msgstr "No tienes permiso para ver o editar a otro usuario."
+
+#: honduras_shop_aggregator/users/tests.py:124
+#: honduras_shop_aggregator/users/views.py:67
 msgid "User is registered successfully"
 msgstr "El usuario se registró con éxito"
 
-#: honduras_shop_aggregator/users/views.py:93
+#: honduras_shop_aggregator/users/tests.py:132
+#: honduras_shop_aggregator/users/tests.py:194
+#: honduras_shop_aggregator/users/tests.py:293
+#: honduras_shop_aggregator/users/tests.py:303
+msgid "This field is required."
+msgstr "Este campo es obligatorio."
+
+#: honduras_shop_aggregator/users/tests.py:144
+#: honduras_shop_aggregator/users/tests.py:205
+msgid "A user with that username already exists."
+msgstr "Ya existe un usuario con ese nombre de usuario."
+
+#: honduras_shop_aggregator/users/tests.py:183
+#: honduras_shop_aggregator/users/views.py:96
 msgid "User is updated successfully"
 msgstr "El usuario se actualizó con éxito"
 
-#: honduras_shop_aggregator/users/views.py:98
-msgid "Update user"
-msgstr "Actualizar usuario"
-
-#: honduras_shop_aggregator/users/views.py:99
-msgid "Update"
-msgstr "Actualizar"
-
-#: honduras_shop_aggregator/users/views.py:112
+#: honduras_shop_aggregator/users/tests.py:268
+#: honduras_shop_aggregator/users/views.py:120
 msgid "Password is changed successfully"
 msgstr "La contraseña se cambió con éxito"
 
-#: honduras_shop_aggregator/users/views.py:117
-msgid "Change password"
-msgstr "Cambiar contraseña"
+#: honduras_shop_aggregator/users/tests.py:282
+msgid "Your old password was entered incorrectly. Please enter it again."
+msgstr "Tu contraseña anterior fue ingresada incorrectamente. Por favor, ingrésala nuevamente."
 
-#: honduras_shop_aggregator/users/views.py:118
-msgid "Change"
-msgstr "Cambiar"
+#: honduras_shop_aggregator/users/tests.py:314
+msgid "The two password fields didn\\u2019t match."
+msgstr "Los dos campos de contraseña no coinciden."
 
-#: honduras_shop_aggregator/users/views.py:135
+#: honduras_shop_aggregator/users/tests.py:357
+#: honduras_shop_aggregator/users/views.py:143
 msgid "Account deleted successfully"
 msgstr "Cuenta eliminada con éxito"
 
-#: honduras_shop_aggregator/users/views.py:147
+#: honduras_shop_aggregator/users/views.py:101
+msgid "Update user"
+msgstr "Actualizar usuario"
+
+#: honduras_shop_aggregator/users/views.py:102
+msgid "Update"
+msgstr "Actualizar"
+
+#: honduras_shop_aggregator/users/views.py:125
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: honduras_shop_aggregator/users/views.py:126
+msgid "Change"
+msgstr "Cambiar"
+
+#: honduras_shop_aggregator/users/views.py:155
 msgid "Are you sure you want to delete "
 msgstr "¿Estás seguro de que quieres eliminar "
 
-#: honduras_shop_aggregator/users/views.py:150
+#: honduras_shop_aggregator/users/views.py:158
 msgid "Yes, delete"
 msgstr "Sí, eliminar"
 
-#: honduras_shop_aggregator/utils.py:15
+#: honduras_shop_aggregator/utils.py:15 honduras_shop_aggregator/utils.py:47
 msgid "You are not logged in! Please log in."
 msgstr "¡No has iniciado sesión! Por favor, inicia sesión."
 
-#: honduras_shop_aggregator/utils.py:26
-msgid "You don't have permission to edit this user."
-msgstr "No tienes permiso para editar este usuario."
+#: honduras_shop_aggregator/utils.py:27
+msgid "You don't have permission to view or edit other user."
+msgstr "No tienes permiso para ver o editar a otro usuario."

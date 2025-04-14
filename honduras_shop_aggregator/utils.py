@@ -19,12 +19,25 @@ class UserLoginRequiredMixin(LoginRequiredMixin):
 class UserPermissionMixin:
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and (
-            kwargs.get('username') != request.user.username
-        ):
+        auth = request.user.is_authenticated
+        username_in_kwargs = kwargs.get('username')
+        store_in_kwargs = kwargs.get('store_name')
+        user_match = (kwargs.get('username') == request.user.username)
+        store_match = (
+            request.user.is_seller and
+            kwargs.get('store_name') == request.user.seller.store_name
+        )
+        if auth and username_in_kwargs and not user_match:
             messages.warning(
                 request, _(
                     "You don't have permission to view or edit other user."
+                )
+            )
+            return redirect('index')
+        if auth and store_in_kwargs and not store_match:
+            messages.warning(
+                request, _(
+                    "You don't have permission to access other store profile."
                 )
             )
             return redirect('index')

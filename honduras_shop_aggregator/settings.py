@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'honduras_shop_aggregator',
     'django_bootstrap5',
     'honduras_shop_aggregator.users',
+    'honduras_shop_aggregator.sellers',
     "crispy_forms",
     "crispy_bootstrap5",
 ]

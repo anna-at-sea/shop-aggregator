@@ -15,5 +15,9 @@ class User(AbstractUser):
         },
     )    
 
+    @property
+    def is_seller(self):
+        return hasattr(self, 'seller')
+
     def __str__(self):
         return self.username
