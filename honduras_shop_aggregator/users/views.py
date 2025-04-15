@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404
+from django.db.models import ProtectedError
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView
@@ -28,6 +29,7 @@ class UserProfileView(
     def get_object(self):
         return get_object_or_404(User, username=self.kwargs["username"])
 
+
 class UserLoginView(SuccessMessageMixin, LoginView):
     template_name = 'layouts/base_form.html'
 
@@ -45,6 +47,7 @@ class UserLoginView(SuccessMessageMixin, LoginView):
     def get_success_message(self, *args, **kwargs):
         return _("You are logged in")
 
+
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy('index')
 
@@ -55,6 +58,7 @@ class UserLogoutView(LogoutView):
             _("You are logged out")
         )
         return super().dispatch(request, *args, **kwargs)
+
 
 class UserFormCreateView(
     SuccessMessageMixin, CreateView
@@ -127,6 +131,7 @@ class UserPasswordChangeView(
         })
         return context
 
+
 class UserFormDeleteView(
     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
     SuccessMessageMixin, DeleteView
@@ -158,3 +163,14 @@ class UserFormDeleteView(
             'button_text': _("Yes, delete")
         })
         return context
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except ProtectedError:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("This account is linked to a store and cannot be deleted")
+            )
+            return redirect('user_profile', username=self.request.user.username)

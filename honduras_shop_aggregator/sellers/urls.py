@@ -13,14 +13,14 @@ urlpatterns = [
         views.SellerFormCreateView.as_view(),
         name='seller_create'
     ),
-    # path(
-    #     '<str:username>/update/',
-    #     views.UserFormUpdateView.as_view(),
-    #     name='user_update'
-    # ),
-    # path(
-    #     '<str:username>/delete/',
-    #     views.UserFormDeleteView.as_view(),
-    #     name='user_delete'
-    # ),
+    path(
+        '<str:store_name>/update/',
+        views.SellerFormUpdateView.as_view(),
+        name='seller_update'
+    ),
+    path(
+        '<str:store_name>/delete/',
+        views.SellerFormDeleteView.as_view(),
+        name='seller_delete'
+    ),
 ]

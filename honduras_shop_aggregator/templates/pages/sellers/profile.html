@@ -31,7 +31,7 @@
                     ⚙️ {% translate "Store Settings" %}
                 </button>
                 <ul class="dropdown-menu shadow-sm border-0">
-                    <li><a class="dropdown-item text-primary" href="#"><i class="bi bi-pencil"></i> {% translate "Edit Store Info" %}</a></li>
+                    <li><a class="dropdown-item text-primary" href="{% url 'seller_update' user.seller.store_name %}"><i class="bi bi-pencil"></i> {% translate "Edit Store Info" %}</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i> {% translate "Delete Store" %}</a></li>
                 </ul>
