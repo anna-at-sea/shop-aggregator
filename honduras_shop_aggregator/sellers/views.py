@@ -77,7 +77,8 @@ class SellerFormUpdateView(
         context = super().get_context_data(**kwargs)
         context.update({
             'heading': _("Update store"),
-            'button_text': _("Update")
+            'button_text': _("Update"),
+            'button_class': 'btn btn-secondary'
         })
         return context
 
@@ -92,7 +93,8 @@ class SellerFormDeleteView(
     success_url = reverse_lazy('index')
 
     def get_object(self):
-        return get_object_or_404(Seller, store_name=self.kwargs['store_name'])
+        self.object = get_object_or_404(Seller, store_name=self.kwargs['store_name'])
+        return self.object
 
     def get_success_message(self, *args, **kwargs):
         return _("Store deleted successfully")
@@ -104,10 +106,9 @@ class SellerFormDeleteView(
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        object = self.get_object()
         context.update({
             'delete_prompt': (
-                _("Are you sure you want to delete store ") + f"{object}?"
+                _("Are you sure you want to delete store ") + f"{self.object}?"
             ),
             'button_class': 'btn btn-danger',
             'button_text': _("Yes, delete")

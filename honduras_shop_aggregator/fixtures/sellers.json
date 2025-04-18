@@ -1,0 +1,11 @@
+[
+    {
+      "model": "sellers.seller",
+      "pk": 1,
+      "fields": {
+        "store_name": "test_store",
+        "website": "https://example.test",
+        "user": 3
+      }
+    }
+]

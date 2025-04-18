@@ -343,6 +343,7 @@ class TestUserDelete(BaseTestCase):
 
     def setUp(self):
         self.user = User.objects.all().first()
+        self.user_with_store = User.objects.get(pk=3)
 
     def test_delete_user_success(self):
         self.login_user(self.user)
@@ -355,6 +356,22 @@ class TestUserDelete(BaseTestCase):
         self.assertFalse(User.objects.filter(pk=1).exists())
         self.assertRedirectWithMessage(
             response, 'index', _("Account deleted successfully")
+        )
+
+    def test_delete_user_with_store(self):
+        self.login_user(self.user_with_store)
+        response = self.client.post(
+            reverse(
+                'user_delete',
+                kwargs={'username': self.user_with_store.username}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertTrue(User.objects.filter(pk=3).exists())
+        self.assertRedirectWithMessage(
+            response,
+            'user_profile',
+            _("This account is linked to a store and cannot be deleted"),
+            {'username': self.user_with_store.username}
         )
 
     def test_delete_user_wrong_password(self):

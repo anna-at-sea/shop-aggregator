@@ -45,7 +45,7 @@ class UserPermissionMixin:
 
 
 class BaseTestCase(TestCase):
-    fixtures = ["users.json"]
+    fixtures = ["users.json", "sellers.json"]
 
     def login_user(self, user):
         self.client.login(

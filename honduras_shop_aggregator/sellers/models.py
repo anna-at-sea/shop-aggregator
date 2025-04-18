@@ -39,6 +39,11 @@ class Seller(models.Model):
         },
         help_text=_("Start with http:// or https://")
     )
+    description = models.TextField(
+        _("description"),
+        blank=True,
+        help_text=_("A short description of your store.")
+    )
     is_verified = models.BooleanField(default=False)
     date_registered = models.DateTimeField(default=timezone.now)
 

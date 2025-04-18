@@ -32,6 +32,7 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 ALLOWED_HOSTS = [
     'webserver',
     '127.0.0.1',
+    'localhost',
     'shop-aggregator.onrender.com'
 ]
 

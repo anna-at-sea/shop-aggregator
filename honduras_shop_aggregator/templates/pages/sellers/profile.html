@@ -4,12 +4,12 @@
 
 {% block content %}
 {% include "partials/flash_message.html" %}
-<h1 class="text-primary">{% translate "Welcome to" %} {{ seller.store_name }} </h1>
+<h1 class="text-secondary">{{ seller.store_name }}</h1>
 {% if not seller.is_verified %}
 <div class="alert alert-danger d-flex align-items-center" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     <div>
-        {% translate "Your shop is not yet verified by an admin. Products will not be visible to users until verification is complete." %}
+        {% translate "Your store is not yet verified by an admin. Products will not be visible to users until verification is complete." %}
     </div>
 </div>
 {% endif %}
@@ -17,32 +17,32 @@
     <div class="row">
         <!-- Left Side: Store Logo & Basic Info -->
         <div class="col-md-4">
-            <div class="card text-center border-primary shadow-sm">
-                <img src="#" class="card-img-top rounded-circle mx-auto mt-3 border border-primary" alt="Store Avatar" style="width: 120px;">
+            <div class="card text-center border-secondary shadow-sm">
+                <img src="{% static 'images/store_placeholder.jpg' %}" class="card-img-top rounded-circle mx-auto mt-3 border border-secondary" alt="Store Avatar" style="width: 120px;">
                 <div class="card-body">
-                    <h5 class="card-title text-primary">{{ seller.store_name }}</h5>
+                    <h5 class="card-title text-secondary">{{ seller.store_name }}</h5>
                     <p class="text-muted">{% translate "Date of registration" %}: {{ seller.date_registered }}</p>
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="dropdown mt-3 text-center">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     ⚙️ {% translate "Store Settings" %}
                 </button>
                 <ul class="dropdown-menu shadow-sm border-0">
-                    <li><a class="dropdown-item text-primary" href="{% url 'seller_update' user.seller.store_name %}"><i class="bi bi-pencil"></i> {% translate "Edit Store Info" %}</a></li>
+                    <li><a class="dropdown-item text-secondary" href="{% url 'seller_update' user.seller.store_name %}"><i class="bi bi-pencil"></i> {% translate "Edit Store Info" %}</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i> {% translate "Delete Store" %}</a></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'seller_delete' user.seller.store_name %}"><i class="bi bi-trash"></i> {% translate "Delete Store" %}</a></li>
                 </ul>
             </div>
         </div>
 
         <!-- Right Side: Store Details -->
         <div class="col-md-8">
-            <div class="card border-primary shadow-sm">
+            <div class="card border-secondary shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title text-primary">{% translate "Store Details" %}</h4>
+                    <h4 class="card-title text-secondary">{% translate "Store Details" %}</h4>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><strong>{% translate "Store Name" %}:</strong> {{ seller.store_name }}</li>
                         <li class="list-group-item"><strong>{% translate "Website" %}:</strong> <a href="{{ seller.website }}" target="_blank">{{ seller.website }}</a></li>
@@ -60,12 +60,23 @@
         </div>
     </div>
 
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card border-secondary shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title text-secondary">{% translate "Store Description" %}</h4>
+                    <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">{{ seller.description }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Products Section -->
     <div class="row mt-4">
         <div class="col">
-            <div class="card border-primary shadow-sm">
+            <div class="card border-secondary shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title text-primary">{% translate "Your Products" %}</h4>
+                    <h4 class="card-title text-secondary">{% translate "Your Products" %}</h4>
                     <p>{% translate "All products listed by this store will be displayed here." %}</p>
                 </div>
             </div>

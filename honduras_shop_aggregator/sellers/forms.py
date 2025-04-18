@@ -11,7 +11,8 @@ class SellerCreateForm(forms.ModelForm):
         model = Seller
         fields = [
             'store_name',
-            'website'
+            'website',
+            'description'
         ]
 
 
@@ -24,7 +25,7 @@ class SellerUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Seller
-        fields = ['store_name', 'website']
+        fields = ['store_name', 'website', 'description']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -60,7 +61,7 @@ class SellerDeleteForm(forms.ModelForm):
         password = self.cleaned_data.get('password_confirm')
         if not authenticate(
             request=self.request,
-            username=self.request.seller.user.username,
+            username=self.request.user.username,
             password=password
         ):
             raise forms.ValidationError(_("Incorrect password."))
