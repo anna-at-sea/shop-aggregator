@@ -7,5 +7,14 @@
         "website": "https://example.test",
         "user": 3
       }
-    }
+    },
+    {
+        "model": "sellers.seller",
+        "pk": 2,
+        "fields": {
+          "store_name": "other_store",
+          "website": "https://other.test",
+          "user": 2
+        }
+      }
 ]

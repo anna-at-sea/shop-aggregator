@@ -1,5 +1,6 @@
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView
@@ -27,14 +28,29 @@ class SellerProfileView(
 
 
 class SellerFormCreateView(
-    SuccessMessageMixin, CreateView
+    utils.UserLoginRequiredMixin, SuccessMessageMixin, CreateView
 ):
     model = Seller
     form_class = SellerCreateForm
     template_name = 'layouts/base_form.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_seller:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _(
+                    "You already have a store associated with your account. "
+                    "Each user can register only one store. "
+                    "If you wish to create another store, "
+                    "please log in with a different account or register a new one."
+                )
+            )
+            return redirect('seller_profile', store_name=request.user.seller.store_name)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_message(self, *args, **kwargs):
-        return _("Shop is registered and awaiting verification")
+        return _("Store is registered and awaiting verification")
 
     def get_success_url(self):
         return reverse_lazy(

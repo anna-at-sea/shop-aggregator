@@ -1,0 +1,18 @@
+{
+    "create_complete": {
+        "store_name": "complete_seller",
+        "website": "https://completestore.test",
+        "description": "This is a test store"
+    },
+    "create_missing_field": {
+        "store_name": "missing_field_seller"
+    },
+    "create_duplicate_store_name": {
+        "store_name": "test_store",
+        "website": "https://duplname.test"
+    },
+    "create_duplicate_website": {
+        "store_name": "duplicate_website_store",
+        "website": "https://example.test"
+    }
+}
