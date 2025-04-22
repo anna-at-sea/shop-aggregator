@@ -14,5 +14,31 @@
     "create_duplicate_website": {
         "store_name": "duplicate_website_store",
         "website": "https://example.test"
+    },
+    "update_complete": {
+        "store_name": "new_store_name",
+        "website": "https://example.test",
+        "description": "This is new description",
+        "password_confirm": "correct_password"
+    },
+    "update_missing_field": {
+        "store_name": "new_store_name",
+        "password_confirm": "correct_password"
+    },
+    "update_duplicate_store_name": {
+        "store_name": "other_store",
+        "website": "https://new_email.test",
+        "password_confirm": "correct_password"
+    },
+    "update_duplicate_website": {
+        "store_name": "new_store",
+        "website": "https://other.test",
+        "password_confirm": "correct_password"
+    },
+    "change_user_attempt": {
+        "store_name": "test_store",
+        "website": "https://example.test",
+        "user": 1,
+        "password_confirm": "correct_password"
     }
 }

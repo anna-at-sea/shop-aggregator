@@ -137,3 +137,162 @@ class TestSellerCreate(BaseTestCase):
             ),
             {'store_name': self.user.seller.store_name}
         )
+
+
+class TestSellerUpdate(BaseTestCase):
+
+    def setUp(self):
+        self.seller = Seller.objects.all().first()
+        self.user = User.objects.get(pk=self.seller.user.pk)
+        with open(join(FIXTURE_PATH, "sellers_test_data.json")) as f:
+            self.sellers_data = json.load(f)
+        self.complete_seller_data = self.sellers_data.get("update_complete")
+        self.missing_field_seller_data = self.sellers_data.get(
+            "update_missing_field"
+        )
+        self.duplicate_store_name_data = self.sellers_data.get(
+            "update_duplicate_store_name"
+        )
+        self.duplicate_website_data = self.sellers_data.get("update_duplicate_website")
+        self.change_user_attempt_data = self.sellers_data.get("change_user_attempt")
+
+    def test_update_seller_success(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('seller_update', kwargs={'store_name': self.seller.store_name}),
+            self.complete_seller_data, follow=True
+        )
+        self.seller.refresh_from_db()
+        self.assertEqual(self.seller.store_name, 'new_store_name')
+        self.assertRedirectWithMessage(
+            response,
+            'seller_profile',
+            _("Store is updated successfully"),
+            {'store_name': self.seller.store_name}
+        )
+
+    def test_impossible_to_change_user(self):
+        self.login_user(self.user)
+        self.client.post(
+            reverse('seller_update', kwargs={'store_name': self.seller.store_name}),
+            self.change_user_attempt_data
+        )
+        self.seller.refresh_from_db()
+        self.assertEqual(self.seller.user, self.user)
+
+    def test_update_seller_missing_field(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('seller_update', kwargs={'store_name': self.seller.store_name}),
+            self.missing_field_seller_data
+        )
+        form = response.context['form']
+        self.assertFormError(form, 'website', _('This field is required.'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_duplicate_store_name(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('seller_update', kwargs={'store_name': self.seller.store_name}),
+            self.duplicate_store_name_data
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form, 'store_name', _('A store with that name already exists.')
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_duplicate_website(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('seller_update', kwargs={'store_name': self.seller.store_name}),
+            self.duplicate_website_data
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form, 'website', _('A store with that website already exists.')
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_update_other_seller(self):
+        self.other_seller = Seller.objects.get(pk=2)
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse('seller_update',
+            kwargs={'store_name': self.other_seller.store_name}),
+            follow=True
+        )
+        self.assertRedirectWithMessage(
+            response, 'index',
+            _("You don&#x27;t have permission to access other store profile.")
+        )
+
+    def test_update_seller_unauthorized(self):
+        response = self.client.get(
+            reverse(
+                'seller_update',
+                kwargs={'store_name': self.seller.store_name}
+            ), follow=True
+        )
+        self.assertRedirectWithMessage(response)
+
+
+class TestSellerDelete(BaseTestCase):
+
+    def setUp(self):
+        self.seller = Seller.objects.all().first()
+        self.user = User.objects.get(pk=self.seller.user.pk)
+
+    def test_delete_seller_success(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.seller.store_name}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertFalse(Seller.objects.filter(pk=1).exists())
+        self.assertTrue(User.objects.filter(pk=3).exists())
+        self.assertRedirectWithMessage(
+            response, 'index', _("Store deleted successfully")
+        )
+
+    def test_delete_seller_unauthorized(self):
+        response = self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.seller.store_name}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertTrue(Seller.objects.filter(pk=1).exists())
+        self.assertRedirectWithMessage(response)
+
+    def test_delete_seller_wrong_password(self):
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.seller.store_name}
+            ), {'password_confirm': 'wrong_password'}, follow=True
+        )
+        self.assertTrue(Seller.objects.filter(pk=1).exists())
+        form = response.context['form']
+        self.assertFormError(
+            form, 'password_confirm', _("Incorrect password.")
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_other_seller(self):
+        self.login_user(self.user)
+        self.other_seller = Seller.objects.get(pk=2)
+        response = self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.other_seller.store_name}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertTrue(Seller.objects.filter(pk=2).exists())
+        self.assertRedirectWithMessage(
+            response, 'index',
+            _("You don&#x27;t have permission to access other store profile.")
+        )
