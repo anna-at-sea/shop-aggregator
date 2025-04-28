@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import get_messages
-# from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 # from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.test import TestCase
@@ -63,3 +63,23 @@ class BaseTestCase(TestCase):
         self.assertRedirects(response, reverse(redirect_to, kwargs=reverse_kwargs))
         self.assertTrue(get_messages(response.wsgi_request))
         self.assertContains(response, message)
+
+
+def validate_image(self, image):
+    max_size_mb = 2
+    allowed_formats = ['image/jpeg', 'image/jpg', 'image/png']
+    if image.size > max_size_mb * 1024 * 1024:
+        raise ValidationError(
+            {"image": f"Image size should not exceed {max_size_mb} MB."}
+        )
+    if hasattr(image, 'content_type'):
+        if image.content_type not in allowed_formats:
+            raise ValidationError(
+                {"image": "Only JPEG and PNG formats are supported."}
+            )
+
+
+def image_upload_path(instance, filename):
+    extension = filename.split('.')[-1]
+    folder = f"{instance._meta.verbose_name.lower()}s"
+    return f"{folder}/{instance.slug}.{extension.lower()}"

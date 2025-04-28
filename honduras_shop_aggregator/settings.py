@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'honduras_shop_aggregator.users',
     'honduras_shop_aggregator.sellers',
+    'honduras_shop_aggregator.products',
     "crispy_forms",
     "crispy_bootstrap5",
 ]
@@ -152,3 +153,6 @@ STATICFILES_DIRS = [BASE_DIR / "honduras_shop_aggregator/static"]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, os.getenv('MEDIA_ROOT', 'media/'))

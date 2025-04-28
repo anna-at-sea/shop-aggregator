@@ -11,5 +11,6 @@ urlpatterns = i18n_patterns(
     path('', views.IndexView.as_view(), name='index'),
     path('users/', include('honduras_shop_aggregator.users.urls')),
     path('sellers/', include('honduras_shop_aggregator.sellers.urls')),
+    path('products/', include('honduras_shop_aggregator.products.urls')),
     path('admin/', admin.site.urls),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
