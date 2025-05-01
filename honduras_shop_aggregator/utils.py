@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
 # from django.db.models import ProtectedError
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -44,6 +44,27 @@ class UserPermissionMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
+class SellerPermissionMixin:
+
+    def dispatch(self, request, *args, **kwargs):
+        if not (request.user.is_seller and request.user.seller.is_verified):
+            messages.warning(
+                request,
+                _("Only verified sellers can add and edit products.")
+            )
+            return redirect('index')
+        if kwargs.get('slug'):
+            from honduras_shop_aggregator.products.models import Product
+            product = get_object_or_404(Product, slug=kwargs.get('slug'))
+            if product.seller != request.user.seller:
+                messages.warning(
+                    request,
+                    _("You don't have permission to access this product.")
+                )
+                return redirect('index')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class BaseTestCase(TestCase):
     fixtures = ["users.json", "sellers.json"]
 
@@ -65,7 +86,7 @@ class BaseTestCase(TestCase):
         self.assertContains(response, message)
 
 
-def validate_image(self, image):
+def validate_image(image):
     max_size_mb = 2
     allowed_formats = ['image/jpeg', 'image/jpg', 'image/png']
     if image.size > max_size_mb * 1024 * 1024:

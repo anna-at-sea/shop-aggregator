@@ -92,7 +92,7 @@ class Product(models.Model):
             right = (width + min_side) / 2
             bottom = (height + min_side) / 2
             img = img.crop((left, top, right, bottom))
-            img = img.resize(output_size, Image.ANTIALIAS)
+            img = img.resize(output_size, Image.Resampling.LANCZOS)
             img.save(img_path)
 
     def clean(self):

@@ -1,18 +1,28 @@
-# from django.urls import path
+from django.urls import path
 
-# from . import views
+from . import views
 
 urlpatterns = [
-    # path(
-    #     'profile/<str:store_name>/',
-    #     views.SellerProfileView.as_view(),
-    #     name='seller_profile'
-    # ),
-    # path(
-    #     'create/',
-    #     views.SellerFormCreateView.as_view(),
-    #     name='seller_create'
-    # ),
+    path(
+        '',
+        views.ProductListView.as_view(),
+        name='product_list'
+    ),
+    path(
+        'create/',
+        views.ProductFormCreateView.as_view(),
+        name='product_create'
+    ),
+    path(
+        '<str:slug>/update_image/',
+        views.ProductFormUpdateImageView.as_view(),
+        name='product_update_image'
+    ),
+    path(
+        '<str:slug>/',
+        views.ProductCardView.as_view(),
+        name='product_card'
+    ),
     # path(
     #     '<str:store_name>/update/',
     #     views.SellerFormUpdateView.as_view(),

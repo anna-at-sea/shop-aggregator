@@ -1,0 +1,82 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{% include "partials/flash_message.html" %}
+
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <div class="mb-3">
+        <a href="#" class="text-decoration-none text-primary">
+            ← {% translate "Back" %}
+            <!-- Add link to go back to prev page -->
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-5">
+            <div class="border rounded shadow-sm p-3 bg-white">
+                <img src="{{ product.image.url }}" alt="{{ product.product_name }}" class="img-fluid w-100" style="max-height: 500px; object-fit: contain;">
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-7">
+            <h2 class="text-primary">{{ product.product_name }}</h2>
+            <p class="text-muted mb-1">{% translate "Sold by" %}: 
+                <a href="#">{{ product.seller.store_name }}</a>
+                <!-- Add url for seller page -->
+            </p>
+
+            <hr>
+
+            <h4 class="text-success">${{ product.product_price }}</h4>
+            <p>
+                {% if product.stock_quantity > 0 and product.is_active %}
+                    <span class="text-success">{% translate "In stock" %}</span>
+                {% else %}
+                    <span class="text-danger">{% translate "Out of stock" %}</span>
+                {% endif %}
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 my-3">
+                {% if product.product_link %}
+                <a href="{{ product.product_link }}" target="_blank" class="btn btn-primary">
+                    🛒 {% translate "View and Buy on Seller's Website" %} <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <form method="post" action="#">
+                        <!-- Add url like url 'product_toggle_like' product.slug for liked product -->
+                        {% csrf_token %}
+                        <button class="btn btn-outline-primary" type="submit">
+                            ❤️ {% translate "Add to Favorites" %}
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                        ❤️ {% translate "Login to Save" %}
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Meta Info -->
+        </div>
+    </div>
+
+    <!-- Description -->
+    {% if product.description %}
+    <div class="row mt-5">
+        <div class="col">
+            <h4 class="text-primary">{% translate "Product Description" %}</h4>
+            <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">
+                {{ product.description }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

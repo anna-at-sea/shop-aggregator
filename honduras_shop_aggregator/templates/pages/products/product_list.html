@@ -1,0 +1,33 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{% include "partials/flash_message.html" %}
+<div class="container mt-4">
+    <h1 class="text-primary mb-4">{% translate "All Products" %}</h1>
+
+    {% if products %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 gy-4 justify-content-start">
+        {% for product in products %}
+        <div class="col d-flex justify-content-center">
+            <div class="card shadow-sm border-primary p-2" style="width: 100%; max-width: 320px;">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.product_name }}" style="max-height: 300px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.product_name }}</h5>
+                    <p class="card-text">
+                        <strong>{% translate "Price" %}:</strong> {{ product.product_price }}<br>
+                    </p>
+                    <a href="{% url 'product_card' product.slug %}" class="btn btn-outline-primary">{% translate "View Product" %}</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">
+        {% translate "No products found." %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

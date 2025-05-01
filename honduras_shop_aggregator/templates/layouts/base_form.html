@@ -7,7 +7,12 @@
     <h1 class="display-5">{{ heading }}</h1>
     <p></p>
     <p>{{ delete_prompt|default:'' }}</p>
-    <form method="post">
+    {% if form.image.value %}
+        <div>
+            <img src="{{ form.instance.image.url }}" alt="Current product image" style="max-width: 200px; height: auto;">
+        </div>
+    {% endif %}
+    <form method="post"{% if form.image.value %} enctype="multipart/form-data"{% endif %}>
         {% csrf_token %}
         {{ form|default:form|crispy }}
         <input 
