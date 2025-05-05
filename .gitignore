@@ -9,9 +9,16 @@ wheels/
 # Virtual environments
 .venv
 
-*.egg-info
 .coverage
 coverage.xml
 .pytest_cache/
 .env
 db.sqlite3
+
+# Migration files
+**/migrations/*.py
+**/migrations/*.pyc
+
+# Media files
+media/*
+!media/products/placeholder.png

@@ -41,6 +41,7 @@ class Product(models.Model):
     product_link = HttpsURLField(
         _("product link"),
         blank=True,
+        null=True,
         unique=True,
         error_messages={
             "unique": _("This product is already listed.")

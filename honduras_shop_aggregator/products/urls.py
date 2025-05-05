@@ -19,18 +19,18 @@ urlpatterns = [
         name='product_update_image'
     ),
     path(
+        '<str:slug>/update/',
+        views.ProductFormUpdateView.as_view(),
+        name='product_update'
+    ),
+    path(
+        '<str:slug>/delete/',
+        views.ProductFormDeleteView.as_view(),
+        name='pruduct_delete'
+    ),
+    path(
         '<str:slug>/',
         views.ProductCardView.as_view(),
         name='product_card'
     ),
-    # path(
-    #     '<str:store_name>/update/',
-    #     views.SellerFormUpdateView.as_view(),
-    #     name='seller_update'
-    # ),
-    # path(
-    #     '<str:store_name>/delete/',
-    #     views.SellerFormDeleteView.as_view(),
-    #     name='seller_delete'
-    # ),
 ]
