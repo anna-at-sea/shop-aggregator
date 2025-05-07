@@ -25,5 +25,14 @@
         "password": "pbkdf2_sha256$870000$AqZGEsq1AvlJLYG3cCDBFg$1ZDwUDfyOTzP1TNqvP/8xiPNbOVyl9dTHlGb/Y4JYAU=",
         "email": "storeuser@email.com"
       }
+    },
+    {
+      "model": "users.user",
+      "pk": 4,
+      "fields": {
+        "username": "userwithstorewithproduct",
+        "password": "pbkdf2_sha256$870000$AqZGEsq1AvlJLYG3cCDBFg$1ZDwUDfyOTzP1TNqvP/8xiPNbOVyl9dTHlGb/Y4JYAU=",
+        "email": "productstoreuser@email.com"
+      }
     }
   ]

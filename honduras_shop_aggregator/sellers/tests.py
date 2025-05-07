@@ -241,7 +241,11 @@ class TestSellerDelete(BaseTestCase):
 
     def setUp(self):
         self.seller = Seller.objects.all().first()
+        self.seller_with_product = Seller.objects.get(pk=3)
         self.user = User.objects.get(pk=self.seller.user.pk)
+        self.user_with_seller_with_product = User.objects.get(
+            pk=self.seller_with_product.user.pk
+        )
 
     def test_delete_seller_success(self):
         self.login_user(self.user)
@@ -295,4 +299,20 @@ class TestSellerDelete(BaseTestCase):
         self.assertRedirectWithMessage(
             response, 'index',
             _("You don&#x27;t have permission to access other store profile.")
+        )
+
+    def test_delete_seller_with_product(self):
+        self.login_user(self.user_with_seller_with_product)
+        response = self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.seller_with_product.store_name}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.assertTrue(Seller.objects.filter(pk=3).exists())
+        self.assertRedirectWithMessage(
+            response,
+            'seller_profile',
+            _("This store still has active products and cannot be deleted"),
+            {'store_name': self.seller_with_product.store_name}
         )

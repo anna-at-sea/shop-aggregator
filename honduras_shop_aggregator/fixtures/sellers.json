@@ -9,12 +9,21 @@
       }
     },
     {
-        "model": "sellers.seller",
-        "pk": 2,
-        "fields": {
-          "store_name": "other_store",
-          "website": "https://other.test",
-          "user": 2
-        }
+      "model": "sellers.seller",
+      "pk": 2,
+      "fields": {
+        "store_name": "other_store",
+        "website": "https://other.test",
+        "user": 2
       }
+    },
+    {
+      "model": "sellers.seller",
+      "pk": 3,
+      "fields": {
+        "store_name": "store_with_product",
+        "website": "https://product_store.test",
+        "user": 4
+      }
+    }
 ]

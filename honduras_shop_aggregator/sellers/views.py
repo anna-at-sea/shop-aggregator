@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -130,3 +131,16 @@ class SellerFormDeleteView(
             'button_text': _("Yes, delete")
         })
         return context
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except ProtectedError:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("This store still has active products and cannot be deleted")
+            )
+            return redirect(
+                'seller_profile', store_name=self.request.user.seller.store_name
+            )

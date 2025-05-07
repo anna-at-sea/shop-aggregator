@@ -32,7 +32,9 @@
 
             <hr>
 
-            <h4 class="text-success">${{ product.product_price }}</h4>
+            {% if product.stock_quantity > 0 and product.is_active %}
+                <h4 class="text-success">${{ product.product_price }}</h4>
+            {% endif %}
             <p>
                 {% if product.stock_quantity > 0 and product.is_active %}
                     <span class="text-success">{% translate "In stock" %}</span>
@@ -43,23 +45,25 @@
 
             <!-- Action Buttons -->
             <div class="d-grid gap-2 my-3">
-                {% if product.product_link %}
-                <a href="{{ product.product_link }}" target="_blank" class="btn btn-primary">
-                    🛒 {% translate "View on Seller's Website" %} <i class="bi bi-box-arrow-up-right"></i>
-                </a>
-                {% endif %}
-                {% if user.is_authenticated %}
-                    <form method="post" action="#">
-                        <!-- Add url like url 'product_toggle_like' product.slug for liked product -->
-                        {% csrf_token %}
-                        <button class="btn btn-outline-primary" type="submit">
-                            ❤️ {% translate "Add to Favorites" %}
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-primary">
-                        ❤️ {% translate "Login to Save" %}
+                {% if product.is_active and product.stock_quantity > 0 %}
+                    {% if product.product_link %}
+                    <a href="{{ product.product_link }}" target="_blank" class="btn btn-primary">
+                        🛒 {% translate "View on Seller's Website" %} <i class="bi bi-box-arrow-up-right"></i>
                     </a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <form method="post" action="#">
+                            <!-- Add url like url 'product_toggle_like' product.slug for liked product -->
+                            {% csrf_token %}
+                            <button class="btn btn-outline-primary" type="submit">
+                                ❤️ {% translate "Add to Favorites" %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                            ❤️ {% translate "Login to Save" %}
+                        </a>
+                    {% endif %}
                 {% endif %}
             </div>
 
