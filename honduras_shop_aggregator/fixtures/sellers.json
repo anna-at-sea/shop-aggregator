@@ -22,7 +22,7 @@
       "pk": 3,
       "fields": {
         "store_name": "store_with_product",
-        "website": "https://product_store.test",
+        "website": "https://product-store.test",
         "user": 4
       }
     }

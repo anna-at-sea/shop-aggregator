@@ -1,0 +1,70 @@
+{
+    "create_complete": {
+        "product_name": "testproduct_1",
+        "product_link": "https://product-store.test/product_1",
+        "product_price": 1000,
+        "description": "test product description",
+        "is_active": true,
+        "stock_quantity": 1
+    },
+    "create_missing_price": {
+        "product_name": "testproduct_missing_price",
+        "stock_quantity": 1
+    },
+    "create_missing_name": {
+        "product_price": 1000,
+        "stock_quantity": 1,
+        "product_link": "https://product-store.test/missing_name"
+    },
+    "create_zero_price": {
+        "product_name": "testproduct_zero_price",
+        "product_price": 0,
+        "stock_quantity": 1
+    },
+    "create_duplicate_product_name": {
+        "product_name": "testproduct",
+        "product_price": 1000,
+        "stock_quantity": 1
+    },
+    "create_duplicate_product_link": {
+        "product_name": "testproduct_duplicate_link",
+        "product_price": 1000,
+        "stock_quantity": 1,
+        "product_link": "https://product-store.test/testproduct"
+    },
+    "create_duplicate_slug": {
+        "product_name": "testproduct",
+        "product_price": 1000,
+        "stock_quantity": 1,
+        "slug": "testproduct"
+    },
+    "create_invalid_link": {
+        "product_name": "testproduct_invalid_link",
+        "product_price": 1000,
+        "stock_quantity": 1,
+        "product_link": "invalid-link"
+    },
+    "create_third_website_link": {
+        "product_name": "testproduct_third_website_link",
+        "product_price": 1000,
+        "stock_quantity": 1,
+        "product_link": "https://products.test/testproduct"
+    },
+    "create_large_price": {
+        "product_name": "testproduct_large_price",
+        "product_price": 1e12,
+        "stock_quantity": 1
+    },
+    "create_link_in_name": {
+        "pk": 10,
+        "product_name": "https://products.test/testproduct",
+        "product_price": 1000,
+        "stock_quantity": 1
+    },
+    "create_link_in_description": {
+        "product_name": "testproduct_link_in_description",
+        "description": "https://products.test/testproduct",
+        "product_price": 1000,
+        "stock_quantity": 1
+    }
+}

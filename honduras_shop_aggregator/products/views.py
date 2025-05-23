@@ -69,7 +69,7 @@ class ProductFormCreateView(
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.instance.seller = self.request.user.seller  # Assign early
+        form.instance.seller = self.request.user.seller
         return form
 
 

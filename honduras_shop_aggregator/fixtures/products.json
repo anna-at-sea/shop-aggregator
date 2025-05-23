@@ -5,9 +5,10 @@
       "fields": {
         "product_name": "testproduct",
         "product_price": 10,
-        "slug": "test-product",
+        "slug": "testproduct",
         "seller": 3,
-        "stock_quantity": 1
+        "stock_quantity": 1,
+        "product_link": "https://product-store.test/testproduct"
       }
     },
     {
@@ -16,7 +17,7 @@
       "fields": {
         "product_name": "unavailable_product",
         "product_price": 100,
-        "slug": "unavailable-product",
+        "slug": "unavailable_product",
         "seller": 3,
         "is_active": false
       }
@@ -27,7 +28,7 @@
       "fields": {
         "product_name": "out_of_stock_product",
         "product_price": 100,
-        "slug": "out-of-stock-product",
+        "slug": "out_of_stock_product",
         "seller": 3,
         "stock_quantity": 0
       }
