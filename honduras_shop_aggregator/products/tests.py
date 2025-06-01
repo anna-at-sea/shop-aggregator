@@ -1,8 +1,9 @@
 import json
+import os
 import shutil
 import tempfile
-from os.path import join
 
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
@@ -12,11 +13,12 @@ from PIL import Image
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
-from honduras_shop_aggregator.utils import BaseTestCase
+from honduras_shop_aggregator.utils import BaseTestCase, get_file_hash
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
 IMAGE_PATH = 'honduras_shop_aggregator/static/images'
 TEMP_MEDIA_ROOT = tempfile.mkdtemp()
+
 
 class TestProductCardRead(BaseTestCase):
 
@@ -128,7 +130,7 @@ class TestProductCreate(BaseTestCase):
             pk=self.seller_without_products.user.pk
         )
         self.user_without_store = User.objects.all().first()
-        with open(join(FIXTURE_PATH, "products_test_data.json")) as f:
+        with open(os.path.join(FIXTURE_PATH, "products_test_data.json")) as f:
             self.products_data = json.load(f)
         self.complete_product_data = self.products_data.get("create_complete")
         self.missing_price_product_data = self.products_data.get(
@@ -423,19 +425,29 @@ class TestProductCreate(BaseTestCase):
 class TestImageUpload(BaseTestCase):
 
     def setUp(self):
-        with open(join(IMAGE_PATH, "test_img_to_crop.jpg"), 'rb') as img_file:
+        with open(os.path.join(IMAGE_PATH, "test_img_to_crop.jpg"), 'rb') as img_file:
             self.success_image = SimpleUploadedFile(
                 name='test_image_to_crop.jpg',
                 content=img_file.read(),
                 content_type='image/jpeg'
             )
-        with open(join(IMAGE_PATH, "test_img_bigger_than_2_mb.jpg"), 'rb') as img_file:
+        with open(os.path.join(IMAGE_PATH, "test_img_new.jpg"), 'rb') as img_file:
+            self.new_image = SimpleUploadedFile(
+                name='test_image_new.jpg',
+                content=img_file.read(),
+                content_type='image/jpeg'
+            )
+        with open(
+            os.path.join(IMAGE_PATH, "test_img_bigger_than_2_mb.jpg"), 'rb'
+        ) as img_file:
             self.big_image = SimpleUploadedFile(
                 name='test_img_bigger_than_2_mb.jpg',
                 content=img_file.read(),
                 content_type='image/jpeg'
             )
-        with open(join(IMAGE_PATH, "test_img_wrong_format.txt"), 'rb') as txt_file:
+        with open(
+            os.path.join(IMAGE_PATH, "test_img_wrong_format.txt"), 'rb'
+        ) as txt_file:
             self.wrong_format = SimpleUploadedFile(
                 name='test_img_wrong_format.txt',
                 content=txt_file.read(),
@@ -444,7 +456,12 @@ class TestImageUpload(BaseTestCase):
         self.product = Product.objects.all().first()
         self.seller = self.product.seller
         self.user = self.seller.user
-        self.other_user = User.objects.all().first()
+        placeholder_src = os.path.join(
+            settings.BASE_DIR, 'media', 'products', 'placeholder.png'
+        )
+        placeholder_dest = os.path.join(TEMP_MEDIA_ROOT, 'products', 'placeholder.png')
+        os.makedirs(os.path.dirname(placeholder_dest), exist_ok=True)
+        shutil.copyfile(placeholder_src, placeholder_dest)
 
     def tearDown(self):
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
@@ -474,3 +491,119 @@ class TestImageUpload(BaseTestCase):
                 (500, 500),
                 msg="Image should be resized to 500x500"
             )
+        placeholder_path = os.path.join(TEMP_MEDIA_ROOT, 'products', 'placeholder.png')
+        self.assertTrue(os.path.exists(placeholder_path))
+
+    def test_image_upload_too_big(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            data={'image': self.big_image}
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form,
+            'image',
+            _("Image size should not exceed 2 MB.")
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+
+    def test_image_upload_wrong_format(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            data={'image': self.wrong_format}
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form,
+            'image',
+            _(
+                "Upload a valid image. "
+                "The file you uploaded was either not an image or a corrupted image."
+            )
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+
+    def test_placeholder_is_used_by_default(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug})
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+
+    def test_old_image_replaced_on_new_upload(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            data={'image': self.success_image},
+            follow=True
+        )
+        self.product.refresh_from_db()
+        old_image_path = self.product.image.path
+        self.assertTrue(os.path.exists(old_image_path))
+        old_hash = get_file_hash(old_image_path)
+        self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            data={'image': self.new_image},
+            follow=True
+        )
+        self.product.refresh_from_db()
+        new_image_path = self.product.image.path
+        self.assertTrue(
+            self.product.image.name.startswith(f'products/{self.product.slug}'),
+            msg=_(f"Image name should start with 'products/{self.product.slug}', "
+                f"got '{self.product.image.name}'")
+        )
+        self.assertTrue(os.path.exists(new_image_path))
+        new_hash = get_file_hash(new_image_path)
+        self.assertNotEqual(
+            old_hash, new_hash, _("Image content should change after new upload")
+        )
+
+    def test_image_upload_by_non_verified_seller(self):
+        self.seller.is_verified = False
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            data={'image': self.success_image},
+            follow=True
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertRedirectWithMessage(
+            response,
+            'index',
+            _("Only verified sellers can add and edit products.")
+        )
+
+    def test_image_upload_by_other_seller(self):
+        other_user = User.objects.get(pk=2)
+        other_seller = other_user.seller
+        other_seller.is_verified = True
+        other_seller.save()
+        self.login_user(other_user)
+        response = self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            data={'image': self.success_image},
+            follow=True
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertRedirectWithMessage(
+            response,
+            'index',
+            _("You don&#x27;t have permission to access this product.")
+        )

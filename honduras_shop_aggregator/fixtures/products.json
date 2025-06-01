@@ -19,7 +19,8 @@
         "product_price": 100,
         "slug": "unavailable_product",
         "seller": 3,
-        "is_active": false
+        "is_active": false,
+        "product_link": null
       }
     },
     {
@@ -30,7 +31,8 @@
         "product_price": 100,
         "slug": "out_of_stock_product",
         "seller": 3,
-        "stock_quantity": 0
+        "stock_quantity": 0,
+        "product_link": null
       }
     }
 ]
