@@ -27,7 +27,7 @@ class Product(models.Model):
         verbose_name = "Product"
 
     user = models.ManyToManyField(
-        User, blank=True, verbose_name=_("Users_liked")
+        User, blank=True, verbose_name="Users_liked"
     )
     seller = models.ForeignKey(
         Seller, related_name="seller_products",
