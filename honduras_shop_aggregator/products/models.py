@@ -81,9 +81,7 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
 
-        if not self.slug or (
-            Product.objects.filter(slug=self.slug).exclude(pk=self.pk).exists()
-        ):
+        if not self.slug:
             base_slug = slugify(self.product_name)
             slug = base_slug
             num = 1

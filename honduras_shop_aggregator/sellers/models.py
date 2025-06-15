@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -46,6 +47,19 @@ class Seller(models.Model):
     )
     is_verified = models.BooleanField(default=False)
     date_registered = models.DateTimeField(default=timezone.now)
+
+    def clean(self):
+        if self.pk:
+            original = Seller.objects.get(pk=self.pk)
+            if self.website != original.website:
+                raise ValidationError(
+                    _("You cannot change your store website.")
+                )
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.store_name

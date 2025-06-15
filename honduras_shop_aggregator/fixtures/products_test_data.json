@@ -66,5 +66,52 @@
         "description": "https://products.test/testproduct",
         "product_price": 1000,
         "stock_quantity": 1
+    },
+    "update_complete": {
+        "product_name": "new_product_name",
+        "product_link": "https://product-store.test/new_product_name",
+        "product_price": 20,
+        "description": "test product update description",
+        "is_active": true,
+        "stock_quantity": 1
+    },
+    "update_zero_price": {
+        "product_name": "new_product_name",
+        "product_price": 0,
+        "stock_quantity": 1
+    },
+    "update_invalid_link": {
+        "product_name": "new_product_name",
+        "product_link": "invalid link",
+        "stock_quantity": 1,
+        "product_price": 10
+    },
+    "update_link_in_name": {
+        "product_name": "https://products.test/testproduct",
+        "stock_quantity": 1,
+        "product_price": 10
+    },
+    "update_duplicate_link": {
+        "product_name": "testproduct",
+        "product_link": "https://product-store.test/double_link",
+        "stock_quantity": 1,
+        "product_price": 10
+    },
+    "update_duplicate_name": {
+        "product_name": "unavailable_product",
+        "is_active": false,
+        "stock_quantity": 1,
+        "product_price": 10
+    },
+    "update_missing_field": {
+        "product_name": "",
+        "stock_quantity": 1,
+        "product_price": 10
+    },
+    "change_seller_attempt": {
+        "product_name": "testproduct",
+        "stock_quantity": 1,
+        "product_price": 10,
+        "seller": 1
     }
 }

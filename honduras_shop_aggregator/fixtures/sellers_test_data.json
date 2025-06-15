@@ -22,7 +22,6 @@
         "password_confirm": "correct_password"
     },
     "update_missing_field": {
-        "store_name": "new_store_name",
         "password_confirm": "correct_password"
     },
     "update_duplicate_store_name": {
@@ -30,9 +29,9 @@
         "website": "https://new_email.test",
         "password_confirm": "correct_password"
     },
-    "update_duplicate_website": {
+    "update_attempt_to_change_website": {
         "store_name": "new_store",
-        "website": "https://other.test",
+        "website": "https://changewebsite.test",
         "password_confirm": "correct_password"
     },
     "change_user_attempt": {

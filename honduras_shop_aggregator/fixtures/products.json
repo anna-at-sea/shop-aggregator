@@ -30,7 +30,8 @@
         "product_price": 100,
         "slug": "out_of_stock_product",
         "seller": 3,
-        "stock_quantity": 0
+        "stock_quantity": 0,
+        "product_link": "https://product-store.test/double_link"
       }
     }
 ]

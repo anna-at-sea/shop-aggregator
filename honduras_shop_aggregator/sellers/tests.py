@@ -153,7 +153,9 @@ class TestSellerUpdate(BaseTestCase):
         self.duplicate_store_name_data = self.sellers_data.get(
             "update_duplicate_store_name"
         )
-        self.duplicate_website_data = self.sellers_data.get("update_duplicate_website")
+        self.attempt_to_change_website_data = self.sellers_data.get(
+            "update_attempt_to_change_website"
+        )
         self.change_user_attempt_data = self.sellers_data.get("change_user_attempt")
 
     def test_update_seller_success(self):
@@ -187,7 +189,7 @@ class TestSellerUpdate(BaseTestCase):
             self.missing_field_seller_data
         )
         form = response.context['form']
-        self.assertFormError(form, 'website', _('This field is required.'))
+        self.assertFormError(form, 'store_name', _('This field is required.'))
         self.assertEqual(response.status_code, 200)
 
     def test_update_duplicate_store_name(self):
@@ -202,17 +204,15 @@ class TestSellerUpdate(BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_update_duplicate_website(self):
+    def test_update_attempt_to_change_website(self):
         self.login_user(self.user)
-        response = self.client.post(
+        self.client.post(
             reverse('seller_update', kwargs={'store_name': self.seller.store_name}),
-            self.duplicate_website_data
+            self.attempt_to_change_website_data,
+            follow=True
         )
-        form = response.context['form']
-        self.assertFormError(
-            form, 'website', _('A store with that website already exists.')
-        )
-        self.assertEqual(response.status_code, 200)
+        self.seller.refresh_from_db()
+        self.assertNotEqual(self.seller.website, 'https://changewebsite.test')
 
     def test_update_other_seller(self):
         self.other_seller = Seller.objects.get(pk=2)

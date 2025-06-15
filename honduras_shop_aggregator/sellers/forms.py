@@ -25,7 +25,7 @@ class SellerUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Seller
-        fields = ['store_name', 'website', 'description']
+        fields = ['store_name', 'description']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)

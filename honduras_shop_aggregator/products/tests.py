@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from PIL import Image
 
@@ -606,4 +607,207 @@ class TestImageUpload(BaseTestCase):
             response,
             'index',
             _("You don&#x27;t have permission to access this product.")
+        )
+
+
+class TestProductUpdate(BaseTestCase):
+
+    def setUp(self):
+        self.product = Product.objects.all().first()
+        self.seller = self.product.seller
+        self.user = self.seller.user
+        with open(os.path.join(FIXTURE_PATH, "products_test_data.json")) as f:
+            self.products_data = json.load(f)
+        self.complete_product_data = self.products_data.get("update_complete")
+        self.missing_field_product_data = self.products_data.get(
+            "update_missing_field"
+        )
+        self.duplicate_name_data = self.products_data.get(
+            "update_duplicate_name"
+        )
+        self.duplicate_link_data = self.products_data.get("update_duplicate_link")
+        self.change_seller_attempt_data = self.products_data.get(
+            "change_seller_attempt"
+        )
+        self.zero_price_product_data = self.products_data.get(
+            "update_zero_price"
+        )
+        self.invalid_product_link_data = self.products_data.get(
+            "update_invalid_link"
+        )
+        self.link_in_name_data = self.products_data.get(
+            "update_link_in_name"
+        )
+    def test_update_product_success(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.complete_product_data,
+            follow=True
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.product_name, 'new_product_name')
+        self.assertEqual(self.product.slug, 'testproduct')
+        self.assertEqual(
+            self.product.product_link, 'https://product-store.test/new_product_name'
+        )
+        self.assertEqual(self.product.product_price, 20)
+        self.assertEqual(self.product.description, 'test product update description')
+        self.assertNotEqual(self.product.slug, slugify(self.product.product_name))
+        self.assertRedirectWithMessage(
+            response,
+            'product_card',
+            _("Product information is updated successfully"),
+            {'slug': self.product.slug}
+        )
+
+    def test_update_product_unauthorized(self):
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.complete_product_data,
+            follow=True
+        )
+        self.assertNotEqual(self.product.product_name, 'new_product_name')
+        self.assertRedirectWithMessage(response)
+
+    def test_update_product_by_other_user(self):
+        other_user = User.objects.get(pk=2)
+        other_user.seller.is_verified = True
+        other_user.seller.save()
+        self.login_user(other_user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.complete_product_data,
+            follow=True
+        )
+        self.assertNotEqual(self.product.product_name, 'new_product_name')
+        self.assertRedirectWithMessage(
+            response,
+            'index',
+            _("You don&#x27;t have permission to access this product.")
+        )
+
+    def test_update_product_by_non_verified_seller(self):
+        self.seller.is_verified = False
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.complete_product_data,
+            follow=True
+        )
+        self.assertNotEqual(self.product.product_name, 'new_product_name')
+        self.assertRedirectWithMessage(
+            response,
+            'index',
+            _("Only verified sellers can add and edit products.")
+        )
+
+    def test_update_product_with_price_zero(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.zero_price_product_data,
+            follow=True
+        )
+        form = response.context['form']
+        self.assertFormError(form, 'product_price', _('Price must be greater than 0.'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(self.product.product_name, 'new_product_name')
+
+    def test_update_product_invalid_product_link(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.invalid_product_link_data,
+            follow=True
+        )
+        form = response.context['form']
+        self.assertFormError(form, 'product_link', _('Enter a valid URL.'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(self.product.product_name, 'new_product_name')
+
+    def test_update_product_link_in_name(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.link_in_name_data,
+            follow=True
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form, 'product_name', _('Product name cannot contain links.')
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(self.product.product_name, 'new_product_name')
+
+    def test_update_duplicate_product_link(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.duplicate_link_data,
+            follow=True
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form, 'product_link', _('This product is already listed.')
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(
+            self.product.product_link, "https://product-store.test/double_link"
+        )
+
+    def test_update_duplicate_product_name(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.duplicate_name_data,
+            follow=True
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.product_name, 'unavailable_product')
+        self.assertEqual(self.product.slug, 'testproduct')
+
+    def test_update_product_missing_name(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.missing_field_product_data,
+            follow=True
+        )
+        form = response.context['form']
+        self.assertFormError(
+            form, 'product_name', _('This field is required.')
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(self.product.product_name, '')
+
+    def test_impossible_to_change_seller(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse('product_update', kwargs={'slug': self.product.slug}),
+            self.change_seller_attempt_data,
+            follow=True
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.seller, self.seller)
+        self.assertNotEqual(
+            self.change_seller_attempt_data['seller'],
+            self.seller.pk
         )
