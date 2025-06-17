@@ -811,3 +811,85 @@ class TestProductUpdate(BaseTestCase):
             self.change_seller_attempt_data['seller'],
             self.seller.pk
         )
+
+
+class TestProductDelete(BaseTestCase):
+
+    def setUp(self):
+        self.product = Product.objects.all().first()
+        self.seller = self.product.seller
+        self.user = self.seller.user
+
+    def test_delete_product_success(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_delete', kwargs={'slug': self.product.slug}),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        self.assertFalse(Product.objects.filter(pk=1).exists())
+        self.assertRedirectWithMessage(
+            response,
+            'seller_profile',
+            _("Product deleted successfully"),
+            {'store_name': self.seller.store_name}
+        )
+
+    def test_delete_product_unauthorized(self):
+        response = self.client.post(
+            reverse('product_delete', kwargs={'slug': self.product.slug}),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        self.assertTrue(Product.objects.filter(pk=1).exists())
+        self.assertRedirectWithMessage(response)
+
+    def test_delete_product_non_verified_seller(self):
+        self.seller.is_verified = False
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_delete', kwargs={'slug': self.product.slug}),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        self.assertTrue(Product.objects.filter(pk=1).exists())
+        self.assertRedirectWithMessage(
+            response,
+            'index',
+            _("Only verified sellers can add and edit products.")
+        )
+
+    def test_delete_product_wrong_password(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse('product_delete', kwargs={'slug': self.product.slug}),
+            {'password_confirm': 'wrong_password'},
+            follow=True
+        )
+        self.assertTrue(Product.objects.filter(pk=1).exists())
+        form = response.context['form']
+        self.assertFormError(
+            form, 'password_confirm', _("Incorrect password.")
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_other_seller_product(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.other_seller_product = Product.objects.get(pk=4)
+        response = self.client.post(
+            reverse('product_delete', kwargs={'slug': self.other_seller_product.slug}),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        self.assertTrue(Product.objects.filter(pk=4).exists())
+        self.assertRedirectWithMessage(
+            response, 'index',
+            _("You don&#x27;t have permission to access this product.")
+        )

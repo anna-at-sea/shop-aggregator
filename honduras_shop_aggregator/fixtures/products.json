@@ -33,5 +33,16 @@
         "stock_quantity": 0,
         "product_link": "https://product-store.test/double_link"
       }
+    },
+    {
+      "model": "products.product",
+      "pk": 4,
+      "fields": {
+        "product_name": "other_seller_product",
+        "product_price": 50,
+        "slug": "other-seller-product",
+        "seller": 2,
+        "stock_quantity": 1
+      }
     }
 ]

@@ -26,7 +26,7 @@ urlpatterns = [
     path(
         '<str:slug>/delete/',
         views.ProductFormDeleteView.as_view(),
-        name='pruduct_delete'
+        name='product_delete'
     ),
     path(
         '<str:slug>/',
