@@ -7,9 +7,25 @@
     <h1 class="display-5">{{ heading }}</h1>
     <p></p>
     <p>{{ delete_prompt|default:'' }}</p>
-    {% if form.image.value %}
-        <div>
-            <img src="{{ form.instance.image.url }}" alt="Current product image" style="max-width: 200px; height: auto;">
+    {% if form.image or heading == _("Update product") %}
+        <div class="d-flex align-items-start gap-4 mb-4 flex-wrap">
+            <div class="flex-shrink-0">
+                <img src="{{ form.instance.image.url }}" 
+                     alt="Current product image" 
+                     class="img-thumbnail" 
+                     style="max-width: 200px; height: auto;">
+            </div>
+            {% if heading == _("Update product") %}
+            <div class="border rounded p-3 bg-light">
+                <p class="mb-2 text-secondary">
+                    {% translate "Want to change the product image?" %}
+                </p>
+                <a href="{% url 'product_update_image' form.instance.slug %}" 
+                   class="btn btn-outline-secondary btn-sm">
+                    🖼️ {% translate "Update Product Image" %}
+                </a>
+            </div>
+            {% endif %}
         </div>
     {% endif %}
     <form method="post"{% if form.image.value %} enctype="multipart/form-data"{% endif %}>

@@ -65,6 +65,26 @@
                         </a>
                     {% endif %}
                 {% endif %}
+
+                {% if request.user == product.seller.user %}
+                    <div class="border rounded p-3 bg-light mt-4">
+                        <h6 class="text-secondary">{% translate "Owner Actions" %}</h6>
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{% url 'product_update' product.slug %}" class="btn btn-outline-secondary btn-sm">
+                                ✏️ {% translate "Edit Product Info" %}
+                            </a>
+                            <a href="{% url 'product_update_image' product.slug %}" class="btn btn-outline-secondary btn-sm">
+                                🖼️ {% translate "Edit Product Image" %}
+                            </a>
+                            <form method="post" action="{% url 'product_delete' product.slug %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">
+                                    🗑️ {% translate "Delete Product" %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Meta Info -->

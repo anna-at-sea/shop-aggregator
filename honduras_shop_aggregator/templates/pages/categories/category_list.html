@@ -1,0 +1,39 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{% include "partials/flash_message.html" %}
+
+<div class="container mt-4">
+    <h1 class="text-primary mb-4">{% translate "Categories" %}</h1>
+  
+    {% if categories %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for category in categories %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-center mb-3">
+                  <a href="{% url 'category_page' category.slug %}" class="text-decoration-none text-primary">
+                    {{ category.name }}
+                  </a>
+                </h5>
+                <!-- <p class="text-muted text-center mb-0">
+                  { blocktranslate count count=category.products.count %}
+                    {{ count }} product
+                  { plural %}
+                    {{ count }} products
+                  { endblocktranslate %}
+                </p> -->
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">{% translate "No categories found." %}</p>
+    {% endif %}
+  </div>
+
+{% endblock %}

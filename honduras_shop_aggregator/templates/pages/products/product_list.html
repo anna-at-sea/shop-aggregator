@@ -4,34 +4,10 @@
 
 {% block content %}
 {% include "partials/flash_message.html" %}
+
 <div class="container mt-4">
     <h1 class="text-primary mb-4">{% translate "All Products" %}</h1>
 
-    {% if products %}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 gy-4 justify-content-start">
-        {% for product in products %}
-        <div class="col d-flex justify-content-center">
-            <a href="{% url 'product_card' product.slug %}" class="text-decoration-none text-dark">
-                <div class="card shadow-sm border-primary p-2 card-hover" style="width: 100%; max-width: 320px;">
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.product_name }}" style="max-height: 300px; object-fit: contain;">
-                    <div class="card-body">
-                        <h5 class="card-title mb-2 fw-semibold text-primary">{{ product.product_name }}</h5>
-                        <p class="card-text mb-1">
-                            <span class="fs-5 fw-bold text-dark">{{ product.product_price }} L</span>
-                        </p>
-                        <p class="card-text mb-0 text-muted small">
-                            {% translate "Sold by" %}: <span class="fw-medium text-secondary">{{ product.seller }}</span>
-                        </p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="alert alert-info mt-3">
-        {% translate "No products found." %}
-    </div>
-    {% endif %}
-</div>
+    {% include "partials/_product_grid.html" %}
+
 {% endblock %}

@@ -24,10 +24,13 @@
                     </a>
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">{% translate "Home" %}</a>
+                            <a class="nav-link active" aria-current="page" href="{% url 'index' %}">{% translate "Home" %}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">{% translate "Products" %}</a>
+                            <a class="nav-link" href="{% url 'product_list' %}">{% translate "Products" %}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'category_list' %}">{% translate "Categories" %}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">{% translate "Sellers" %}</a>
