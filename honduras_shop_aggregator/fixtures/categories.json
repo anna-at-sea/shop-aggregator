@@ -1,0 +1,10 @@
+[
+    {
+      "model": "categories.category",
+      "pk": 1,
+      "fields": {
+        "name": "general",
+        "slug": "general"
+      }
+    }
+]

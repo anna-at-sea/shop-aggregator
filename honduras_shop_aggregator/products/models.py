@@ -9,6 +9,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
+from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import image_upload_path, validate_image
@@ -32,6 +33,13 @@ class Product(models.Model):
     seller = models.ForeignKey(
         Seller, related_name="seller_products",
         blank=False, on_delete=models.PROTECT
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        related_name='category_products',
+        null=False,
+        blank=False
     )
     product_name = models.CharField(
         _("product name"),

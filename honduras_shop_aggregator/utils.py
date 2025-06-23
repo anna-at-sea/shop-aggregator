@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
-# from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect
 from django.test import TestCase
 from django.urls import reverse
@@ -68,7 +67,7 @@ class SellerPermissionMixin:
 
 
 class BaseTestCase(TestCase):
-    fixtures = ["users.json", "sellers.json", "products.json"]
+    fixtures = ["users.json", "sellers.json", "products.json", "categories.json"]
 
     def login_user(self, user):
         self.client.login(

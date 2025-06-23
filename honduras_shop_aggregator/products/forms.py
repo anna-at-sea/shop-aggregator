@@ -14,6 +14,7 @@ class ProductCreateForm(forms.ModelForm):
         model = Product
         fields = [
             'product_name',
+            'category',
             'product_link',
             'product_price',
             'description',
@@ -46,6 +47,7 @@ class ProductUpdateForm(forms.ModelForm):
         model = Product
         fields = [
             'product_name',
+            'category',
             'product_link',
             'product_price',
             'description',

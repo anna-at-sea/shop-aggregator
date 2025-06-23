@@ -22,6 +22,9 @@ compilemessages:
 test:
 	uv run pytest
 
+shell:
+	uv run python3 manage.py shell
+
 renderinstalluv:
 	curl -LsSf https://astral.sh/uv/install.sh | sh
 

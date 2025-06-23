@@ -25,6 +25,12 @@
         <!-- Product Info -->
         <div class="col-md-7">
             <h2 class="text-primary">{{ product.product_name }}</h2>
+            {% if product.category %}
+            <p class="text-muted mb-1">{% translate "Category" %}: 
+                <a href="{% url 'category_page' product.category.slug %}">{{ product.category.name }}</a>
+            </p>
+            {% endif %}
+            <!-- remove this if above later when category is mandatory -->
             <p class="text-muted mb-1">{% translate "Sold by" %}: 
                 <a href="#">{{ product.seller.store_name }}</a>
                 <!-- Add url for seller page -->

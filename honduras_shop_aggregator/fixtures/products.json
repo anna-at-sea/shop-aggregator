@@ -8,7 +8,8 @@
         "slug": "testproduct",
         "seller": 3,
         "stock_quantity": 1,
-        "product_link": "https://product-store.test/testproduct"
+        "product_link": "https://product-store.test/testproduct",
+        "category": 1
       }
     },
     {
@@ -19,7 +20,8 @@
         "product_price": 100,
         "slug": "unavailable_product",
         "seller": 3,
-        "is_active": false
+        "is_active": false,
+        "category": 1
       }
     },
     {
@@ -31,7 +33,8 @@
         "slug": "out_of_stock_product",
         "seller": 3,
         "stock_quantity": 0,
-        "product_link": "https://product-store.test/double_link"
+        "product_link": "https://product-store.test/double_link",
+        "category": 1
       }
     },
     {
@@ -42,7 +45,8 @@
         "product_price": 50,
         "slug": "other-seller-product",
         "seller": 2,
-        "stock_quantity": 1
+        "stock_quantity": 1,
+        "category": 1
       }
     }
 ]

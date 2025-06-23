@@ -7,6 +7,7 @@ from .models import Product
 class CustomProductAdmin(admin.ModelAdmin):
     list_display = (
         "seller__store_name",
+        "category",
         "product_name",
         "product_link",
         "product_price",
@@ -22,5 +23,5 @@ class CustomProductAdmin(admin.ModelAdmin):
         "product_link",
         "description"
     )
-    list_filter = ("is_active",)
+    list_filter = ("is_active", "category")
     ordering = ("date_added",)
