@@ -48,5 +48,17 @@
         "stock_quantity": 1,
         "category": 1
       }
+    },
+    {
+      "model": "products.product",
+      "pk": 5,
+      "fields": {
+        "product_name": "other category product",
+        "product_price": 555,
+        "slug": "other-category-product",
+        "seller": 3,
+        "stock_quantity": 1,
+        "category": 3
+      }
     }
 ]

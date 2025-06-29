@@ -1,10 +1,6 @@
 from django.contrib.messages.views import SuccessMessageMixin
-# from django.shortcuts import get_object_or_404
-# from django.urls import reverse_lazy
-# from django.utils.translation import gettext as _
 from django.views.generic import DetailView, ListView
 
-# from honduras_shop_aggregator import utils
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.products.models import Product
 
