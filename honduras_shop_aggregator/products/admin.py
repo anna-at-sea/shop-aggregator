@@ -6,9 +6,10 @@ from .models import Product
 @admin.register(Product)
 class CustomProductAdmin(admin.ModelAdmin):
     list_display = (
-        "seller__store_name",
-        "category",
         "product_name",
+        "seller__store_name",
+        "origin_city",
+        "category",
         "product_link",
         "product_price",
         "description",
@@ -21,7 +22,12 @@ class CustomProductAdmin(admin.ModelAdmin):
         "seller__store_name",
         "product_name",
         "product_link",
-        "description"
+        "description"        
     )
-    list_filter = ("is_active", "category")
+    list_filter = (
+        "is_active",
+        "category",
+        "origin_city",
+        "delivery_cities"
+    )
     ordering = ("date_added",)

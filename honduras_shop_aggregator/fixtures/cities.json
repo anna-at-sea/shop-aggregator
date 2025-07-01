@@ -1,0 +1,9 @@
+[
+    {
+      "model": "cities.city",
+      "pk": 1,
+      "fields": {
+        "name": "Capital"
+      }
+    }
+]
