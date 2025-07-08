@@ -15,6 +15,7 @@ class UserCreateForm(UserCreationForm):
             'last_name',
             'username',
             'email',
+            'preferred_delivery_city',
             'password1',
             'password2'
         ]
@@ -28,7 +29,13 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email']
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'preferred_delivery_city'
+        ]
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)

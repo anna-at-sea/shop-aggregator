@@ -1,4 +1,5 @@
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -29,13 +30,16 @@ class ProductCardView(
 class ProductListView(SuccessMessageMixin, ListView):
     model = Product
     template_name = 'pages/products/product_list.html'
+    context_object_name = 'products'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['products'] = Product.objects.filter(
-            is_active=True, stock_quantity__gt=0
-        )
-        return context
+    def get_queryset(self):
+        queryset = Product.objects.filter(is_active=True, stock_quantity__gt=0)
+        city_pk = self.request.session.get('city_pk')
+        if city_pk:
+            queryset = queryset.filter(
+                Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
+            ).distinct()
+        return queryset
 
 
 class ProductFormCreateView(

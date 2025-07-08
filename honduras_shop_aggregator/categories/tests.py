@@ -70,9 +70,17 @@ class TestCategoryListRead(BaseTestCase):
         self.user = User.objects.all().first()
         self.category = Category.objects.all().first()
         self.other_category = Category.objects.get(pk=2)
-        self.product_count_first_category = Product.objects.filter(category=1).count()
-        self.product_count_second_category = Product.objects.filter(category=2).count()
-
+        self.product_count_first_category = Product.objects.filter(
+            category=1,
+            is_active=True,
+            stock_quantity__gt=0
+        ).count()
+        self.product_count_second_category = Product.objects.filter(
+            category=2,
+            is_active=True,
+            stock_quantity__gt=0
+        ).count()
+# now need to fix these tests filtering by city too
     def test_read_category_list_unauthorized(self):
         response = self.client.get(
             reverse('category_list'),

@@ -6,7 +6,12 @@ from .models import User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    # list_display = ("username", "email", "is_staff", "date_joined")
+    list_display = (
+        "username",
+        "email",
+        "preferred_delivery_city",
+        "seller"
+    )
     search_fields = ("username", "email")
-    list_filter = ("is_staff", "is_active")
+    list_filter = ("is_active",)
     ordering = ("date_joined",)

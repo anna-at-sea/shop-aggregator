@@ -48,6 +48,17 @@
                     <span class="text-danger">{% translate "Out of stock" %}</span>
                 {% endif %}
             </p>
+            <p>
+                {% if current_city == product.origin_city %}
+                    <span class="text-success">{% translate "Available in your city" %}</span>
+                {% else %}
+                    {% if current_city in product.delivery_cities.all %}
+                        <span class="text-success">{% translate "Delivery from" %} {{ product.origin_city.name }}</span>
+                    {% else %}
+                        <span class="text-danger">{% translate "Not available in your city" %}</span>
+                    {% endif %}
+                {% endif %}
+            </p>
 
             <!-- Action Buttons -->
             <div class="d-grid gap-2 my-3">

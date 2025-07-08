@@ -6,7 +6,7 @@
 {% include "partials/flash_message.html" %}
 
 <div class="container mt-4">
-    <h1 class="text-primary mb-4">{% translate "All Products" %}</h1>
+    <h1 class="text-primary mb-4">{% translate "All Products in" %} {{ current_city.name }}</h1>
 
     {% include "partials/_product_grid.html" %}
 

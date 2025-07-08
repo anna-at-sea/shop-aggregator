@@ -46,6 +46,20 @@
         
                 <!-- Right: Language Toggle & User Auth -->
                 <div class="d-flex ms-auto align-items-center">
+                    <div class="dropdown me-3">
+                        <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            📍 {{ current_city }}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="cityDropdown">
+                            {% for city in cities %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'set_city' city.id %}">
+                                        {{ city.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                     <!-- Language Toggle with Space -->
                     <div class="dropdown me-3"> 
                         <form action="{% url 'set_language' %}" method="post">

@@ -15,6 +15,17 @@
                     <p class="card-text mb-0 text-muted small">
                         {% translate "Sold by" %}: <span class="fw-medium text-secondary">{{ product.seller }}</span>
                     </p>
+                    <p class="card-text mb-0 text-muted small">
+                        {% if current_city == product.origin_city %}
+                            <span class="text-success">{% translate "Available in your city" %}</span>
+                        {% else %}
+                            {% if current_city in product.delivery_cities.all %}
+                                <span class="text-success">{% translate "Delivery from" %} {{ product.origin_city.name }}</span>
+                            {% else %}
+                                <span class="text-danger">{% translate "Not available in your city" %}</span>
+                            {% endif %}
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </a>

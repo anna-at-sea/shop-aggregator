@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from honduras_shop_aggregator.cities.models import City
+
 
 class User(AbstractUser):
 
@@ -13,6 +15,13 @@ class User(AbstractUser):
         error_messages={
             "unique": _("A user with that email already exists.")
         },
+    )
+    preferred_delivery_city = models.ForeignKey(
+        City,
+        on_delete=models.PROTECT,
+        related_name="connected_users",
+        blank=True,
+        null=True
     )    
 
     @property

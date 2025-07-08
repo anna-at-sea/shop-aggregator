@@ -13,5 +13,6 @@ urlpatterns = i18n_patterns(
     path('sellers/', include('honduras_shop_aggregator.sellers.urls')),
     path('products/', include('honduras_shop_aggregator.products.urls')),
     path('categories/', include('honduras_shop_aggregator.categories.urls')),
+    path('set-city/<int:city_pk>/', views.SetCityView.as_view(), name='set_city'),
     path('admin/', admin.site.urls),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
