@@ -80,7 +80,7 @@ class TestCategoryListRead(BaseTestCase):
             is_active=True,
             stock_quantity__gt=0
         ).count()
-# now need to fix these tests filtering by city too
+
     def test_read_category_list_unauthorized(self):
         response = self.client.get(
             reverse('category_list'),

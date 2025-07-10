@@ -5,5 +5,12 @@
       "fields": {
         "name": "Capital"
       }
+    },
+    {
+      "model": "cities.city",
+      "pk": 2,
+      "fields": {
+        "name": "Second City"
+      }
     }
 ]
