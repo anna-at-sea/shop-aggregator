@@ -1,6 +1,8 @@
+from django.db.models import ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase
@@ -134,3 +136,22 @@ class TestFilterProductsByCity(BaseTestCase):
         )
         self.assertNotContains(response2, 'other category product')
         self.assertContains(response2, _('No products found.'))
+
+
+class TestCityProtect(BaseTestCase):
+
+    def setUp(self):
+        self.city_1 = City.objects.all().first()
+        self.city_2 = City.objects.get(pk=2)
+        self.product_1 = Product.objects.all().first()
+        self.user_2 = User.objects.get(username='userwithpreferredcity')
+
+    def test_city_protect_on_delete_product_connected(self):
+        self.assertEqual(self.product_1.origin_city, self.city_1)
+        with self.assertRaises(ProtectedError):
+            self.city_1.delete()
+
+    def test_city_protect_on_delete_user_connected(self):
+        self.assertEqual(self.user_2.preferred_delivery_city, self.city_2)
+        with self.assertRaises(ProtectedError):
+            self.city_2.delete()
