@@ -10,6 +10,7 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from honduras_shop_aggregator import utils
+from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.users.forms import (UserCreateForm,
                                                   UserDeleteForm,
                                                   UserUpdateForm)
@@ -28,6 +29,14 @@ class UserProfileView(
 
     def get_object(self):
         return get_object_or_404(User, username=self.kwargs["username"])
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            profile_user = context['user']
+            context['products'] = Product.objects.filter(
+                likes__user=profile_user
+            )
+            return context
 
 
 class UserLoginView(SuccessMessageMixin, LoginView):

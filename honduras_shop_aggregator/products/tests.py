@@ -36,7 +36,7 @@ class TestProductCardRead(BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("In stock"))
-        self.assertContains(response, _("Login to Save"))
+        self.assertContains(response, _("Save"))
 
     def test_read_product_card_authorized(self):
         self.login_user(self.user)
@@ -46,7 +46,7 @@ class TestProductCardRead(BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("In stock"))
-        self.assertContains(response, _("Add to Favorites"))
+        self.assertContains(response, _("Save"))
 
     def test_read_product_card_not_active(self):
         response = self.client.get(reverse(
@@ -55,8 +55,7 @@ class TestProductCardRead(BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("Out of stock"))
-        self.assertNotContains(response, _("Add to Favorites"))
-        self.assertNotContains(response, _("Login to Save"))
+        self.assertNotContains(response, _("Save"))
 
     def test_read_product_card_out_of_stock(self):
         response = self.client.get(reverse(
@@ -65,8 +64,7 @@ class TestProductCardRead(BaseTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("Out of stock"))
-        self.assertNotContains(response, _("Add to Favorites"))
-        self.assertNotContains(response, _("Login to Save"))
+        self.assertNotContains(response, _("Save"))
 
     def test_read_product_non_existent(self):
         response = self.client.get(reverse(

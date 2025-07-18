@@ -24,7 +24,10 @@ class ProductCardView(
     slug_url_kwarg = "slug"
 
     def get_object(self):
-        return get_object_or_404(Product, slug=self.kwargs["slug"])
+        product = get_object_or_404(Product, slug=self.kwargs["slug"])
+        if self.request.user.pk:
+            product.is_liked = product.likes.filter(user=self.request.user).exists()
+        return product
 
 
 class ProductListView(SuccessMessageMixin, ListView):

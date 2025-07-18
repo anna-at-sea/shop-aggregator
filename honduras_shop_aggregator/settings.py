@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'honduras_shop_aggregator.products',
     'honduras_shop_aggregator.categories',
     'honduras_shop_aggregator.cities',
+    'honduras_shop_aggregator.likedproducts',
     "crispy_forms",
     "crispy_bootstrap5",
 ]

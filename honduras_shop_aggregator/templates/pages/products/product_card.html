@@ -6,7 +6,6 @@
 {% include "partials/flash_message.html" %}
 
 <div class="container mt-4">
-    <!-- Breadcrumb -->
     <div class="mb-3">
         <a href="#" class="text-decoration-none text-primary">
             ← {% translate "Back" %}
@@ -15,22 +14,17 @@
     </div>
 
     <div class="row">
-        <!-- Product Image -->
         <div class="col-md-5">
             <div class="border rounded shadow-sm p-3 bg-white">
                 <img src="{{ product.image.url }}" alt="{{ product.product_name }}" class="img-fluid w-100" style="max-height: 500px; object-fit: contain;">
             </div>
         </div>
 
-        <!-- Product Info -->
         <div class="col-md-7">
             <h2 class="text-primary">{{ product.product_name }}</h2>
-            {% if product.category %}
             <p class="text-muted mb-1">{% translate "Category" %}: 
                 <a href="{% url 'category_page' product.category.slug %}">{{ product.category.name }}</a>
             </p>
-            {% endif %}
-            <!-- remove this if above later when category is mandatory -->
             <p class="text-muted mb-1">{% translate "Sold by" %}: 
                 <a href="#">{{ product.seller.store_name }}</a>
                 <!-- Add url for seller page -->
@@ -60,7 +54,6 @@
                 {% endif %}
             </p>
 
-            <!-- Action Buttons -->
             <div class="d-grid gap-2 my-3">
                 {% if product.is_active and product.stock_quantity > 0 %}
                     {% if product.product_link %}
@@ -68,19 +61,19 @@
                         🛒 {% translate "View on Seller's Website" %} <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                     {% endif %}
-                    {% if user.is_authenticated %}
-                        <form method="post" action="#">
-                            <!-- Add url like url 'product_toggle_like' product.slug for liked product -->
-                            {% csrf_token %}
-                            <button class="btn btn-outline-primary" type="submit">
-                                ❤️ {% translate "Add to Favorites" %}
-                            </button>
-                        </form>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-primary">
-                            ❤️ {% translate "Login to Save" %}
-                        </a>
-                    {% endif %}
+                    {% csrf_token %}
+                    <button class="btn btn-outline-primary like-btn" data-product-id="{{ product.pk }}">
+                        {% if user.is_authenticated and product.is_liked %}
+                        ❤️ {% translate "Saved" %}
+                        {% else %}
+                            {% if request.session.liked_products and product.pk in request.session.liked_products %}
+                            ❤️ {% translate "Saved" %}
+                            {% else %}
+                            🤍 {% translate "Save" %}
+                            {% endif %}
+                        {% endif %}
+                    </button>
+                  
                 {% endif %}
 
                 {% if request.user == product.seller.user %}
@@ -104,11 +97,9 @@
                 {% endif %}
             </div>
 
-            <!-- Meta Info -->
         </div>
     </div>
 
-    <!-- Description -->
     {% if product.description %}
     <div class="row mt-5">
         <div class="col">
@@ -120,4 +111,38 @@
     </div>
     {% endif %}
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const likeButtons = document.querySelectorAll('.like-btn');
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+      likeButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+          const productId = this.dataset.productId;
+          const url = `{% url 'toggle_like' 0 %}`.replace('0', productId);
+  
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrfToken,
+              'Content-Type': 'application/json'
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'liked') {
+              this.textContent = '❤️';
+            } else {
+              this.textContent = '🤍';
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        });
+      });
+    });
+</script>
+
+
 {% endblock %}
