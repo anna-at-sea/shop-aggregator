@@ -48,6 +48,13 @@ class CategoryPageView(
         if city_pk:
             products = products.filter(
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
-            )
-        context["products"] = products.distinct()
+            ).distinct()
+        for product in products:
+            if self.request.user.is_authenticated:
+                product.is_liked = product.likes.filter(user=self.request.user).exists()
+            else:
+                product.is_liked = product in self.request.session.get(
+                    'liked_products', []
+                )
+        context["products"] = products
         return context

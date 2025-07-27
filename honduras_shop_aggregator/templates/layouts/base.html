@@ -16,7 +16,6 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark {% if user.is_authenticated and user.is_seller %}bg-secondary{% else %}bg-primary{% endif %} py-2">
             <div class="container-fluid position-relative">
-                <!-- Left: Logo and Links -->
                 <div class="d-flex align-items-center">
                     <a class="navbar-brand d-flex align-items-center me-3" href="{% url 'index' %}">
                         <img src="{% static 'images/shopping-cart-7436205_640.png' %}" alt="HNDeals Logo" width="35" height="35" class="me-2">
@@ -38,13 +37,11 @@
                     </ul>
                 </div>
         
-                <!-- Center: Search Bar -->
                 <form class="position-absolute start-50 translate-middle-x d-flex" role="search" style="width: 40%;">
                     <input class="form-control me-2" type="search" placeholder="{% translate 'Search' %}" aria-label="Search">
                     <button class="btn btn-outline-light" type="submit">{% translate "Search" %}</button>
                 </form>
         
-                <!-- Right: Language Toggle & User Auth -->
                 <div class="d-flex ms-auto align-items-center">
                     <div class="dropdown me-3">
                         <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -60,7 +57,6 @@
                             {% endfor %}
                         </ul>
                     </div>
-                    <!-- Language Toggle with Space -->
                     <div class="dropdown me-3"> 
                         <form action="{% url 'set_language' %}" method="post">
                             {% csrf_token %}
@@ -88,10 +84,9 @@
                     </div>
                 
                     {% if user.is_authenticated %}
-                    <!-- User Dropdown -->
                     <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;">
-                            {{ user.username }}
+                        <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;" title="{{ user.username }}">
+                            👤 {{ user.username|truncatechars:15 }}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>
@@ -100,7 +95,6 @@
                             {% else %}
                             <li><a class="dropdown-item" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Go to seller profile" %}</a></li>
                             {% endif %}
-                            <li><a class="dropdown-item" href="#">{% translate "Settings" %}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{% url 'logout' %}" method="post">
@@ -111,11 +105,18 @@
                         </ul>
                     </div>
                     {% else %}
-                    <!-- Log In / Register Button -->
-                    <a href="{% url 'user_create' %}" class="btn btn-outline-light d-flex align-items-center text-nowrap" style="font-size: 0.9rem; white-space: nowrap;">{% translate "Log in" %} | {% translate "Register" %}</a>
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;">
+                            👤 {% translate "Profile" %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="{% url 'anonymous_profile' %}">{% translate "Saved products" %}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'user_create' %}">{% translate "Log in" %} | {% translate "Register" %}</a></li>
+                        </ul>
+                    </div>
                     {% endif %}
                 </div>
-                
             </div>
         </nav>
     </header>

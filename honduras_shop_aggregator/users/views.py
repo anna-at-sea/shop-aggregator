@@ -6,7 +6,7 @@ from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from honduras_shop_aggregator import utils
@@ -33,9 +33,27 @@ class UserProfileView(
     def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
             profile_user = context['user']
-            context['products'] = Product.objects.filter(
+            products = Product.objects.filter(
                 likes__user=profile_user
             )
+            for product in products:
+                product.is_liked = True
+            context['products'] = products
+            return context
+
+
+class AnonymousProfileView(
+    SuccessMessageMixin, TemplateView
+):
+    template_name = 'pages/users/profile.html'
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            product_pks = self.request.session.get('liked_products', [])
+            products = Product.objects.filter(pk__in=product_pks)
+            for product in products:
+                product.is_liked = True
+            context['products'] = products
             return context
 
 

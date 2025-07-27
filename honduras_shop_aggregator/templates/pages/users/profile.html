@@ -4,8 +4,9 @@
 
 {% block content %}
 {% include "partials/flash_message.html" %}
-<h1 class="text-primary">{% translate "Welcome," %} {{ user.username }} </h1>
+<h1 class="text-primary">{% translate "Welcome" %}{% if user.is_authenticated %}, {{ user.username }}{% else %}{% endif %} </h1>
 <div class="container mt-4">
+{% if user.is_authenticated %}
     <div class="row">
         <div class="col-md-4">
             <div class="card text-center border-primary shadow-sm">
@@ -41,6 +42,13 @@
             </div>
         </div>
     </div>
+{% else %}
+    <div class="alert alert-info text-center shadow-sm">
+    <h4 class="text-primary">{% translate "You're not logged in yet!" %}</h4>
+    <p>{% translate "To save your wishlist permanently and access your profile, please log in or create an account." %}</p>
+    <a href="{% url 'user_create' %}" class="btn btn-primary">{% translate "Log In | Register" %}</a>
+    </div>
+{% endif %}
 
     <div class="row mt-4">
         <div class="col">

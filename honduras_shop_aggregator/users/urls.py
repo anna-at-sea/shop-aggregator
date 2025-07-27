@@ -8,6 +8,7 @@ urlpatterns = [
         views.UserProfileView.as_view(),
         name='user_profile'
     ),
+    path('anonymous/', views.AnonymousProfileView.as_view(), name='anonymous_profile'),
     path('login/', views.UserLoginView.as_view(), name='login'),
     path('logout/', views.UserLogoutView.as_view(), name='logout'),
     path(

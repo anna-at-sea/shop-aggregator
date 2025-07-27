@@ -42,6 +42,13 @@ class ProductListView(SuccessMessageMixin, ListView):
             queryset = queryset.filter(
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
             ).distinct()
+        for product in queryset:
+            if self.request.user.is_authenticated:
+                product.is_liked = product.likes.filter(user=self.request.user).exists()
+            else:
+                product.is_liked = product in self.request.session.get(
+                    'liked_products', []
+                )
         return queryset
 
 

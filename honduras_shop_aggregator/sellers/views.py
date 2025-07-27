@@ -8,6 +8,7 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from honduras_shop_aggregator import utils
+from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.forms import (SellerCreateForm,
                                                     SellerDeleteForm,
                                                     SellerUpdateForm)
@@ -26,6 +27,17 @@ class SellerProfileView(
 
     def get_object(self):
         return get_object_or_404(Seller, store_name=self.kwargs["store_name"])
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            profile_seller = context['seller']
+            products = Product.objects.filter(
+                seller=profile_seller
+            )
+            for product in products:
+                product.is_liked = product.likes.filter(user=self.request.user).exists()
+            context['products'] = products
+            return context
 
 
 class SellerFormCreateView(

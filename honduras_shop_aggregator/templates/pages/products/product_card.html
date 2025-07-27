@@ -62,18 +62,17 @@
                     </a>
                     {% endif %}
                     {% csrf_token %}
-                    <button class="btn btn-outline-primary like-btn" data-product-id="{{ product.pk }}">
+                    <button class="btn like-btn" data-product-id="{{ product.pk }}">
                         {% if user.is_authenticated and product.is_liked %}
-                        ❤️ {% translate "Saved" %}
+                        <span data-test-id="liked">❤️ {% translate "Saved" %}</span>
                         {% else %}
                             {% if request.session.liked_products and product.pk in request.session.liked_products %}
-                            ❤️ {% translate "Saved" %}
+                            <span data-test-id="liked">❤️ {% translate "Saved" %}</span>
                             {% else %}
-                            🤍 {% translate "Save" %}
+                            <span data-test-id="unliked">🤍 {% translate "Save" %}</span>
                             {% endif %}
                         {% endif %}
                     </button>
-                  
                 {% endif %}
 
                 {% if request.user == product.seller.user %}
@@ -133,9 +132,9 @@
           .then(response => response.json())
           .then(data => {
             if (data.status === 'liked') {
-              this.textContent = '❤️';
+              this.textContent = '❤️ {% translate "Saved" %}';
             } else {
-              this.textContent = '🤍';
+              this.textContent = '🤍 {% translate "Save" %}';
             }
           })
           .catch(error => console.error('Error:', error));
