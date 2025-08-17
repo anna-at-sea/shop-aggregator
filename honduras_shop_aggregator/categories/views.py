@@ -1,8 +1,11 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.views.generic import DetailView, ListView
+from django.shortcuts import get_object_or_404
+from django.views.generic import ListView
+from django_filters.views import FilterView
 
 from honduras_shop_aggregator.categories.models import Category
+from honduras_shop_aggregator.products.filters import ProductFilter
 from honduras_shop_aggregator.products.models import Product
 
 
@@ -29,19 +32,23 @@ class CategoryListView(SuccessMessageMixin, ListView):
 
 
 class CategoryPageView(
-    SuccessMessageMixin, DetailView
+    SuccessMessageMixin, FilterView
 ):
-    model = Category
+    model = Product
     template_name = 'pages/categories/category_page.html'
-    context_object_name = 'category'
-    slug_field = "slug"
-    slug_url_kwarg = "slug"
+    context_object_name = 'products'
+    filterset_class = ProductFilter
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        kwargs['category_locked'] = True 
+        return kwargs
+
+    def get_queryset(self, **kwargs):
+        category_slug = self.kwargs.get("slug")
         city_pk = self.request.session.get('city_pk')
         products = Product.objects.filter(
-            category=self.object,
+            category__slug=category_slug,
             is_active=True,
             stock_quantity__gt=0
         )
@@ -56,5 +63,9 @@ class CategoryPageView(
                 product.is_liked = product in self.request.session.get(
                     'liked_products', []
                 )
-        context["products"] = products
+        return products
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["category"] = get_object_or_404(Category, slug=self.kwargs.get("slug"))
         return context

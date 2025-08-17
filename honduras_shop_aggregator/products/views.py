@@ -3,10 +3,12 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django_filters.views import FilterView
 
 from honduras_shop_aggregator import utils
+from honduras_shop_aggregator.products.filters import ProductFilter
 from honduras_shop_aggregator.products.forms import (ProductCreateForm,
                                                      ProductDeleteForm,
                                                      ProductImageUpdateForm,
@@ -30,14 +32,17 @@ class ProductCardView(
         return product
 
 
-class ProductListView(SuccessMessageMixin, ListView):
+class ProductFilterView(SuccessMessageMixin, FilterView):
     model = Product
     template_name = 'pages/products/product_list.html'
     context_object_name = 'products'
+    filterset_class = ProductFilter
 
     def get_queryset(self):
-        queryset = Product.objects.filter(is_active=True, stock_quantity__gt=0)
+        queryset = super().get_queryset()
+        queryset = queryset.filter(is_active=True, stock_quantity__gt=0)
         city_pk = self.request.session.get('city_pk')
+        print(city_pk)
         if city_pk:
             queryset = queryset.filter(
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)

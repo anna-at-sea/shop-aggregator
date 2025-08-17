@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block content %}
@@ -8,6 +9,22 @@
 <div class="container mt-4">
     <h1 class="text-primary mb-4">{% translate "All Products in" %} {{ current_city.name }}</h1>
 
-    {% include "partials/_product_grid.html" %}
+    <div class="row">
+        <div class="col-12 col-md-3">
+            <div class="filter-sidebar">
+                <form method="get" class="card">
+                    <div class="card-body bg-light">
+                        {{ filter.form|crispy }}
+                        <button type="submit" class="btn btn-primary btn-sm">{% translate "Show" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
+        <div class="col-12 col-md-9">
+            {% include "partials/_product_grid.html" %}
+        </div>
+    </div>
+
+</div>
 {% endblock %}

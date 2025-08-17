@@ -4,7 +4,7 @@
       "pk": 1,
       "fields": {
         "product_name": "testproduct",
-        "description": "this is productfrom city 1 and can be delivered to city 2",
+        "description": "this is product from city 1 and can be delivered to city 2",
         "product_price": 10,
         "slug": "testproduct",
         "seller": 3,
@@ -47,7 +47,7 @@
       "pk": 4,
       "fields": {
         "product_name": "other_seller_product",
-        "description": "this is productfrom city 1, no other cities delivery",
+        "description": "this is product from city 1, no other cities delivery",
         "product_price": 50,
         "slug": "other-seller-product",
         "seller": 2,
@@ -74,7 +74,7 @@
       "pk": 6,
       "fields": {
         "product_name": "product_from_second_city",
-        "description": "this is productfrom city 2",
+        "description": "this is product from city 2",
         "product_price": 501,
         "slug": "product-from-second-city",
         "seller": 3,

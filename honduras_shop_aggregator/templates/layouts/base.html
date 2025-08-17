@@ -37,11 +37,11 @@
                     </ul>
                 </div>
         
-                <form class="position-absolute start-50 translate-middle-x d-flex" role="search" style="width: 40%;">
-                    <input class="form-control me-2" type="search" placeholder="{% translate 'Search' %}" aria-label="Search">
+                <form action="{% url 'product_list' %}" method="get" class="position-absolute start-50 translate-middle-x d-flex" role="search" style="width: 40%;">
+                    <input class="form-control me-2" type="text" name="search" value="{{ request.GET.search }}" placeholder="{% translate 'Search' %}" aria-label="Search">
                     <button class="btn btn-outline-light" type="submit">{% translate "Search" %}</button>
                 </form>
-        
+
                 <div class="d-flex ms-auto align-items-center">
                     <div class="dropdown me-3">
                         <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
