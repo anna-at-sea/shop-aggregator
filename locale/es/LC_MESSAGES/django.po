@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-11 12:08+0000\n"
+"POT-Creation-Date: 2025-08-18 17:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,8 +25,14 @@ msgstr "Nombre de la categoría"
 
 #: honduras_shop_aggregator/categories/tests.py:43
 #: honduras_shop_aggregator/cities/tests.py:138
-#: honduras_shop_aggregator/products/tests.py:119
-#: honduras_shop_aggregator/templates/partials/_product_grid.html:37
+#: honduras_shop_aggregator/products/test_filters.py:107
+#: honduras_shop_aggregator/products/test_filters.py:221
+#: honduras_shop_aggregator/products/test_filters.py:355
+#: honduras_shop_aggregator/products/test_filters.py:366
+#: honduras_shop_aggregator/products/test_filters.py:375
+#: honduras_shop_aggregator/products/test_filters.py:460
+#: honduras_shop_aggregator/products/tests.py:117
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:61
 msgid "No products found."
 msgstr "No se encontraron productos."
 
@@ -50,22 +56,42 @@ msgid "City Name"
 msgstr "Nombre de la ciudad"
 
 #: honduras_shop_aggregator/cities/tests.py:104
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:53
-#: honduras_shop_aggregator/templates/partials/_product_grid.html:20
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:47
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:44
 msgid "Available in your city"
 msgstr "Disponible en tu ciudad"
 
 #: honduras_shop_aggregator/cities/tests.py:111
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:56
-#: honduras_shop_aggregator/templates/partials/_product_grid.html:23
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:50
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:47
 msgid "Delivery from"
 msgstr "Envío desde"
 
 #: honduras_shop_aggregator/cities/tests.py:118
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:58
-#: honduras_shop_aggregator/templates/partials/_product_grid.html:25
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:52
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:49
 msgid "Not available in your city"
 msgstr "No disponible en tu ciudad"
+
+#: honduras_shop_aggregator/products/filters.py:17
+#: honduras_shop_aggregator/products/test_filters.py:399
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:25
+msgid "Category"
+msgstr "Categoría"
+
+#: honduras_shop_aggregator/products/filters.py:21
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:28
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:40
+msgid "Sold by"
+msgstr "Vendido por"
+
+#: honduras_shop_aggregator/products/filters.py:26
+msgid "Price from"
+msgstr "Precio desde"
+
+#: honduras_shop_aggregator/products/filters.py:31
+msgid "Price to"
+msgstr "Precio hasta"
 
 #: honduras_shop_aggregator/products/forms.py:65
 #: honduras_shop_aggregator/sellers/forms.py:47
@@ -75,7 +101,7 @@ msgstr ""
 "eliminación de la tienda"
 
 #: honduras_shop_aggregator/products/forms.py:85
-#: honduras_shop_aggregator/products/tests.py:877
+#: honduras_shop_aggregator/products/tests.py:875
 #: honduras_shop_aggregator/sellers/forms.py:41
 #: honduras_shop_aggregator/sellers/forms.py:67
 #: honduras_shop_aggregator/sellers/tests.py:285
@@ -102,8 +128,8 @@ msgid "product link"
 msgstr "Enlace del producto"
 
 #: honduras_shop_aggregator/products/models.py:75
-#: honduras_shop_aggregator/products/tests.py:316
-#: honduras_shop_aggregator/products/tests.py:763
+#: honduras_shop_aggregator/products/tests.py:314
+#: honduras_shop_aggregator/products/tests.py:761
 msgid "This product is already listed."
 msgstr "Este producto ya está listado."
 
@@ -130,75 +156,61 @@ msgid "Image processing failed"
 msgstr "El procesamiento de la imagen falló."
 
 #: honduras_shop_aggregator/products/models.py:166
-#: honduras_shop_aggregator/products/tests.py:267
-#: honduras_shop_aggregator/products/tests.py:718
+#: honduras_shop_aggregator/products/tests.py:265
+#: honduras_shop_aggregator/products/tests.py:716
 msgid "Price must be greater than 0."
 msgstr "El precio debe ser mayor que 0."
 
 #: honduras_shop_aggregator/products/models.py:174
-#: honduras_shop_aggregator/products/tests.py:366
+#: honduras_shop_aggregator/products/tests.py:364
 msgid "Product link must start with the seller's website URL."
 msgstr ""
 "El enlace del producto debe comenzar con la URL del sitio web del vendedor."
 
 #: honduras_shop_aggregator/products/models.py:184
-#: honduras_shop_aggregator/products/tests.py:400
-#: honduras_shop_aggregator/products/tests.py:747
+#: honduras_shop_aggregator/products/tests.py:398
+#: honduras_shop_aggregator/products/tests.py:745
 msgid "Product name cannot contain links."
 msgstr "El nombre del producto no puede contener enlaces."
 
 #: honduras_shop_aggregator/products/models.py:188
-#: honduras_shop_aggregator/products/tests.py:418
+#: honduras_shop_aggregator/products/tests.py:416
 msgid "Description cannot contain links."
 msgstr "La descripción no puede contener enlaces."
 
 #: honduras_shop_aggregator/products/tests.py:38
 #: honduras_shop_aggregator/products/tests.py:48
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:46
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:40
 msgid "In stock"
 msgstr "En existencia"
 
-#: honduras_shop_aggregator/products/tests.py:39
-#: honduras_shop_aggregator/products/tests.py:59
-#: honduras_shop_aggregator/products/tests.py:69
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:81
-msgid "Login to Save"
-msgstr "Inicia sesión para guardar."
-
-#: honduras_shop_aggregator/products/tests.py:49
-#: honduras_shop_aggregator/products/tests.py:58
-#: honduras_shop_aggregator/products/tests.py:68
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:76
-msgid "Add to Favorites"
-msgstr "Agregar a favoritos"
-
 #: honduras_shop_aggregator/products/tests.py:57
-#: honduras_shop_aggregator/products/tests.py:67
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:48
+#: honduras_shop_aggregator/products/tests.py:66
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:42
 msgid "Out of stock"
 msgstr "Agotado"
 
-#: honduras_shop_aggregator/products/tests.py:187
-#: honduras_shop_aggregator/products/tests.py:287
-#: honduras_shop_aggregator/products/tests.py:301
-#: honduras_shop_aggregator/products/tests.py:338
-#: honduras_shop_aggregator/products/views.py:54
+#: honduras_shop_aggregator/products/tests.py:185
+#: honduras_shop_aggregator/products/tests.py:285
+#: honduras_shop_aggregator/products/tests.py:299
+#: honduras_shop_aggregator/products/tests.py:336
+#: honduras_shop_aggregator/products/views.py:69
 msgid "Product is added successfully. Please add image of the product"
 msgstr ""
 "Producto agregado con éxito. Por favor, agrega una imagen del producto."
 
-#: honduras_shop_aggregator/products/tests.py:209
-#: honduras_shop_aggregator/products/tests.py:225
-#: honduras_shop_aggregator/products/tests.py:590
-#: honduras_shop_aggregator/products/tests.py:705
-#: honduras_shop_aggregator/products/tests.py:862
+#: honduras_shop_aggregator/products/tests.py:207
+#: honduras_shop_aggregator/products/tests.py:223
+#: honduras_shop_aggregator/products/tests.py:588
+#: honduras_shop_aggregator/products/tests.py:703
+#: honduras_shop_aggregator/products/tests.py:860
 #: honduras_shop_aggregator/utils.py:54
 msgid "Only verified sellers can add and edit products."
 msgstr "Solo los vendedores verificados pueden agregar y editar productos."
 
-#: honduras_shop_aggregator/products/tests.py:237
-#: honduras_shop_aggregator/products/tests.py:250
-#: honduras_shop_aggregator/products/tests.py:794
+#: honduras_shop_aggregator/products/tests.py:235
+#: honduras_shop_aggregator/products/tests.py:248
+#: honduras_shop_aggregator/products/tests.py:792
 #: honduras_shop_aggregator/sellers/tests.py:94
 #: honduras_shop_aggregator/sellers/tests.py:192
 #: honduras_shop_aggregator/users/tests.py:132
@@ -208,25 +220,25 @@ msgstr "Solo los vendedores verificados pueden agregar y editar productos."
 msgid "This field is required."
 msgstr "Este campo es obligatorio."
 
-#: honduras_shop_aggregator/products/tests.py:351
-#: honduras_shop_aggregator/products/tests.py:732
+#: honduras_shop_aggregator/products/tests.py:349
+#: honduras_shop_aggregator/products/tests.py:730
 msgid "Enter a valid URL."
 msgstr "Ingresa una URL válida."
 
-#: honduras_shop_aggregator/products/tests.py:384
+#: honduras_shop_aggregator/products/tests.py:382
 msgid "Ensure that there are no more than 10 digits in total."
 msgstr "Asegúrate de que no haya más de 10 dígitos en total."
 
-#: honduras_shop_aggregator/products/tests.py:484
-#: honduras_shop_aggregator/products/views.py:91
+#: honduras_shop_aggregator/products/tests.py:482
+#: honduras_shop_aggregator/products/views.py:106
 msgid "Image updated successfully"
 msgstr "Imagen actualizada con éxito"
 
-#: honduras_shop_aggregator/products/tests.py:510
+#: honduras_shop_aggregator/products/tests.py:508
 msgid "Image size should not exceed 2 MB."
 msgstr "El tamaño de la imagen no debe exceder los 2 MB."
 
-#: honduras_shop_aggregator/products/tests.py:528
+#: honduras_shop_aggregator/products/tests.py:526
 msgid ""
 "Upload a valid image. The file you uploaded was either not an image or a "
 "corrupted image."
@@ -234,68 +246,68 @@ msgstr ""
 "Sube una imagen válida. El archivo que subiste no es una imagen o está "
 "dañada."
 
-#: honduras_shop_aggregator/products/tests.py:567
+#: honduras_shop_aggregator/products/tests.py:565
 #, python-brace-format
 msgid "Image name should start with 'products/{self.product.slug}', "
 msgstr ""
 "El nombre de la imagen debe comenzar con 'products/{self.product.slug}', "
 
-#: honduras_shop_aggregator/products/tests.py:573
+#: honduras_shop_aggregator/products/tests.py:571
 msgid "Image content should change after new upload"
 msgstr "El contenido de la imagen debe cambiar después de subir una nueva."
 
-#: honduras_shop_aggregator/products/tests.py:609
-#: honduras_shop_aggregator/products/tests.py:689
-#: honduras_shop_aggregator/products/tests.py:894
+#: honduras_shop_aggregator/products/tests.py:607
+#: honduras_shop_aggregator/products/tests.py:687
+#: honduras_shop_aggregator/products/tests.py:892
 msgid "You don&#x27;t have permission to access this product."
 msgstr "No tienes permiso para acceder a este producto."
 
-#: honduras_shop_aggregator/products/tests.py:662
-#: honduras_shop_aggregator/products/views.py:123
+#: honduras_shop_aggregator/products/tests.py:660
+#: honduras_shop_aggregator/products/views.py:138
 msgid "Product information is updated successfully"
 msgstr "La información del producto se actualizó con éxito."
 
-#: honduras_shop_aggregator/products/tests.py:836
-#: honduras_shop_aggregator/products/views.py:153
+#: honduras_shop_aggregator/products/tests.py:834
+#: honduras_shop_aggregator/products/views.py:168
 msgid "Product deleted successfully"
 msgstr "Producto eliminado con éxito."
 
-#: honduras_shop_aggregator/products/views.py:64
+#: honduras_shop_aggregator/products/views.py:79
 msgid "Add Product"
 msgstr "Agregar producto"
 
-#: honduras_shop_aggregator/products/views.py:65
+#: honduras_shop_aggregator/products/views.py:80
 msgid "Add"
 msgstr "Agregar"
 
-#: honduras_shop_aggregator/products/views.py:99
+#: honduras_shop_aggregator/products/views.py:114
 #: honduras_shop_aggregator/templates/layouts/base_form.html:25
 msgid "Update Product Image"
 msgstr "Actualizar imagen del producto"
 
-#: honduras_shop_aggregator/products/views.py:100
+#: honduras_shop_aggregator/products/views.py:115
 msgid "Update Image"
 msgstr "Actualizar imagen"
 
-#: honduras_shop_aggregator/products/views.py:128
+#: honduras_shop_aggregator/products/views.py:143
 #: honduras_shop_aggregator/templates/layouts/base_form.html:10
 #: honduras_shop_aggregator/templates/layouts/base_form.html:18
 msgid "Update product"
 msgstr "Actualizar producto"
 
-#: honduras_shop_aggregator/products/views.py:129
-#: honduras_shop_aggregator/sellers/views.py:97
-#: honduras_shop_aggregator/users/views.py:106
+#: honduras_shop_aggregator/products/views.py:144
+#: honduras_shop_aggregator/sellers/views.py:109
+#: honduras_shop_aggregator/users/views.py:133
 msgid "Update"
 msgstr "Actualizar"
 
-#: honduras_shop_aggregator/products/views.py:164
+#: honduras_shop_aggregator/products/views.py:179
 msgid "Are you sure you want to delete product "
 msgstr "¿Estás seguro de que quieres eliminar el producto "
 
-#: honduras_shop_aggregator/products/views.py:167
-#: honduras_shop_aggregator/sellers/views.py:131
-#: honduras_shop_aggregator/users/views.py:163
+#: honduras_shop_aggregator/products/views.py:182
+#: honduras_shop_aggregator/sellers/views.py:143
+#: honduras_shop_aggregator/users/views.py:190
 msgid "Yes, delete"
 msgstr "Sí, eliminar"
 
@@ -339,12 +351,12 @@ msgid "You don&#x27;t have permission to access other store profile."
 msgstr "No tienes permiso para acceder al perfil de otra tienda."
 
 #: honduras_shop_aggregator/sellers/tests.py:78
-#: honduras_shop_aggregator/sellers/views.py:54
+#: honduras_shop_aggregator/sellers/views.py:66
 msgid "Store is registered and awaiting verification"
 msgstr "La tienda está registrada y en espera de verificación."
 
 #: honduras_shop_aggregator/sellers/tests.py:133
-#: honduras_shop_aggregator/sellers/views.py:44
+#: honduras_shop_aggregator/sellers/views.py:56
 msgid ""
 "You already have a store associated with your account. Each user can "
 "register only one store. If you wish to create another store, please log in "
@@ -355,84 +367,84 @@ msgstr ""
 "diferente o regístrate con una nueva."
 
 #: honduras_shop_aggregator/sellers/tests.py:172
-#: honduras_shop_aggregator/sellers/views.py:91
+#: honduras_shop_aggregator/sellers/views.py:103
 msgid "Store is updated successfully"
 msgstr "La tienda se actualizó con éxito."
 
 #: honduras_shop_aggregator/sellers/tests.py:261
-#: honduras_shop_aggregator/sellers/views.py:117
+#: honduras_shop_aggregator/sellers/views.py:129
 msgid "Store deleted successfully"
 msgstr "Tienda eliminada con éxito."
 
 #: honduras_shop_aggregator/sellers/tests.py:316
-#: honduras_shop_aggregator/sellers/views.py:142
+#: honduras_shop_aggregator/sellers/views.py:154
 msgid "This store still has active products and cannot be deleted"
 msgstr "Esta tienda todavía tiene productos activos y no puede ser eliminada."
 
-#: honduras_shop_aggregator/sellers/views.py:64
+#: honduras_shop_aggregator/sellers/views.py:76
 msgid "Seller Registration"
 msgstr "Registro de vendedor"
 
-#: honduras_shop_aggregator/sellers/views.py:65
+#: honduras_shop_aggregator/sellers/views.py:77
 #: honduras_shop_aggregator/templates/layouts/base.html:115
-#: honduras_shop_aggregator/users/views.py:80
+#: honduras_shop_aggregator/users/views.py:107
 msgid "Register"
 msgstr "Registrarse"
 
-#: honduras_shop_aggregator/sellers/views.py:96
+#: honduras_shop_aggregator/sellers/views.py:108
 msgid "Update store"
 msgstr "Actualizar tienda"
 
-#: honduras_shop_aggregator/sellers/views.py:128
+#: honduras_shop_aggregator/sellers/views.py:140
 msgid "Are you sure you want to delete store "
 msgstr "¿Estás seguro de que quieres eliminar la tienda "
 
-#: honduras_shop_aggregator/templates/layouts/base.html:27
+#: honduras_shop_aggregator/templates/layouts/base.html:26
 msgid "Home"
 msgstr "Inicio"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:30
+#: honduras_shop_aggregator/templates/layouts/base.html:29
 msgid "Products"
 msgstr "Productos"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:33
+#: honduras_shop_aggregator/templates/layouts/base.html:32
 #: honduras_shop_aggregator/templates/pages/categories/category_list.html:9
 msgid "Categories"
 msgstr "Categorías"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:36
+#: honduras_shop_aggregator/templates/layouts/base.html:35
 msgid "Sellers"
 msgstr "Vendedores"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:43
-#: honduras_shop_aggregator/templates/layouts/base.html:44
+#: honduras_shop_aggregator/templates/layouts/base.html:41
+#: honduras_shop_aggregator/templates/layouts/base.html:42
 msgid "Search"
 msgstr "Buscar"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:97
+#: honduras_shop_aggregator/templates/layouts/base.html:92
+#: honduras_shop_aggregator/templates/layouts/base.html:110
 msgid "Profile"
 msgstr "Perfil"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:99
+#: honduras_shop_aggregator/templates/layouts/base.html:94
 msgid "Become seller"
 msgstr "Hazte vendedor"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:101
+#: honduras_shop_aggregator/templates/layouts/base.html:96
 msgid "Go to seller profile"
 msgstr "Ir al perfil de vendedor"
 
-#: honduras_shop_aggregator/templates/layouts/base.html:103
-#: honduras_shop_aggregator/templates/pages/users/profile.html:23
-msgid "Settings"
-msgstr "Configuración"
-
-#: honduras_shop_aggregator/templates/layouts/base.html:108
+#: honduras_shop_aggregator/templates/layouts/base.html:102
 msgid "Logout"
 msgstr "Cerrar sesión"
 
+#: honduras_shop_aggregator/templates/layouts/base.html:113
+msgid "Saved products"
+msgstr "Productos guardados"
+
 #: honduras_shop_aggregator/templates/layouts/base.html:115
-#: honduras_shop_aggregator/users/views.py:39
-#: honduras_shop_aggregator/users/views.py:40
+#: honduras_shop_aggregator/users/views.py:66
+#: honduras_shop_aggregator/users/views.py:67
 msgid "Log in"
 msgstr "Iniciar sesión"
 
@@ -441,7 +453,7 @@ msgid "Want to change the product image?"
 msgstr "¿Quieres cambiar la imagen del producto?"
 
 #: honduras_shop_aggregator/templates/layouts/base_form.html:39
-#: honduras_shop_aggregator/users/views.py:79
+#: honduras_shop_aggregator/users/views.py:106
 msgid "Registration"
 msgstr "Registro"
 
@@ -476,53 +488,65 @@ msgstr[2] ""
 "                    %(count)s productos\n"
 "                  "
 
-#: honduras_shop_aggregator/templates/pages/categories/category_page.html:11
+#: honduras_shop_aggregator/templates/pages/categories/category_page.html:12
 msgid "Back to Categories"
 msgstr "Volver a categorías"
+
+#: honduras_shop_aggregator/templates/pages/categories/category_page.html:16
+msgid "in"
+msgstr "en"
+
+#: honduras_shop_aggregator/templates/pages/categories/category_page.html:24
+#: honduras_shop_aggregator/templates/pages/products/product_list.html:18
+msgid "Show"
+msgstr "Mostrar"
 
 #: honduras_shop_aggregator/templates/pages/index.html:6
 msgid "Find, compare, and save"
 msgstr "Encuentra, compara y ahorra"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:12
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:11
 msgid "Back"
 msgstr "Atrás"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:29
-msgid "Category"
-msgstr "Categoría"
-
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:34
-#: honduras_shop_aggregator/templates/partials/_product_grid.html:16
-msgid "Sold by"
-msgstr "Vendido por"
-
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:68
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:61
 msgid "View on Seller's Website"
 msgstr "Ver en el sitio web del vendedor"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:88
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:67
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:70
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:135
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:36
+msgid "Saved"
+msgstr "Guardado"
+
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:72
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:137
+msgid "Save"
+msgstr "Guardar"
+
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:80
 msgid "Owner Actions"
 msgstr "Acciones del propietario"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:91
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:105
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:83
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:37
 msgid "Edit Product Info"
 msgstr "Editar información del producto"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:94
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:86
 msgid "Edit Product Image"
 msgstr "Editar imagen del producto"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:99
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:91
 msgid "Delete Product"
 msgstr "Eliminar producto"
 
-#: honduras_shop_aggregator/templates/pages/products/product_card.html:115
+#: honduras_shop_aggregator/templates/pages/products/product_card.html:105
 msgid "Product Description"
 msgstr "Descripción del producto"
 
-#: honduras_shop_aggregator/templates/pages/products/product_list.html:9
+#: honduras_shop_aggregator/templates/pages/products/product_list.html:10
 msgid "All Products in"
 msgstr "Todos los productos en"
 
@@ -534,133 +558,133 @@ msgstr ""
 "Tu tienda aún no ha sido verificada por un administrador. Los productos no "
 "serán visibles para los usuarios hasta que se complete la verificación."
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:24
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:23
 msgid "Date of registration"
 msgstr "Fecha de registro"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:31
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:29
 msgid "Store Settings"
 msgstr "Configuración de la tienda"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:34
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:32
 msgid "Edit Store Info"
 msgstr "Editar información de la tienda"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:36
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:34
 msgid "Delete Store"
 msgstr "Eliminar tienda"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:45
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:42
 msgid "Store Details"
 msgstr "Detalles de la tienda"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:47
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:44
 msgid "Store Name"
 msgstr "Nombre de la tienda"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:48
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:45
 msgid "Website"
 msgstr "Sitio web"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:49
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:46
 msgid "Verification Status"
 msgstr "Estado de verificación"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:51
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:48
 msgid "Verified"
 msgstr "Verificado"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:53
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:50
 msgid "Pending Verification"
 msgstr "Verificación pendiente"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:56
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:53
 msgid "Registered On"
 msgstr "Registrado el"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:67
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:64
 msgid "Store Description"
 msgstr "Descripción de la tienda"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:80
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:75
 msgid "Your Products"
 msgstr "Tus productos"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:82
+#: honduras_shop_aggregator/templates/pages/sellers/profile.html:77
 msgid "Add New Product"
 msgstr "Agregar nuevo producto"
 
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:93
-msgid "Price"
-msgstr "Precio"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:94
-msgid "Stock"
-msgstr "Inventario"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:95
-msgid "Active"
-msgstr "Activo"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:97
-msgid "Yes"
-msgstr "Sí"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:99
-msgid "No"
-msgstr "No"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:102
-msgid "Saved"
-msgstr "Guardado"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:104
-msgid "View Product"
-msgstr "Ver producto"
-
-#: honduras_shop_aggregator/templates/pages/sellers/profile.html:112
-msgid "You have not added any products yet."
-msgstr "Aún no has agregado ningún producto."
-
 #: honduras_shop_aggregator/templates/pages/users/profile.html:7
-msgid "Welcome,"
-msgstr "Bienvenidos,"
+msgid "Welcome"
+msgstr "Bienvenidos"
 
 #: honduras_shop_aggregator/templates/pages/users/profile.html:16
 msgid "Member since"
 msgstr "Miembro desde"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:26
+#: honduras_shop_aggregator/templates/pages/users/profile.html:22
+msgid "Settings"
+msgstr "Configuración"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:25
 msgid "Edit Profile"
 msgstr "Editar perfil"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:27
+#: honduras_shop_aggregator/templates/pages/users/profile.html:26
 msgid "Change Password"
 msgstr "Cambiar contraseña"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:29
+#: honduras_shop_aggregator/templates/pages/users/profile.html:28
 msgid "Delete Account"
 msgstr "Eliminar cuenta"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:38
+#: honduras_shop_aggregator/templates/pages/users/profile.html:36
 msgid "Profile Details"
 msgstr "Detalles del perfil"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:40
+#: honduras_shop_aggregator/templates/pages/users/profile.html:38
 msgid "Name"
 msgstr "Nombre"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:41
+#: honduras_shop_aggregator/templates/pages/users/profile.html:39
 msgid "Email"
 msgstr "Correo electrónico"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:53
+#: honduras_shop_aggregator/templates/pages/users/profile.html:47
+msgid "You're not logged in yet!"
+msgstr "¡Aún no has iniciado sesión!"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:48
+msgid ""
+"To save your wishlist permanently and access your profile, please log in or "
+"create an account."
+msgstr ""
+"Para guardar tu lista de deseos de forma permanente y acceder a tu perfil, "
+"por favor inicia sesión o crea una cuenta."
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:49
+msgid "Log In | Register"
+msgstr "Iniciar sesión | Registrarse"
+
+#: honduras_shop_aggregator/templates/pages/users/profile.html:57
 msgid "Saved Products"
 msgstr "Productos guardados"
 
-#: honduras_shop_aggregator/templates/pages/users/profile.html:54
-msgid "User's favorite items will be displayed here."
-msgstr "Los artículos favoritos del usuario se mostrarán aquí."
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:28
+msgid "Stock"
+msgstr "Inventario"
+
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:29
+msgid "Active"
+msgstr "Activo"
+
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:31
+msgid "Yes"
+msgstr "Sí"
+
+#: honduras_shop_aggregator/templates/partials/_product_grid.html:33
+msgid "No"
+msgstr "No"
 
 #: honduras_shop_aggregator/users/forms.py:25
 msgid "Enter password to apply changes"
@@ -690,7 +714,7 @@ msgstr ""
 "La sesión del usuario debería haber fallado, pero se permitió el acceso"
 
 #: honduras_shop_aggregator/users/tests.py:40
-#: honduras_shop_aggregator/users/views.py:48
+#: honduras_shop_aggregator/users/views.py:75
 msgid "You are logged in"
 msgstr "Has iniciado sesión"
 
@@ -699,7 +723,7 @@ msgid "User should be logged out"
 msgstr "El usuario debería haber cerrado sesión"
 
 #: honduras_shop_aggregator/users/tests.py:56
-#: honduras_shop_aggregator/users/views.py:58
+#: honduras_shop_aggregator/users/views.py:85
 msgid "You are logged out"
 msgstr "Has cerrado sesión"
 
@@ -711,7 +735,7 @@ msgid "You don&#x27;t have permission to view or edit other user."
 msgstr "No tienes permiso para ver o editar a otro usuario."
 
 #: honduras_shop_aggregator/users/tests.py:124
-#: honduras_shop_aggregator/users/views.py:71
+#: honduras_shop_aggregator/users/views.py:98
 msgid "User is registered successfully"
 msgstr "El usuario se registró con éxito"
 
@@ -721,12 +745,12 @@ msgid "A user with that username already exists."
 msgstr "Ya existe un usuario con ese nombre de usuario."
 
 #: honduras_shop_aggregator/users/tests.py:183
-#: honduras_shop_aggregator/users/views.py:100
+#: honduras_shop_aggregator/users/views.py:127
 msgid "User is updated successfully"
 msgstr "El usuario se actualizó con éxito"
 
 #: honduras_shop_aggregator/users/tests.py:268
-#: honduras_shop_aggregator/users/views.py:124
+#: honduras_shop_aggregator/users/views.py:151
 msgid "Password is changed successfully"
 msgstr "La contraseña se cambió con éxito"
 
@@ -741,28 +765,28 @@ msgid "The two password fields didn\\u2019t match."
 msgstr "Los dos campos de contraseña no coinciden."
 
 #: honduras_shop_aggregator/users/tests.py:358
-#: honduras_shop_aggregator/users/views.py:148
+#: honduras_shop_aggregator/users/views.py:175
 msgid "Account deleted successfully"
 msgstr "Cuenta eliminada con éxito"
 
 #: honduras_shop_aggregator/users/tests.py:373
-#: honduras_shop_aggregator/users/views.py:174
+#: honduras_shop_aggregator/users/views.py:201
 msgid "This account is linked to a store and cannot be deleted"
 msgstr "Esta cuenta está vinculada a una tienda y no puede ser eliminada."
 
-#: honduras_shop_aggregator/users/views.py:105
+#: honduras_shop_aggregator/users/views.py:132
 msgid "Update user"
 msgstr "Actualizar usuario"
 
-#: honduras_shop_aggregator/users/views.py:129
+#: honduras_shop_aggregator/users/views.py:156
 msgid "Change password"
 msgstr "Cambiar contraseña"
 
-#: honduras_shop_aggregator/users/views.py:130
+#: honduras_shop_aggregator/users/views.py:157
 msgid "Change"
 msgstr "Cambiar"
 
-#: honduras_shop_aggregator/users/views.py:160
+#: honduras_shop_aggregator/users/views.py:187
 msgid "Are you sure you want to delete "
 msgstr "¿Estás seguro de que quieres eliminar "
 

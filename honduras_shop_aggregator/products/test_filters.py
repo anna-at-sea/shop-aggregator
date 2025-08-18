@@ -125,6 +125,12 @@ class TestProductFilters(BaseTestCase):
         self.product_price_10_cat_1_sel_3 = Product.objects.get(pk=1)
         self.product_price_50_cat_1_sel_2 = Product.objects.get(pk=4)
         self.product_price_555_cat_3_sel_3 = Product.objects.get(pk=5)
+        self.unavailable_product = Product.objects.get(
+            product_name='unavailable_product'
+        )
+        self.out_of_stock_product = Product.objects.get(
+            product_name='out_of_stock_product'
+        )
         session = self.client.session
         session['city_pk'] = 1
         session.save()
@@ -147,6 +153,14 @@ class TestProductFilters(BaseTestCase):
             response,
             self.product_price_555_cat_3_sel_3.product_name
         )
+        self.assertNotContains(
+            response,
+            self.unavailable_product.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.out_of_stock_product.product_name
+        )
         response = self.client.get(
             reverse('product_list'),
             {"price_max": 500}
@@ -164,6 +178,14 @@ class TestProductFilters(BaseTestCase):
             response,
             self.product_price_555_cat_3_sel_3.product_name
         )
+        self.assertNotContains(
+            response,
+            self.unavailable_product.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.out_of_stock_product.product_name
+        )
         response = self.client.get(
             reverse('product_list'),
             {"price_min": 20}
@@ -180,6 +202,14 @@ class TestProductFilters(BaseTestCase):
         self.assertContains(
             response,
             self.product_price_555_cat_3_sel_3.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.unavailable_product.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.out_of_stock_product.product_name
         )
         response = self.client.get(
             reverse('product_list'),
@@ -228,6 +258,14 @@ class TestProductFilters(BaseTestCase):
             response,
             self.product_price_555_cat_3_sel_3.product_name
         )
+        self.assertNotContains(
+            response,
+            self.unavailable_product.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.out_of_stock_product.product_name
+        )
 
     def test_combined_filters_and_search(self):
         response = self.client.get(
@@ -246,6 +284,14 @@ class TestProductFilters(BaseTestCase):
         self.assertNotContains(
             response,
             self.product_price_555_cat_3_sel_3.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.unavailable_product.product_name
+        )
+        self.assertNotContains(
+            response,
+            self.out_of_stock_product.product_name
         )
         response = self.client.get(
             reverse('product_list'),
@@ -308,6 +354,27 @@ class TestProductFilters(BaseTestCase):
             response,
             _('No products found.')
         )
+
+    def test_invalid_filters_passed_to_url(self):
+        response = self.client.get(
+            reverse('product_list'),
+            {"price_max": "abc"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _('No products found.')
+        )
+        response = self.client.get(
+            reverse('product_list'),
+            {"seller": 1000}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _('No products found.')
+        )
+
 
 class TestSearchAndFiltersInCategories(BaseTestCase):
 
