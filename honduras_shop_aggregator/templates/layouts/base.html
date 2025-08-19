@@ -5,21 +5,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HNDeals</title>
+    <title>Cangrejal</title>
     {% load django_bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-    </head>
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+</head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark {% if user.is_authenticated and user.is_seller %}bg-secondary{% else %}bg-primary{% endif %} py-2">
+        <nav class="navbar navbar-expand-lg navbar-dark {% if user.is_authenticated and user.is_seller %}bg-secondary{% else %}bg-danger{% endif %} py-2">
             <div class="container-fluid position-relative">
                 <div class="d-flex align-items-center">
-                    <a class="navbar-brand d-flex align-items-center me-3" href="{% url 'index' %}">
-                        <img src="{% static 'images/shopping-cart-7436205_640.png' %}" alt="HNDeals Logo" width="35" height="35" class="me-2">
-                        <span class="fs-6 fw-bold">HNDeals</span>
+                    <a class="navbar-brand d-flex flex-column align-items-center me-3" href="{% url 'index' %}">
+                        <img src="{% static 'images/logo.png' %}" alt="Cangrejal Logo" width="50" height="50">
+                        <span class="fs-6">Cangrejal</span>
                     </a>
                     <ul class="navbar-nav">
                         <li class="nav-item">
@@ -121,10 +122,29 @@
         </nav>
     </header>
     
-
+<main>
 <p></p>
   <div class="container wrapper flex-grow-1">
       {% block content %}{% endblock %}
   </div>
+</main>
+
+<footer class="bg-dark text-light py-4 mt-5">
+    <div class="container text-center">
+      <h5>Cangrejal</h5>
+      <p class="small mb-3">
+        {% translate "Your trusted product aggregator in Honduras. Find the best deals from multiple sellers in one place." %}
+      </p>
+  
+      <p class="small mb-1">📍 La Ceiba, Honduras</p>
+      <p class="small mb-1">✉️ info@cangrejal.com</p>
+
+      <hr class="border-light">
+      <div class="small">
+        &copy; {% now "Y" %} Cangrejal. {% translate "All rights reserved." %}
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>

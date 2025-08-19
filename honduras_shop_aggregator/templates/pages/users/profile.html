@@ -4,26 +4,26 @@
 
 {% block content %}
 {% include "partials/flash_message.html" %}
-<h1 class="text-primary">{% translate "Welcome" %}{% if user.is_authenticated %}, {{ user.username }}{% else %}{% endif %} </h1>
+<h1 class="text-dark">{% translate "Welcome" %}{% if user.is_authenticated %}, {{ user.username }}{% else %}{% endif %} </h1>
 <div class="container mt-4">
 {% if user.is_authenticated %}
     <div class="row">
         <div class="col-md-4">
-            <div class="card text-center border-primary shadow-sm">
-                <img src="{% static 'images/profile_placeholder.svg' %}" class="card-img-top rounded-circle mx-auto mt-3 border border-primary" alt="User Avatar" style="width: 120px;">
+            <div class="card text-center shadow-sm">
+                <img src="{% static 'images/profile_placeholder.svg' %}" class="card-img-top rounded-circle mx-auto mt-3 border" alt="User Avatar" style="width: 120px;">
                 <div class="card-body">
-                    <h5 class="card-title text-primary">{{ user.username }}</h5>
+                    <h5 class="card-title text-dark">{{ user.username }}</h5>
                     <p class="text-muted">{% translate "Member since" %}: {{ user.date_joined }}</p>
                 </div>
             </div>
 
             <div class="dropdown mt-3 text-center">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-danger dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     ⚙️ {% translate "Settings" %}
                 </button>
                 <ul class="dropdown-menu shadow-sm border-0">
-                    <li><a class="dropdown-item text-primary" href="{% url 'user_update' user.username %}"><i class="bi bi-pencil"></i> {% translate "Edit Profile" %}</a></li>
-                    <li><a class="dropdown-item text-primary" href="{% url 'user_password_change' user.username %}"><i class="bi bi-key"></i> {% translate "Change Password" %}</a></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'user_update' user.username %}"><i class="bi bi-pencil"></i> {% translate "Edit Profile" %}</a></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'user_password_change' user.username %}"><i class="bi bi-key"></i> {% translate "Change Password" %}</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="{% url 'user_delete' user.username %}"><i class="bi bi-trash"></i> {% translate "Delete Account" %}</a></li>
                 </ul>
@@ -31,9 +31,9 @@
         </div>
 
         <div class="col-md-8">
-            <div class="card border-primary shadow-sm">
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title text-primary">{% translate "Profile Details" %}</h4>
+                    <h4 class="card-title text-dark">{% translate "Profile Details" %}</h4>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><strong>{% translate "Name" %}:</strong> {{ user.first_name }} {{ user.last_name }}</li>
                         <li class="list-group-item"><strong>{% translate "Email" %}:</strong> {{ user.email }}</li>
@@ -44,17 +44,18 @@
     </div>
 {% else %}
     <div class="alert alert-info text-center shadow-sm">
-    <h4 class="text-primary">{% translate "You're not logged in yet!" %}</h4>
+    <h4 class="text-dark">{% translate "You're not logged in yet!" %}</h4>
     <p>{% translate "To save your wishlist permanently and access your profile, please log in or create an account." %}</p>
-    <a href="{% url 'user_create' %}" class="btn btn-primary">{% translate "Log In | Register" %}</a>
+    <a href="{% url 'user_create' %}" class="btn btn-danger">{% translate "Log In | Register" %}</a>
     </div>
 {% endif %}
 
     <div class="row mt-4">
         <div class="col">
-            <div class="card border-primary shadow-sm">
+            <div>
                 <div class="card-body">
-                    <h4 class="card-title text-primary">{% translate "Saved Products" %}</h4>
+                    <h4 class="card-title text-dark">{% translate "Saved Products" %}</h4>
+                    <p></p>
                     {% include "partials/_product_grid.html" %}
                 </div>
             </div>

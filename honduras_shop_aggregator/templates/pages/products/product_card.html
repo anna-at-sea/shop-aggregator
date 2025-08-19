@@ -7,7 +7,7 @@
 
 <div class="container mt-4">
     <div class="mb-3">
-        <a href="#" class="text-decoration-none text-primary">
+        <a href="#" class="text-decoration-none text-secondary">
             ← {% translate "Back" %}
             <!-- Add link to go back to prev page -->
         </a>
@@ -21,7 +21,7 @@
         </div>
 
         <div class="col-md-7">
-            <h2 class="text-primary">{{ product.product_name }}</h2>
+            <h2 class="text-dark">{{ product.product_name }}</h2>
             <p class="text-muted mb-1">{% translate "Category" %}: 
                 <a href="{% url 'category_page' product.category.slug %}">{{ product.category.name }}</a>
             </p>
@@ -57,7 +57,7 @@
             <div class="d-grid gap-2 my-3">
                 {% if product.is_active and product.stock_quantity > 0 %}
                     {% if product.product_link %}
-                    <a href="{{ product.product_link }}" target="_blank" class="btn btn-primary">
+                    <a href="{{ product.product_link }}" target="_blank" class="btn btn-danger">
                         🛒 {% translate "View on Seller's Website" %} <i class="bi bi-box-arrow-up-right"></i>
                     </a>
                     {% endif %}
@@ -102,7 +102,7 @@
     {% if product.description %}
     <div class="row mt-5">
         <div class="col">
-            <h4 class="text-primary">{% translate "Product Description" %}</h4>
+            <h4 class="text-dark">{% translate "Product Description" %}</h4>
             <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">
                 {{ product.description }}
             </div>

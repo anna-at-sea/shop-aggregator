@@ -32,7 +32,7 @@
         {% csrf_token %}
         {{ form|default:form|crispy }}
         <input 
-            class="{{ button_class|default:'btn btn-primary' }}"
+            class="{{ button_class|default:'btn btn-danger' }}"
             type="submit"
             value="{{ button_text }}">
     </form>
