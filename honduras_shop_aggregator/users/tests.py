@@ -40,6 +40,17 @@ class TestAuthentication(BaseTestCase):
             _("You are logged in")
         )
 
+    def test_login_with_email(self):
+        response = self.client.post(reverse("login"), {
+            "username": self.user.email,
+            "password": "correct_password"
+        }, follow=True)
+        self.assertRedirectWithMessage(
+            response,
+            'index',
+            _("You are logged in")
+        )
+
     def test_logout(self):
         self.login_user(self.user)
         self.client.logout()

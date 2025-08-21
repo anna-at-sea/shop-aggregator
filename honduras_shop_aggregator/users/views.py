@@ -11,9 +11,9 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from honduras_shop_aggregator import utils
 from honduras_shop_aggregator.products.models import Product
-from honduras_shop_aggregator.users.forms import (UserCreateForm,
-                                                  UserDeleteForm,
-                                                  UserUpdateForm)
+from honduras_shop_aggregator.users.forms import (
+    EmailOrUsernameAuthenticationForm, UserCreateForm, UserDeleteForm,
+    UserUpdateForm)
 from honduras_shop_aggregator.users.models import User
 
 
@@ -59,6 +59,7 @@ class AnonymousProfileView(
 
 class UserLoginView(SuccessMessageMixin, LoginView):
     template_name = 'layouts/base_form.html'
+    authentication_form = EmailOrUsernameAuthenticationForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -184,7 +185,9 @@ class UserFormDeleteView(
         object = self.get_object()
         context.update({
             'delete_prompt': (
-                _("Are you sure you want to delete ") + f"{object}?"
+                _("Are you sure you want to delete ") + f"{object}? "
+                  "Deleting your account will also remove all your saved products. "
+                  "This action is permanent and cannot be undone."
             ),
             'button_class': 'btn btn-danger',
             'button_text': _("Yes, delete")
