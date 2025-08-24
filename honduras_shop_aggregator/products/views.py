@@ -1,10 +1,12 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django_filters.views import FilterView
 
 from honduras_shop_aggregator import utils
@@ -27,6 +29,8 @@ class ProductCardView(
 
     def get_object(self):
         product = get_object_or_404(Product, slug=self.kwargs["slug"])
+        if product.is_deleted:
+            raise Http404(_("Product not found"))
         if self.request.user.pk:
             product.is_liked = product.likes.filter(user=self.request.user).exists()
         return product
@@ -147,9 +151,9 @@ class ProductFormUpdateView(
         return context
 
 
-class ProductFormDeleteView(
+class ProductSoftDeleteView(
     utils.UserLoginRequiredMixin, utils.SellerPermissionMixin,
-    SuccessMessageMixin, DeleteView
+    SuccessMessageMixin, UpdateView
 ):
     form_class = ProductDeleteForm
     model = Product
@@ -158,6 +162,14 @@ class ProductFormDeleteView(
     def get_object(self):
         self.object = get_object_or_404(Product, slug=self.kwargs['slug'])
         return self.object
+
+    def form_valid(self, form):
+        product = form.save(commit=False)
+        product.is_deleted = True  # to remove from seller queryset
+        product.deleted_at = timezone.now()
+        product.is_active = False  # to remove from users querysets
+        product.save(update_fields=["is_deleted", "is_active"])
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy(

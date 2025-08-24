@@ -1,0 +1,10 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+
+{% block content %}
+  <div class="text-center py-10">
+      <h1 class="text-3xl font-bold">{% translate "Product not found" %}</h1>
+      <p class="mt-4 text-gray-600">{% translate "Sorry, this product has been removed or no longer exists." %}</p>
+      <a href="{% url 'index' %}" class="btn btn-danger mt-6">{% translate "Go back home" %}</a>
+  </div>
+{% endblock %}

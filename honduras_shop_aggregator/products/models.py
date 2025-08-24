@@ -88,6 +88,8 @@ class Product(models.Model):
     )
     date_added = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
     stock_quantity = models.PositiveIntegerField(
         default=0,
         blank=False

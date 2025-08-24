@@ -25,7 +25,7 @@ urlpatterns = [
     ),
     path(
         '<str:slug>/delete/',
-        views.ProductFormDeleteView.as_view(),
+        views.ProductSoftDeleteView.as_view(),
         name='product_delete'
     ),
     path(

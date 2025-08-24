@@ -32,7 +32,8 @@ class SellerProfileView(
             context = super().get_context_data(**kwargs)
             profile_seller = context['seller']
             products = Product.objects.filter(
-                seller=profile_seller
+                seller=profile_seller,
+                is_deleted=False
             )
             for product in products:
                 product.is_liked = product.likes.filter(user=self.request.user).exists()

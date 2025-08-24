@@ -811,7 +811,7 @@ class TestProductUpdate(BaseTestCase):
         )
 
 
-class TestProductDelete(BaseTestCase):
+class TestProductSoftDelete(BaseTestCase):
 
     def setUp(self):
         self.product = Product.objects.all().first()
@@ -827,13 +827,22 @@ class TestProductDelete(BaseTestCase):
             {'password_confirm': 'correct_password'},
             follow=True
         )
-        self.assertFalse(Product.objects.filter(pk=1).exists())
+        self.assertTrue(Product.objects.filter(pk=1).exists())  # soft deletion
         self.assertRedirectWithMessage(
             response,
             'seller_profile',
             _("Product deleted successfully"),
             {'store_name': self.seller.store_name}
         )
+        self.product.refresh_from_db()
+        self.assertTrue(self.product.is_deleted)
+        self.assertFalse(self.product.is_active)
+        response = self.client.get(
+            reverse('seller_profile', kwargs={'store_name': self.seller.store_name})
+        )
+        self.assertNotContains(response, self.product.product_name)
+        response = self.client.get(reverse('product_list'))
+        self.assertNotContains(response, self.product.product_name)
 
     def test_delete_product_unauthorized(self):
         response = self.client.post(
@@ -841,7 +850,8 @@ class TestProductDelete(BaseTestCase):
             {'password_confirm': 'correct_password'},
             follow=True
         )
-        self.assertTrue(Product.objects.filter(pk=1).exists())
+        self.product.refresh_from_db()
+        self.assertFalse(self.product.is_deleted)
         self.assertRedirectWithMessage(response)
 
     def test_delete_product_non_verified_seller(self):
@@ -853,7 +863,8 @@ class TestProductDelete(BaseTestCase):
             {'password_confirm': 'correct_password'},
             follow=True
         )
-        self.assertTrue(Product.objects.filter(pk=1).exists())
+        self.product.refresh_from_db()
+        self.assertFalse(self.product.is_deleted)
         self.assertRedirectWithMessage(
             response,
             'index',
@@ -869,7 +880,8 @@ class TestProductDelete(BaseTestCase):
             {'password_confirm': 'wrong_password'},
             follow=True
         )
-        self.assertTrue(Product.objects.filter(pk=1).exists())
+        self.product.refresh_from_db()
+        self.assertFalse(self.product.is_deleted)
         form = response.context['form']
         self.assertFormError(
             form, 'password_confirm', _("Incorrect password.")
@@ -886,7 +898,8 @@ class TestProductDelete(BaseTestCase):
             {'password_confirm': 'correct_password'},
             follow=True
         )
-        self.assertTrue(Product.objects.filter(pk=4).exists())
+        self.product.refresh_from_db()
+        self.assertFalse(self.product.is_deleted)
         self.assertRedirectWithMessage(
             response, 'index',
             _("You don&#x27;t have permission to access this product.")

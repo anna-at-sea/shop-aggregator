@@ -7,6 +7,8 @@ from .models import Product
 class CustomProductAdmin(admin.ModelAdmin):
     list_display = (
         "product_name",
+        "is_deleted",
+        "deleted_at",
         "seller__store_name",
         "origin_city",
         "category",
@@ -25,6 +27,7 @@ class CustomProductAdmin(admin.ModelAdmin):
         "description"        
     )
     list_filter = (
+        "is_deleted",
         "is_active",
         "category",
         "origin_city",
