@@ -1,7 +1,8 @@
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -41,24 +42,49 @@ class ProductFilterView(SuccessMessageMixin, FilterView):
     template_name = 'pages/products/product_list.html'
     context_object_name = 'products'
     filterset_class = ProductFilter
+    paginate_by = 20
 
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(is_active=True, stock_quantity__gt=0)
         city_pk = self.request.session.get('city_pk')
-        print(city_pk)
         if city_pk:
             queryset = queryset.filter(
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
             ).distinct()
-        for product in queryset:
-            if self.request.user.is_authenticated:
-                product.is_liked = product.likes.filter(user=self.request.user).exists()
-            else:
-                product.is_liked = product in self.request.session.get(
-                    'liked_products', []
-                )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = context['products']
+        if self.request.user.is_authenticated:
+            liked_ids = self.request.user.likes.values_list("product_id", flat=True)
+            for product in products:
+                product.is_liked = product.pk in liked_ids
+        else:
+            liked_products = self.request.session.get('liked_products', [])
+            for product in products:
+                product.is_liked = product.pk in liked_products
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+        """Return JSON if AJAX, otherwise full page."""
+        request = self.request
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "partials/_product_grid.html", 
+                {"products": context["products"], "request": request},
+                request=request
+            )
+            page_obj = context["page_obj"]
+            return JsonResponse({
+                "html": html,
+                "has_next": page_obj.has_next(),
+                "next_page": (
+                    page_obj.next_page_number() if page_obj.has_next() else None
+                )
+            })
+        return super().render_to_response(context, **response_kwargs)
 
 
 class ProductFormCreateView(

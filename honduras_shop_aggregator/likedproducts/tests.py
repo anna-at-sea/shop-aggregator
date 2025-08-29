@@ -11,7 +11,7 @@ from honduras_shop_aggregator.utils import BaseTestCase
 class TestLikesToggle(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         self.product = Product.objects.get(pk=1)
 
     def test_create_like(self):
@@ -48,7 +48,7 @@ class TestLikesToggle(BaseTestCase):
 class TestLikesVisibility(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         self.product1 = Product.objects.get(pk=1)
         self.product2 = Product.objects.get(pk=4)
         self.product3 = Product.objects.get(pk=5)  # different category
@@ -135,7 +135,7 @@ class TestLikesVisibility(BaseTestCase):
 class TestLikesMerge(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         self.product1 = Product.objects.get(pk=1)
         self.product2 = Product.objects.get(pk=2)
         self.product3 = Product.objects.get(pk=3)
@@ -162,8 +162,8 @@ class TestLikesMerge(BaseTestCase):
 class TestLikesCleanup(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
-        self.product = Product.objects.all().first()
+        self.user = User.objects.get(pk=1)
+        self.product = Product.objects.get(pk=1)
 
     def test_cascade_delete_when_product_deleted(self):
         self.login_user(self.user)

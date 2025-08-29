@@ -53,7 +53,7 @@
     <div class="row mt-4">
         <div class="col">
             <div>
-                <div class="card-body">
+                <div id="product-list" class="card-body">
                     <h4 class="card-title text-dark">{% translate "Saved Products" %}</h4>
                     <p></p>
                     {% include "partials/_product_grid.html" %}
@@ -61,5 +61,17 @@
             </div>
         </div>
     </div>
+
+    {% if page_obj.has_next %}
+        <div class="text-center my-4">
+            <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
+                {% translate "Load More" %}
+            </button>
+        </div>
+    {% endif %}
+
 </div>
+
+{% include "partials/_product_list_scripts.html" %}
+
 {% endblock %}

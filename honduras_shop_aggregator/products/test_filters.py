@@ -379,7 +379,7 @@ class TestProductFilters(BaseTestCase):
 class TestSearchAndFiltersInCategories(BaseTestCase):
 
     def setUp(self):
-        self.category_1 = Category.objects.all().first()
+        self.category_1 = Category.objects.get(pk=1)
         self.category_3 = Category.objects.get(pk=3)
         self.product_price_10_cat_1_sel_3 = Product.objects.get(pk=1)
         self.product_price_50_cat_1_sel_2 = Product.objects.get(pk=4)

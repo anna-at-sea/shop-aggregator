@@ -26,6 +26,7 @@ class HttpsURLField(models.URLField):
 class Product(models.Model):
 
     class Meta:
+        ordering = ['-date_added']
         verbose_name = "Product"
 
     users = models.ManyToManyField(

@@ -24,8 +24,8 @@ TEMP_MEDIA_ROOT = tempfile.mkdtemp()
 class TestProductCardRead(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
-        self.product_active = Product.objects.all().first()
+        self.user = User.objects.get(pk=1)
+        self.product_active = Product.objects.get(pk=1)
         self.product_not_active = Product.objects.get(pk=2)
         self.product_out_of_stock = Product.objects.get(pk=3)
 
@@ -84,8 +84,8 @@ class TestProductCardRead(BaseTestCase):
 class TestProductListRead(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
-        self.product_active = Product.objects.all().first()
+        self.user = User.objects.get(pk=1)
+        self.product_active = Product.objects.get(pk=1)
         self.product_not_active = Product.objects.get(pk=2)
         self.product_out_of_stock = Product.objects.get(pk=3)
 
@@ -128,7 +128,7 @@ class TestProductCreate(BaseTestCase):
         self.user_with_store_without_products = User.objects.get(
             pk=self.seller_without_products.user.pk
         )
-        self.user_without_store = User.objects.all().first()
+        self.user_without_store = User.objects.get(pk=1)
         with open(os.path.join(FIXTURE_PATH, "products_test_data.json")) as f:
             self.products_data = json.load(f)
         self.complete_product_data = self.products_data.get("create_complete")
@@ -452,7 +452,7 @@ class TestImageUpload(BaseTestCase):
                 content=txt_file.read(),
                 content_type='text/plain'
             )
-        self.product = Product.objects.all().first()
+        self.product = Product.objects.get(pk=1)
         self.seller = self.product.seller
         self.user = self.seller.user
         placeholder_src = os.path.join(
@@ -611,7 +611,7 @@ class TestImageUpload(BaseTestCase):
 class TestProductUpdate(BaseTestCase):
 
     def setUp(self):
-        self.product = Product.objects.all().first()
+        self.product = Product.objects.get(pk=1)
         self.seller = self.product.seller
         self.user = self.seller.user
         with open(os.path.join(FIXTURE_PATH, "products_test_data.json")) as f:
@@ -814,7 +814,7 @@ class TestProductUpdate(BaseTestCase):
 class TestProductSoftDelete(BaseTestCase):
 
     def setUp(self):
-        self.product = Product.objects.all().first()
+        self.product = Product.objects.get(pk=1)
         self.seller = self.product.seller
         self.user = self.seller.user
 

@@ -59,7 +59,7 @@
 
     <div class="row mt-4">
         <div class="col">
-            <div class="card border-secondary shadow-sm">
+            <div>
                 <div class="card-body">
                     <h4 class="card-title text-secondary">{% translate "Store Description" %}</h4>
                     <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">{{ seller.description }}</div>
@@ -70,8 +70,8 @@
 
     <div class="row mt-4">
         <div class="col">
-            <div class="card border-secondary shadow-sm">
-                <div class="card-body">
+            <div>
+                <div id="product-list" class="card-body">
                     <h4 class="card-title text-secondary">{% translate "Your Products" %}</h4>
                     <a href="{% url 'product_create' %}" class="btn btn-success btn-sm">
                         {% translate "Add New Product" %}
@@ -82,5 +82,17 @@
             </div>
         </div>
     </div>
+
+    {% if page_obj.has_next %}
+        <div class="text-center my-4">
+            <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
+                {% translate "Load More" %}
+            </button>
+        </div>
+    {% endif %}
+
 </div>
+
+{% include "partials/_product_list_scripts.html" %}
+
 {% endblock %}

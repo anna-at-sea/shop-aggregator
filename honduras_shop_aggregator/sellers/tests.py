@@ -13,7 +13,7 @@ FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
 class TestSellerProfileRead(BaseTestCase):
 
     def setUp(self):
-        self.seller = Seller.objects.all().first()
+        self.seller = Seller.objects.get(pk=1)
         self.user = User.objects.get(pk=self.seller.user.pk)
 
     def test_read_profile_unauthorized(self):
@@ -48,9 +48,9 @@ class TestSellerProfileRead(BaseTestCase):
 class TestSellerCreate(BaseTestCase):
 
     def setUp(self):
-        self.seller = Seller.objects.all().first()
+        self.seller = Seller.objects.get(pk=1)
         self.user = User.objects.get(pk=self.seller.user.pk)
-        self.user_without_store = User.objects.all().first()
+        self.user_without_store = User.objects.get(pk=1)
         with open(join(FIXTURE_PATH, "sellers_test_data.json")) as f:
             self.sellers_data = json.load(f)
         self.complete_seller_data = self.sellers_data.get("create_complete")
@@ -142,7 +142,7 @@ class TestSellerCreate(BaseTestCase):
 class TestSellerUpdate(BaseTestCase):
 
     def setUp(self):
-        self.seller = Seller.objects.all().first()
+        self.seller = Seller.objects.get(pk=1)
         self.user = User.objects.get(pk=self.seller.user.pk)
         with open(join(FIXTURE_PATH, "sellers_test_data.json")) as f:
             self.sellers_data = json.load(f)
@@ -240,7 +240,7 @@ class TestSellerUpdate(BaseTestCase):
 class TestSellerDelete(BaseTestCase):
 
     def setUp(self):
-        self.seller = Seller.objects.all().first()
+        self.seller = Seller.objects.get(pk=1)
         self.seller_with_product = Seller.objects.get(pk=3)
         self.user = User.objects.get(pk=self.seller.user.pk)
         self.user_with_seller_with_product = User.objects.get(

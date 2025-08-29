@@ -11,7 +11,7 @@ from honduras_shop_aggregator.utils import BaseTestCase
 class TestDefaultSessionCity(BaseTestCase):
 
     def setUp(self):
-        self.user_without_city = User.objects.all().first()
+        self.user_without_city = User.objects.get(pk=1)
         self.user_with_city = User.objects.get(username='userwithpreferredcity')
 
     def test_default_city_fallback_anonymous(self):
@@ -35,7 +35,7 @@ class TestDefaultSessionCity(BaseTestCase):
 class TestSetCity(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
 
     def test_set_city_with_toggle_anonymous(self):
         response = self.client.get(reverse(
@@ -66,7 +66,7 @@ class TestSetCity(BaseTestCase):
 class TestFilterProductsByCity(BaseTestCase):
 
     def setUp(self):
-        self.product_from_capital_with_delivery = Product.objects.all().first()
+        self.product_from_capital_with_delivery = Product.objects.get(pk=1)
         self.product_from_capital_without_delivery = Product.objects.get(pk=4)
         self.product_from_second_city = Product.objects.get(pk=6)
         self.other_category_product_from_capital = Product.objects.get(pk=5)
@@ -108,6 +108,8 @@ class TestFilterProductsByCity(BaseTestCase):
                 kwargs={'slug': self.product_from_capital_with_delivery.slug}
             )
         )
+        print(self.product_from_capital_with_delivery.origin_city.pk)
+        print(self.client.session.get('city_pk'))
         self.assertContains(response2, _('Delivery from'))
         response3 = self.client.get(
             reverse(
@@ -141,9 +143,9 @@ class TestFilterProductsByCity(BaseTestCase):
 class TestCityProtect(BaseTestCase):
 
     def setUp(self):
-        self.city_1 = City.objects.all().first()
+        self.city_1 = City.objects.get(pk=1)
         self.city_2 = City.objects.get(pk=2)
-        self.product_1 = Product.objects.all().first()
+        self.product_1 = Product.objects.get(pk=1)
         self.user_2 = User.objects.get(username='userwithpreferredcity')
 
     def test_city_protect_on_delete_product_connected(self):

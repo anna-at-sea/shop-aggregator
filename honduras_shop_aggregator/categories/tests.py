@@ -11,8 +11,8 @@ from honduras_shop_aggregator.utils import BaseTestCase
 class TestCategoryPageRead(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
-        self.category = Category.objects.all().first()
+        self.user = User.objects.get(pk=1)
+        self.category = Category.objects.get(pk=1)
 
     def test_read_category_page_unauthorized(self):
         response = self.client.get(reverse(
@@ -67,8 +67,8 @@ class TestCategoryPageRead(BaseTestCase):
 class TestCategoryListRead(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
-        self.category = Category.objects.all().first()
+        self.user = User.objects.get(pk=1)
+        self.category = Category.objects.get(pk=1)
         self.other_category = Category.objects.get(pk=2)
         self.product_count_first_category = Product.objects.filter(
             category=1,
@@ -117,8 +117,8 @@ class TestCategoryListRead(BaseTestCase):
 class TestCategoryProtect(BaseTestCase):
 
     def setUp(self):
-        self.category = Category.objects.all().first()
-        self.product = Product.objects.all().first()
+        self.category = Category.objects.all().get(pk=1)
+        self.product = Product.objects.all().get(pk=1)
 
     def test_category_protect_on_delete(self):
         self.assertEqual(self.product.category, self.category)

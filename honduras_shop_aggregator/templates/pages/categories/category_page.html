@@ -27,10 +27,21 @@
           </div>
       </div>
 
-      <div class="col-12 col-md-9">
+      <div id="product-list" class="col-12 col-md-9">
           {% include "partials/_product_grid.html" %}
       </div>
   </div>
 
+  {% if page_obj.has_next %}
+  <div class="text-center my-4">
+      <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
+          {% translate "Load More" %}
+      </button>
+  </div>
+  {% endif %}
+
 </div>
+
+{% include "partials/_product_list_scripts.html" %}
+
 {% endblock %}

@@ -13,7 +13,7 @@ FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
 class TestAuthentication(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
 
     def test_login(self):
         login_successful = self.client.login(
@@ -76,7 +76,7 @@ class TestAuthentication(BaseTestCase):
 class TestUserProfileRead(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
 
     def test_read_profile_unauthorized(self):
         response = self.client.get(reverse(
@@ -114,7 +114,7 @@ class TestUserProfileRead(BaseTestCase):
 class TestUserCreate(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         with open(join(FIXTURE_PATH, "users_test_data.json")) as f:
             self.users_data = json.load(f)
         self.complete_user_data = self.users_data.get("create_complete")
@@ -170,7 +170,7 @@ class TestUserCreate(BaseTestCase):
 class TestUserUpdate(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         with open(join(FIXTURE_PATH, "users_test_data.json")) as f:
             self.users_data = json.load(f)
         self.complete_user_data = self.users_data.get("update_complete")
@@ -252,7 +252,7 @@ class TestUserUpdate(BaseTestCase):
 class TestPasswordChange(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         with open(join(FIXTURE_PATH, "users_test_data.json")) as f:
             self.users_data = json.load(f)
         testing_cases = [
@@ -353,7 +353,7 @@ class TestPasswordChange(BaseTestCase):
 class TestUserDelete(BaseTestCase):
 
     def setUp(self):
-        self.user = User.objects.all().first()
+        self.user = User.objects.get(pk=1)
         self.user_with_store = User.objects.get(pk=3)
 
     def test_delete_user_success(self):

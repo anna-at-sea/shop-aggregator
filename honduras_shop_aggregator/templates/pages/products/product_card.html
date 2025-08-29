@@ -43,13 +43,15 @@
                 {% endif %}
             </p>
             <p>
-                {% if current_city == product.origin_city %}
-                    <span class="text-success">{% translate "Available in your city" %}</span>
-                {% else %}
-                    {% if current_city in product.delivery_cities.all %}
-                        <span class="text-success">{% translate "Delivery from" %} {{ product.origin_city.name }}</span>
+                {% if not product.stock_quantity > 0 or not product.is_active %}{% else %}
+                    {% if current_city == product.origin_city %}
+                        <span class="text-success">{% translate "Available in your city" %}</span>
                     {% else %}
-                        <span class="text-danger">{% translate "Not available in your city" %}</span>
+                        {% if current_city in product.delivery_cities.all %}
+                            <span class="text-success">{% translate "Delivery from" %} {{ product.origin_city.name }}</span>
+                        {% else %}
+                            <span class="text-danger">{% translate "Not available in your city" %}</span>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             </p>

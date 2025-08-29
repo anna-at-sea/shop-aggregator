@@ -1,7 +1,10 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import ProtectedError
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView
@@ -24,6 +27,7 @@ class SellerProfileView(
     context_object_name = 'seller'
     slug_field = "store_name"
     slug_url_kwarg = "store_name"
+    paginate_by = 20
 
     def get_object(self):
         return get_object_or_404(Seller, store_name=self.kwargs["store_name"])
@@ -37,8 +41,36 @@ class SellerProfileView(
             )
             for product in products:
                 product.is_liked = product.likes.filter(user=self.request.user).exists()
+            paginator = Paginator(products, self.paginate_by)
+            page = self.request.GET.get('page')
+            try:
+                products = paginator.page(page)
+            except PageNotAnInteger:
+                products = paginator.page(1)
+            except EmptyPage:
+                products = paginator.page(paginator.num_pages)
+            context['page_obj'] = products
             context['products'] = products
             return context
+
+    def render_to_response(self, context, **response_kwargs):
+        """Return JSON if AJAX, otherwise full page."""
+        request = self.request
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "partials/_product_grid.html", 
+                {"products": context["products"], "request": request},
+                request=request
+            )
+            page_obj = context["page_obj"]
+            return JsonResponse({
+                "html": html,
+                "has_next": page_obj.has_next(),
+                "next_page": (
+                    page_obj.next_page_number() if page_obj.has_next() else None
+                )
+            })
+        return super().render_to_response(context, **response_kwargs)
 
 
 class SellerFormCreateView(
