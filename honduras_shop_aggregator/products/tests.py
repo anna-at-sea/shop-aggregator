@@ -14,6 +14,7 @@ from PIL import Image
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.products.models import Product
+from honduras_shop_aggregator.products.views import ProductFilterView
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase, get_file_hash
@@ -91,11 +92,14 @@ class TestProductListRead(BaseTestCase):
         self.product_not_active = Product.objects.get(pk=2)
         self.product_out_of_stock = Product.objects.get(pk=3)
         self.seller = Seller.objects.get(pk=3)
+        self.paginate_by = ProductFilterView().paginate_by
+        self.pages_count = (self.paginate_by + 5 + 3) // self.paginate_by + 1
+        # adding 3 products from fixtures and 5 from tests
 
     def create_extra_products(self, count=5):
         return [
             Product.objects.create(
-                product_name=f"Product {i}",  # from 0 to 24
+                product_name=f"Product {i}",
                 product_price=10 + i,
                 stock_quantity=5,
                 seller=Seller.objects.get(pk=3),
@@ -133,17 +137,15 @@ class TestProductListRead(BaseTestCase):
         self.assertContains(response, _("No products found."))
 
     def test_load_more_initial_load_returns_first_batch(self):
-        # pagination tests are based on paginate_by = 20 in ProductFilterView
-        self.create_extra_products(25)
+        self.create_extra_products(self.paginate_by + 5)
         response = self.client.get(reverse("product_list"), {"page": 1})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _('Load More'))
-        self.assertContains(response, _('Product 5'))  # belongs to page 1 (24-5)
-        self.assertNotContains(response, _('Product 4'))
-        # belongs to page 2 (4-0 + fixtures)
+        self.assertContains(response, _('Product 5'))  # belongs to page 1
+        self.assertNotContains(response, _('Product 4'))   # belongs to page 2
 
     def test_load_more_second_page_returns_next_batch(self):
-        self.create_extra_products(25)
+        self.create_extra_products(self.paginate_by + 5)
         response = self.client.get(
             reverse("product_list"),
             {"page": 2},
@@ -153,16 +155,19 @@ class TestProductListRead(BaseTestCase):
         data = response.json()
         self.assertIn("html", data)
         self.assertIn("has_next", data)
-        self.assertFalse(data["has_next"])
         self.assertIn("next_page", data)
-        self.assertIsNone(data["next_page"])
-        self.assertIn("Product 4", data["html"])  # belongs to page 2 (4-0 + fixtures)
-        self.assertNotIn("Product 5", data["html"])  # belongs to page 1 (24-5)
+        if self.pages_count == 2:
+            self.assertIsNone(data["next_page"])
+            self.assertFalse(data["has_next"])
+        else:
+            self.assertIsNotNone(data["next_page"])
+            self.assertTrue(data["has_next"])
+        self.assertIn("Product 4", data["html"])  # belongs to page 2
+        self.assertNotIn("Product 5", data["html"])  # belongs to page 1
 
     def test_no_load_more_on_last_page(self):
-        self.create_extra_products(25)
-        response = self.client.get(reverse("product_list"), {"page": 2})
-        # last page with products
+        self.create_extra_products(self.paginate_by + 5)
+        response = self.client.get(reverse("product_list"), {"page": self.pages_count})
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, _("Load More"))
 

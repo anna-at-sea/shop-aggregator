@@ -4,6 +4,13 @@
 
 {% block content %}
 {% include "partials/flash_message.html" %}
+
+<div class="mb-3">
+    <a href="{% url 'index' %}" class="text-decoration-none text-secondary" onclick="handleBack(event)">
+        ← {% translate "Back" %}
+    </a>
+</div>
+
     <h1 class="display-5">{{ heading }}</h1>
     <p></p>
     <p>{{ delete_prompt|default:'' }}</p>
@@ -41,4 +48,17 @@
         {% translate "Already have an account?" %} <a href="{% url 'login' %}">{% translate "Log in here" %}</a>.
     </p>
 {% endif %}
+
+<script>
+    function handleBack(event) {
+      event.preventDefault();
+      
+      if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+        history.back();
+      } else {
+        window.location.href = '{% url "index" %}';
+      }
+    }
+</script>
+
 {% endblock %}

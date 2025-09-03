@@ -58,3 +58,15 @@ main {
     align-items: center;
     font-weight: bold;
   }
+
+  .search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0;
+}
+
+.search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin: 0;
+}

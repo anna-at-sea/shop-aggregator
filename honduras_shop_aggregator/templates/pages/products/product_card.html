@@ -7,9 +7,8 @@
 
 <div class="container mt-4">
     <div class="mb-3">
-        <a href="#" class="text-decoration-none text-secondary">
+        <a href="{% url 'product_list' %}" class="text-decoration-none text-secondary" onclick="handleBack(event)">
             ← {% translate "Back" %}
-            <!-- Add link to go back to prev page -->
         </a>
     </div>
 
@@ -145,5 +144,16 @@
     });
 </script>
 
+<script>
+    function handleBack(event) {
+      event.preventDefault();
+      
+      if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+        history.back();
+      } else {
+        window.location.href = '{% url "product_list" %}';
+      }
+    }
+</script>
 
 {% endblock %}

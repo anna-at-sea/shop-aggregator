@@ -11,140 +11,156 @@
     {% bootstrap_javascript %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark {% if user.is_authenticated and user.is_seller %}bg-secondary{% else %}bg-danger{% endif %} py-2">
-            <div class="container-fluid position-relative">
-                <div class="d-flex align-items-center">
-                    <a class="navbar-brand d-flex flex-column align-items-center me-3" href="{% url 'index' %}">
-                        <img src="{% static 'images/logo.png' %}" alt="Cangrejal Logo" width="50" height="50">
-                        <span class="fs-6">Cangrejal</span>
-                    </a>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'index' %}">{% translate "Home" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'product_list' %}">{% translate "Products" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'category_list' %}">{% translate "Categories" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">{% translate "Sellers" %}</a>
-                        </li>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-danger py-0 px-0 px-md-3 px-lg-5">
+            <div class="container-fluid">
+          
+              <!-- Logo -->
+              <a class="navbar-brand d-flex flex-column align-items-center me-3" href="{% url 'index' %}">
+                <img src="{% static 'images/logo.png' %}" alt="Cangrejal Logo" width="50" height="50">
+                <span class="fs-6">Cangrejal</span>
+              </a>
+          
+              <!-- Search bar (flex-grow center) -->
+              <form action="{% url 'product_list' %}" method="get" class="d-flex flex-grow-1 mx-3" style="max-width: 500px;">
+                <input class="form-control search-input" type="text" name="search" value="{{ request.GET.search }}" 
+                       placeholder="{% translate 'Search' %}" aria-label="Search">
+                <button class="btn search-btn btn-outline-light" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+              </form>
+          
+              <!-- Navbar Toggler -->
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
+                      aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+          
+              <!-- Right-side collapsible content (position-static fixes dropdown alignment) -->
+              <div class="collapse navbar-collapse justify-content-end position-static" id="navbarRight">
+          
+                <div class="row d-flex align-items-center">
+                <!-- Main Menu dropdown -->
+                <div class="col-6 col-lg-4 d-flex justify-content-center">
+                  <div class="dropdown mt-lg-0 d-none d-lg-inline">
+                    <button class="btn btn-danger dropdown-toggle" type="button" id="mainMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      🛒 {% translate "Menu" %}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="mainMenuDropdown">
+                      <li><a class="dropdown-item" href="{% url 'product_list' %}">{% translate "Products" %}</a></li>
+                      <li><a class="dropdown-item" href="{% url 'category_list' %}">{% translate "Categories" %}</a></li>
+                      <li><a class="dropdown-item" href="#">{% translate "Sellers" %}</a></li>
                     </ul>
-                </div>
-        
-                <form action="{% url 'product_list' %}" method="get" class="position-absolute start-50 translate-middle-x d-flex" role="search" style="width: 40%;">
-                    <input class="form-control me-2" type="text" name="search" value="{{ request.GET.search }}" placeholder="{% translate 'Search' %}" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">{% translate "Search" %}</button>
-                </form>
+                  </div>
 
-                <div class="d-flex ms-auto align-items-center">
-                    <div class="dropdown me-3">
-                        <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            📍 {{ current_city }}
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="cityDropdown">
-                            {% for city in cities %}
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'set_city' city.id %}">
-                                        {{ city.name }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="dropdown me-3"> 
-                        <form action="{% url 'set_language' %}" method="post">
-                            {% csrf_token %}
-                            <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                {% get_current_language as LANGUAGE_CODE %}
-                                {% if LANGUAGE_CODE == "es" %}
-                                    🇭🇳 Español
-                                {% else %}
-                                    🇺🇸 English
-                                {% endif %}
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                                <li>
-                                    <button type="submit" name="language" value="en" class="dropdown-item">
-                                        🇺🇸 English
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="submit" name="language" value="es" class="dropdown-item">
-                                        🇭🇳 Español
-                                    </button>
-                                </li>
-                            </ul>
-                        </form>
-                    </div>
-                
+                  <ul class="navbar-nav d-lg-none py-3 px-4">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">{% translate "Products" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'category_list' %}">{% translate "Categories" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">{% translate "Sellers" %}</a></li>
+                  </ul>
+                </div>
+
+
+                  <div class="col-6 col-lg-8 d-flex justify-content-center">
+                  <!-- City selector -->
+                  <div class="row row-cols-1 row-cols-lg-2">
+                  <div class="col d-flex justify-content-center">
+                  <div class="dropdown mt-lg-0">
+                    <button class="btn btn-danger dropdown-toggle" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      📍 {{ current_city }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="cityDropdown">
+                      {% for city in cities %}
+                        <li><a class="dropdown-item" href="{% url 'set_city' city.id %}">{{ city.name }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  </div>
+            
+                  <!-- User menu -->
+                  <div class="col d-flex justify-content-center">
+                  <div class="dropdown mt-lg-0">
                     {% if user.is_authenticated %}
-                    <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;" title="{{ user.username }}">
-                            👤 {{ user.username|truncatechars:15 }}
+                      <button class="btn btn-danger dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" title="{{ user.username }}">
+                        👤 {{ user.username|truncatechars:15 }}
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <form action="{% url 'logout' %}" method="post">{% csrf_token %}
+                            <input type="submit" class="dropdown-item text-danger" value="{% translate 'Logout' %}">
+                          </form>
+                        </li>
+                      </ul>
+                    {% else %}
+                      <button class="btn btn-danger dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;">
+                        👤 {% translate "Profile" %}
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="{% url 'anonymous_profile' %}">{% translate "Saved products" %}</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'user_create' %}">{% translate "Log in" %} | {% translate "Register" %}</a></li>
+                      </ul>
+                    {% endif %}
+                  </div>
+                  </div>
+                </div>
+
+              </div>
+
+                </div>
+
+              </div>
+            </div>
+          </nav>
+        </header>
+    
+    <main class="mt-3">
+        <div class="container wrapper flex-grow-1">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <h5>Cangrejal</h5>
+            <p class="small mb-3">
+                {% translate "Your trusted product aggregator in Honduras. Find the best deals from multiple sellers in one place." %}
+            </p>
+        
+            <p class="small mb-1">📍 La Ceiba, Honduras</p>
+            <p class="small mb-1">✉️ info@cangrejal.com</p>
+
+            <div class="mt-3">
+                <form action="{% url 'set_language' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    {% get_current_language as LANGUAGE_CODE %}
+                    <div class="dropdown d-inline">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="footerLanguageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if LANGUAGE_CODE == "es" %} 🇭🇳 Español {% else %} 🇺🇸 English {% endif %}
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>
-                            {% if not user.is_seller %}
-                            <li><a class="dropdown-item" href="{% url 'seller_create' %}">{% translate "Become seller" %}</a></li>
-                            {% else %}
-                            <li><a class="dropdown-item" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Go to seller profile" %}</a></li>
-                            {% endif %}
-                            <li><hr class="dropdown-divider"></li>
+                        <ul class="dropdown-menu dropdown-menu-center" aria-labelledby="footerLanguageDropdown">
                             <li>
-                                <form action="{% url 'logout' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="submit" class="dropdown-item text-danger" value="{% translate 'Logout' %}">
-                                </form>
+                                <button type="submit" name="language" value="en" class="dropdown-item">🇺🇸 English</button>
+                            </li>
+                            <li>
+                                <button type="submit" name="language" value="es" class="dropdown-item">🇭🇳 Español</button>
                             </li>
                         </ul>
                     </div>
-                    {% else %}
-                    <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;">
-                            👤 {% translate "Profile" %}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item" href="{% url 'anonymous_profile' %}">{% translate "Saved products" %}</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'user_create' %}">{% translate "Log in" %} | {% translate "Register" %}</a></li>
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
+                </form>
             </div>
-        </nav>
-    </header>
-    
-<main>
-<p></p>
-  <div class="container wrapper flex-grow-1">
-      {% block content %}{% endblock %}
-  </div>
-</main>
 
-<footer class="bg-dark text-light py-4 mt-5">
-    <div class="container text-center">
-      <h5>Cangrejal</h5>
-      <p class="small mb-3">
-        {% translate "Your trusted product aggregator in Honduras. Find the best deals from multiple sellers in one place." %}
-      </p>
-  
-      <p class="small mb-1">📍 La Ceiba, Honduras</p>
-      <p class="small mb-1">✉️ info@cangrejal.com</p>
-
-      <hr class="border-light">
-      <div class="small">
-        &copy; {% now "Y" %} Cangrejal. {% translate "All rights reserved." %}
-      </div>
-    </div>
-  </footer>
-
+            <hr class="border-light">
+            <div class="small">
+                &copy; {% now "Y" %} Cangrejal. {% translate "All rights reserved." %}
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
