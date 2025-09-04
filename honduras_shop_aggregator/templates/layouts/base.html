@@ -53,7 +53,7 @@
                     <ul class="dropdown-menu" aria-labelledby="mainMenuDropdown">
                       <li><a class="dropdown-item" href="{% url 'product_list' %}">{% translate "Products" %}</a></li>
                       <li><a class="dropdown-item" href="{% url 'category_list' %}">{% translate "Categories" %}</a></li>
-                      <li><a class="dropdown-item" href="#">{% translate "Sellers" %}</a></li>
+                      <li><a class="dropdown-item" href="{% url 'seller_list' %}">{% translate "Sellers" %}</a></li>
                     </ul>
                   </div>
 
@@ -90,9 +90,15 @@
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="userMenu">
                         <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>
+                        {% if not user.is_seller %}
+                        <li><a class="dropdown-item" href="{% url 'seller_create' %}">{% translate "Become seller" %}</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Go to seller profile" %}</a></li>
+                        {% endif %}
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                          <form action="{% url 'logout' %}" method="post">{% csrf_token %}
+                          <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
                             <input type="submit" class="dropdown-item text-danger" value="{% translate 'Logout' %}">
                           </form>
                         </li>

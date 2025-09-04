@@ -1,10 +1,7 @@
-{% extends 'layouts/base.html' %}
+{% extends "layouts/base_seller_profile.html" %}
 {% load i18n %}
-{% load static %}
 
-{% block content %}
-{% include "partials/flash_message.html" %}
-<h1 class="text-secondary">{{ seller.store_name }}</h1>
+{% block owner_alerts %}
 {% if not seller.is_verified %}
 <div class="alert alert-danger d-flex align-items-center" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -13,86 +10,32 @@
     </div>
 </div>
 {% endif %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-center border-secondary shadow-sm">
-                <img src="{% static 'images/store_placeholder.jpg' %}" class="card-img-top rounded-circle mx-auto mt-3 border border-secondary" alt="Store Avatar" style="width: 120px;">
-                <div class="card-body">
-                    <h5 class="card-title text-secondary">{{ seller.store_name }}</h5>
-                    <p class="text-muted">{% translate "Date of registration" %}: {{ seller.date_registered }}</p>
-                </div>
-            </div>
+{% endblock %}
 
-            <div class="dropdown mt-3 text-center">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    ⚙️ {% translate "Store Settings" %}
-                </button>
-                <ul class="dropdown-menu shadow-sm border-0">
-                    <li><a class="dropdown-item text-secondary" href="{% url 'seller_update' user.seller.store_name %}"><i class="bi bi-pencil"></i> {% translate "Edit Store Info" %}</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'seller_delete' user.seller.store_name %}"><i class="bi bi-trash"></i> {% translate "Delete Store" %}</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="card border-secondary shadow-sm">
-                <div class="card-body">
-                    <h4 class="card-title text-secondary">{% translate "Store Details" %}</h4>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>{% translate "Store Name" %}:</strong> {{ seller.store_name }}</li>
-                        <li class="list-group-item"><strong>{% translate "Website" %}:</strong> <a href="{{ seller.website }}" target="_blank">{{ seller.website }}</a></li>
-                        <li class="list-group-item"><strong>{% translate "Verification Status" %}:</strong> 
-                            {% if seller.is_verified %}
-                                <span class="text-success">{% translate "Verified" %}</span>
-                            {% else %}
-                                <span class="text-warning">{% translate "Pending Verification" %}</span>
-                            {% endif %}
-                        </li>
-                        <li class="list-group-item"><strong>{% translate "Registered On" %}:</strong> {{ seller.date_registered }}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col">
-            <div>
-                <div class="card-body">
-                    <h4 class="card-title text-secondary">{% translate "Store Description" %}</h4>
-                    <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">{{ seller.description }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col">
-            <div>
-                <div id="product-list" class="card-body">
-                    <h4 class="card-title text-secondary">{% translate "Your Products" %}</h4>
-                    <a href="{% url 'product_create' %}" class="btn btn-success btn-sm">
-                        {% translate "Add New Product" %}
-                    </a>
-                    <p></p>
-                    {% include "partials/_product_grid.html" %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if page_obj.has_next %}
-        <div class="text-center my-4">
-            <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
-                {% translate "Load More" %}
-            </button>
-        </div>
-    {% endif %}
-
+{% block owner_settings %}
+<div class="dropdown mt-3 text-center">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        ⚙️ {% translate "Store Settings" %}
+    </button>
+    <ul class="dropdown-menu shadow-sm border-0">
+        <li><a class="dropdown-item text-secondary" href="{% url 'seller_update' user.seller.store_name %}">
+            <i class="bi bi-pencil"></i> {% translate "Edit Store Info" %}
+        </a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{% url 'seller_delete' user.seller.store_name %}">
+            <i class="bi bi-trash"></i> {% translate "Delete Store" %}
+        </a></li>
+    </ul>
 </div>
+{% endblock %}
 
-{% include "partials/_product_list_scripts.html" %}
+{% block product_title %}{% translate "Your Products" %}{% endblock %}
 
+{% block owner_add_button %}
+<a href="{% url 'product_create' %}" class="btn btn-success btn-sm mb-4">
+    {% translate "Add New Product" %}
+</a>
+<a href="{% url 'public_seller_profile' user.seller.store_name %}" class="btn btn-success btn-sm mb-4 mx-3">
+    {% translate "View Public Store Page" %}
+</a>
 {% endblock %}

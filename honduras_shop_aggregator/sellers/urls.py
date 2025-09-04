@@ -4,6 +4,11 @@ from . import views
 
 urlpatterns = [
     path(
+        '',
+        views.SellerListView.as_view(),
+        name='seller_list'
+    ),
+    path(
         'profile/<str:store_name>/',
         views.SellerProfileView.as_view(),
         name='seller_profile'
@@ -22,5 +27,10 @@ urlpatterns = [
         '<str:store_name>/delete/',
         views.SellerFormDeleteView.as_view(),
         name='seller_delete'
+    ),
+    path(
+        '<str:store_name>/',
+        views.PublicSellerProfileView.as_view(),
+        name='public_seller_profile'
     ),
 ]

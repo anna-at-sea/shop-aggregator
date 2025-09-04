@@ -1,0 +1,110 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{% include "partials/flash_message.html" %}
+
+{% block owner_alerts %}{% endblock %}
+
+<div class="container mt-4">
+    <div class="card border-0 p-4">
+        <div class="row align-items-stretch myb-3">
+            
+            <!-- Left side: seller profile -->
+            <div class="col-md-4 text-center d-flex flex-column">
+                <!-- Avatar -->
+                <img src="{% static 'images/store_placeholder.jpg' %}" 
+                     class="rounded-circle mx-auto border border-2 border-secondary mb-3" 
+                     alt="Store Avatar" style="width: 120px; height: 120px; object-fit: cover;">
+
+                <!-- Store Name -->
+                <h3 class="text-secondary mb-2">{{ seller.store_name }}</h3>
+
+                <!-- Website -->
+                {% if seller.website %}
+                <p class="mb-1">
+                    <a href="{{ seller.website }}" target="_blank" class="text-decoration-none">
+                        🌐 {{ seller.website }}
+                    </a>
+                </p>
+                {% endif %}
+
+                <!-- Meta info -->
+                <p class="text-muted mb-1">
+                    {% translate "Registered On" %}: {{ seller.date_registered }}
+                </p>
+
+                <!-- Verification -->
+                <p class="mb-3">
+                    <strong>{% translate "Verification Status" %}:</strong>
+                    {% if seller.is_verified %}
+                        <span class="text-success">{% translate "Verified" %}</span>
+                    {% else %}
+                        <span class="text-warning">{% translate "Pending Verification" %}</span>
+                    {% endif %}
+                </p>
+
+                <!-- Owner controls -->
+                {% block owner_settings %}{% endblock %}
+            </div>
+
+            <!-- Right side: description -->
+            <div class="col-md-8 d-flex flex-column">
+                <h4 class="text-secondary">{% translate "Store Description" %}</h4>
+                <div id="store-description" class="border rounded p-3 bg-light flex-grow-1 description-truncate" style="white-space: pre-wrap; min-height: 150px;">
+                    {{ seller.description }}
+                </div>
+                <button id="toggle-description-btn" class="description-toggle-btn" type="button">
+                    <span class="btn-text">{% translate "Show more" %}</span>
+                    <i class="bi bi-chevron-down btn-icon"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Products -->
+    <div class="row mt-4">
+        <div class="col">
+            <div id="product-list" class="card-body">
+                <h4 class="card-title text-secondary mt-2 mb-4">{% block product_title %}{% translate "Products" %}{% endblock %}</h4>
+                
+                {% block owner_add_button %}{% endblock %}
+                
+                {% include "partials/_product_grid.html" %}
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj.has_next %}
+        <div class="text-center my-4">
+            <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
+                {% translate "Load More" %}
+            </button>
+        </div>
+    {% endif %}
+
+</div>
+
+{% include "partials/_product_list_scripts.html" %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const desc = document.getElementById('store-description');
+        const btn = document.getElementById('toggle-description-btn');
+    
+        // Hide button if text fits in box
+        if (desc.scrollHeight <= desc.clientHeight) {
+            btn.style.display = 'none';
+        }
+    
+        btn.addEventListener('click', () => {
+            const expanded = desc.classList.toggle('description-expanded');
+            btn.classList.toggle('expanded', expanded);
+            btn.querySelector('.btn-text').textContent = expanded ? '{% translate "Show less" %}' : '{% translate "Show more" %}';
+        });
+    });
+    </script>
+
+{% endblock %}

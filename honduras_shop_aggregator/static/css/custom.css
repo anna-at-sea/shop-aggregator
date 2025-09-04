@@ -70,3 +70,45 @@ main {
     border-bottom-left-radius: 0;
     margin: 0;
 }
+
+.description-truncate {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 8; /* number of visible lines */
+    transition: max-height 0.3s ease;
+}
+
+.description-expanded {
+    display: block !important;
+    overflow: visible !important;
+    -webkit-line-clamp: unset !important;
+}
+
+.description-toggle-btn {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 1rem;
+    background: rgba(255,255,255,0.7);
+    border: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.description-toggle-btn:hover {
+    background: rgba(255,255,255,0.9);
+}
+
+.description-toggle-btn .btn-icon {
+    margin-left: 0.3rem;
+    transition: transform 0.3s;
+}
+
+.description-toggle-btn.expanded .btn-icon {
+    transform: rotate(180deg);
+}

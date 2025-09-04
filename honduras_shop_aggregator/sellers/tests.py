@@ -4,17 +4,22 @@ from os.path import join
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
 
-class TestSellerProfileRead(BaseTestCase):
+class TestPrivateSellerProfileRead(BaseTestCase):
 
     def setUp(self):
-        self.seller = Seller.objects.get(pk=1)
+        self.seller = Seller.objects.get(pk=3)
         self.user = User.objects.get(pk=self.seller.user.pk)
+        self.active_product = Product.objects.get(pk=1)
+        self.unavailable_product = Product.objects.get(pk=2)
+        self.out_of_stock_product = Product.objects.get(pk=3)
+        self.other_seller_product = Product.objects.get(pk=4)
 
     def test_read_profile_unauthorized(self):
         response = self.client.get(reverse(
@@ -30,6 +35,13 @@ class TestSellerProfileRead(BaseTestCase):
             follow=True
         )
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.active_product.product_name)
+        self.assertContains(response, self.unavailable_product.product_name)
+        self.assertContains(response, self.out_of_stock_product.product_name)
+        self.assertNotContains(response, self.other_seller_product.product_name)
+        self.assertContains(response, _("Your Products"))
+        self.assertContains(response, _("Store Settings"))
+        self.assertContains(response, _("Add New Product"))
 
     def test_read_other_profile_authorized(self):
         self.other_seller = Seller.objects.get(pk=2)
@@ -43,6 +55,74 @@ class TestSellerProfileRead(BaseTestCase):
             'index',
             _("You don&#x27;t have permission to access other store profile.")
         )
+
+
+class TestPublicSellerProfileRead(BaseTestCase):
+
+    def setUp(self):
+        self.seller = Seller.objects.get(pk=3)
+        self.user = User.objects.get(pk=1)  # not self.seller.user
+        self.active_product = Product.objects.get(pk=1)
+        self.unavailable_product = Product.objects.get(pk=2)
+        self.out_of_stock_product = Product.objects.get(pk=3)
+        self.other_seller_product = Product.objects.get(pk=4)
+
+    def test_read_public_profile_unauthorized(self):
+        response = self.client.get(reverse(
+            'public_seller_profile', kwargs={'store_name': self.seller.store_name}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.seller.store_name)
+        self.assertContains(response, self.active_product.product_name)
+        self.assertNotContains(response, self.unavailable_product.product_name)
+        self.assertNotContains(response, self.out_of_stock_product.product_name)
+        self.assertNotContains(response, self.other_seller_product.product_name)
+        self.assertContains(response, _("Available Products"))
+        self.assertNotContains(response, _("Your Products"))
+        self.assertNotContains(response, _("Store Settings"))
+        self.assertNotContains(response, _("Add New Product"))
+
+    def test_read_public_profile_authorized(self):
+        self.login_user(self.user)
+        response = self.client.get(reverse(
+            'public_seller_profile', kwargs={'store_name': self.seller.store_name}),
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.seller.store_name)
+        self.assertContains(response, self.active_product.product_name)
+        self.assertNotContains(response, self.unavailable_product.product_name)
+        self.assertNotContains(response, self.out_of_stock_product.product_name)
+        self.assertNotContains(response, self.other_seller_product.product_name)
+        self.assertContains(response, _("Available Products"))
+        self.assertNotContains(response, _("Your Products"))
+        self.assertNotContains(response, _("Store Settings"))
+        self.assertNotContains(response, _("Add New Product"))
+
+
+class TestSellerListRead(BaseTestCase):
+
+    def setUp(self):
+        self.seller = Seller.objects.get(pk=1)
+        self.user = User.objects.get(pk=1)
+
+    def test_read_seller_list_unauthorized(self):
+        response = self.client.get(reverse('seller_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.seller.store_name)
+
+    def test_read_seller_list_authorized(self):
+        self.login_user(self.user)
+        response = self.client.get(reverse('seller_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.seller.store_name)
+
+    def test_read_seller_list_empty(self):
+        Product.objects.all().delete()
+        Seller.objects.all().delete()
+        response = self.client.get(reverse('seller_list'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("No sellers found."))
 
 
 class TestSellerCreate(BaseTestCase):

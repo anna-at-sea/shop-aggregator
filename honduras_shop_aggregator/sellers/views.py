@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from honduras_shop_aggregator import utils
@@ -16,6 +16,12 @@ from honduras_shop_aggregator.sellers.forms import (SellerCreateForm,
                                                     SellerDeleteForm,
                                                     SellerUpdateForm)
 from honduras_shop_aggregator.sellers.models import Seller
+
+
+class SellerListView(SuccessMessageMixin, ListView):
+    model = Seller
+    template_name = 'pages/sellers/seller_list.html'
+    context_object_name = 'sellers'
 
 
 class SellerProfileView(
@@ -41,6 +47,68 @@ class SellerProfileView(
             )
             for product in products:
                 product.is_liked = product.likes.filter(user=self.request.user).exists()
+            paginator = Paginator(products, self.paginate_by)
+            page = self.request.GET.get('page')
+            try:
+                products = paginator.page(page)
+            except PageNotAnInteger:
+                products = paginator.page(1)
+            except EmptyPage:
+                products = paginator.page(paginator.num_pages)
+            context['page_obj'] = products
+            context['products'] = products
+            return context
+
+    def render_to_response(self, context, **response_kwargs):
+        """Return JSON if AJAX, otherwise full page."""
+        request = self.request
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "partials/_product_grid.html", 
+                {"products": context["products"], "request": request},
+                request=request
+            )
+            page_obj = context["page_obj"]
+            return JsonResponse({
+                "html": html,
+                "has_next": page_obj.has_next(),
+                "next_page": (
+                    page_obj.next_page_number() if page_obj.has_next() else None
+                )
+            })
+        return super().render_to_response(context, **response_kwargs)
+
+
+class PublicSellerProfileView(
+    SuccessMessageMixin, DetailView
+):
+    model = Seller
+    template_name = 'pages/sellers/public_profile.html'
+    context_object_name = 'seller'
+    slug_field = "store_name"
+    slug_url_kwarg = "store_name"
+    paginate_by = 20
+
+    def get_object(self):
+        return get_object_or_404(Seller, store_name=self.kwargs["store_name"])
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            profile_seller = context['seller']
+            products = Product.objects.filter(
+                seller=profile_seller,
+                is_deleted=False,
+                is_active=True,
+                stock_quantity__gt=0
+            )
+            if self.request.user.is_authenticated:
+                liked_ids = self.request.user.likes.values_list("product_id", flat=True)
+                for product in products:
+                    product.is_liked = product.pk in liked_ids
+            else:
+                liked_products = self.request.session.get('liked_products', [])
+                for product in products:
+                    product.is_liked = product.pk in liked_products
             paginator = Paginator(products, self.paginate_by)
             page = self.request.GET.get('page')
             try:
