@@ -8,6 +8,7 @@
 {% block owner_alerts %}{% endblock %}
 
 <div class="container mt-4">
+    {% include "partials/back_button.html" %}
     <div class="card border-0 p-4">
         <div class="row align-items-stretch myb-3">
             
@@ -52,9 +53,7 @@
             <!-- Right side: description -->
             <div class="col-md-8 d-flex flex-column">
                 <h4 class="text-secondary">{% translate "Store Description" %}</h4>
-                <div id="store-description" class="border rounded p-3 bg-light flex-grow-1 description-truncate" style="white-space: pre-wrap; min-height: 150px;">
-                    {{ seller.description }}
-                </div>
+                <div id="store-description" class="border rounded p-3 bg-light flex-grow-1 description-truncate" style="white-space: pre-wrap; min-height: 150px;">{{ seller.description }}</div>
                 <button id="toggle-description-btn" class="description-toggle-btn" type="button">
                     <span class="btn-text">{% translate "Show more" %}</span>
                     <i class="bi bi-chevron-down btn-icon"></i>

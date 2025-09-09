@@ -73,34 +73,3 @@
 </div>
 {% endif %}
 </div>
-
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const likeButtons = document.querySelectorAll('.like-btn');
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  
-      likeButtons.forEach(btn => {
-        btn.addEventListener('click', function () {
-          const productId = this.dataset.productId;
-          const url = `{% url 'toggle_like' 0 %}`.replace('0', productId);
-  
-          fetch(url, {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': csrfToken,
-              'Content-Type': 'application/json'
-            },
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === 'liked') {
-              this.textContent = '❤️';
-            } else {
-              this.textContent = '🤍';
-            }
-          })
-          .catch(error => console.error('Error:', error));
-        });
-      });
-    });
-</script> -->

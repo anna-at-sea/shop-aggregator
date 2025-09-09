@@ -18,16 +18,17 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-danger py-0 px-0 px-md-3 px-lg-5">
             <div class="container-fluid">
+              <div class="d-flex flex-nowrap w-100 align-items-center justify-content-between justify-content-lg-start">
           
               <!-- Logo -->
-              <a class="navbar-brand d-flex flex-column align-items-center me-3" href="{% url 'index' %}">
+              <a class="navbar-brand d-flex flex-column align-items-center" href="{% url 'index' %}">
                 <img src="{% static 'images/logo.png' %}" alt="Cangrejal Logo" width="50" height="50">
                 <span class="fs-6">Cangrejal</span>
               </a>
           
               <!-- Search bar (flex-grow center) -->
               <form action="{% url 'product_list' %}" method="get" class="d-flex flex-grow-1 mx-3" style="max-width: 500px;">
-                <input class="form-control search-input" type="text" name="search" value="{{ request.GET.search }}" 
+                <input class="form-control search-input flex-shrink-1" type="text" name="search" value="{{ request.GET.search }}" 
                        placeholder="{% translate 'Search' %}" aria-label="Search">
                 <button class="btn search-btn btn-outline-light" type="submit">
                     <i class="bi bi-search"></i>
@@ -39,13 +40,14 @@
                       aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
-          
+
+              </div>
               <!-- Right-side collapsible content (position-static fixes dropdown alignment) -->
-              <div class="collapse navbar-collapse justify-content-end position-static" id="navbarRight">
+              <div class="collapse navbar-collapse" id="navbarRight">
           
-                <div class="row d-flex align-items-center">
+                <div class="row d-flex align-items-center justify-content-between" style="min-width: 400px;">
                 <!-- Main Menu dropdown -->
-                <div class="col-6 col-lg-4 d-flex justify-content-center">
+                <div class="col-6 col-lg-4">
                   <div class="dropdown mt-lg-0 d-none d-lg-inline">
                     <button class="btn btn-danger dropdown-toggle" type="button" id="mainMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                       🛒 {% translate "Menu" %}
@@ -60,14 +62,14 @@
                   <ul class="navbar-nav d-lg-none py-3 px-4">
                     <li class="nav-item"><a class="nav-link" href="{% url 'product_list' %}">{% translate "Products" %}</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'category_list' %}">{% translate "Categories" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">{% translate "Sellers" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'seller_list' %}">{% translate "Sellers" %}</a></li>
                   </ul>
                 </div>
 
 
-                  <div class="col-6 col-lg-8 d-flex justify-content-center">
+                <div class="col-6 col-lg-8 d-flex justify-content-start">
                   <!-- City selector -->
-                  <div class="row row-cols-1 row-cols-lg-2">
+                  <div class="row row-cols-1 row-cols-lg-2 d-flex justify-content-center">
                   <div class="col d-flex justify-content-center">
                   <div class="dropdown mt-lg-0">
                     <button class="btn btn-danger dropdown-toggle" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -110,7 +112,7 @@
                       <ul class="dropdown-menu" aria-labelledby="userMenu">
                         <li><a class="dropdown-item" href="{% url 'anonymous_profile' %}">{% translate "Saved products" %}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'user_create' %}">{% translate "Log in" %} | {% translate "Register" %}</a></li>
+                        <li><small><a class="dropdown-item" href="{% url 'user_create' %}">{% translate "Log in" %} | {% translate "Register" %}</a></small></li>
                       </ul>
                     {% endif %}
                   </div>

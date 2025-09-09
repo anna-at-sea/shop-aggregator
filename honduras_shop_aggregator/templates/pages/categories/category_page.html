@@ -7,11 +7,7 @@
 {% include "partials/flash_message.html" %}
 
 <div class="container mt-4">
-    <div class="mb-3">
-      <a href="{% url 'category_list' %}" class="text-decoration-none text-secondary">
-        ← {% translate "Back to Categories" %}
-      </a>
-    </div>
+    {% include "partials/back_button.html" %}
 
     <h1 class="text-dark mb-4">{{ category.name }} {% translate "in" %} {{ current_city.name }}</h1>
 

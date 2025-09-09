@@ -3,5 +3,42 @@
 
 {% block content %}
 {% include 'partials/flash_message.html' %}
-<h1>{% translate "Find, compare, and save" %}</h1>
+
+<!-- Categories preview -->
+<div class="my-5">
+    <h2 class="h4 text-secondary mb-4">{% translate "Popular Categories" %}</h2>
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+        {% for category in categories|slice:":6" %}
+        <div class="col text-center">
+            <a href="{% url 'category_page' category.slug %}" class="text-decoration-none text-dark">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-tags-fill fs-2 text-danger"></i>
+                        <h6 class="mt-2">{{ category.name }}</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<hr>
+
+<!-- Random products -->
+<div class="my-5">
+    <h2 class="h4 text-secondary mb-4">{% translate "Products in" %} {{ current_city.name }}</h2>
+    {% include "partials/_product_grid.html" with products=products %}
+</div>
+
+{% if page_obj.has_next %}
+    <div class="text-center my-4">
+        <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
+            {% translate "Load More" %}
+        </button>
+    </div>
+{% endif %}
+
+{% include "partials/_product_list_scripts.html" %}
+
 {% endblock %}

@@ -4,9 +4,6 @@ dev:
 lint:
 	uv run ruff check && uv run isort honduras_shop_aggregator/
 
-install:
-	uv install
-
 makemigrations:
 	uv run python3 manage.py makemigrations
 

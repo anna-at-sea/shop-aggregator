@@ -1,0 +1,19 @@
+{% load i18n %}
+
+<div class="mb-3">
+    <a href="{% url 'product_list' %}" class="text-decoration-none text-secondary" onclick="handleBack(event)">
+        ← {% translate "Back" %}
+    </a>
+</div>
+
+<script>
+    function handleBack(event) {
+      event.preventDefault();
+      
+      if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+        history.back();
+      } else {
+        window.location.href = '{% url "product_list" %}';
+      }
+    }
+</script>
