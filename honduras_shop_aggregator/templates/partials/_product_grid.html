@@ -32,7 +32,7 @@
                     <span class="fs-5 fw-bold text-dark">{{ product.product_price }} L</span>
                     {% endif %}
                 </p>
-                {% if user.is_authenticated and user == product.seller.user %}
+                {% if user.is_authenticated and user == product.seller.user and seller_features_enabled %}
                 <strong>{% translate "Stock" %}:</strong> {{ product.stock_quantity }}<br>
                 <strong>{% translate "Active" %}:</strong> 
                     {% if product.is_active %}

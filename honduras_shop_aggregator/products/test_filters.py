@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -396,7 +397,11 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
             list(response_with_filter.context["object_list"]),
             list(response_without_filter.context["object_list"]),
         )
-        self.assertNotContains(response_without_filter, _("Category"))
+        soup = BeautifulSoup(response_without_filter.content, 'html.parser')
+        filter_form = soup.find('form', {'id': 'filter-sidebar'})
+        self.assertIsNotNone(filter_form)
+        self.assertNotIn(_('Category'), filter_form.text)
+        # self.assertNotContains(response_without_filter, _("Category"))
 
     def test_combines_filters_and_search_in_category(self):
         response = self.client.get(

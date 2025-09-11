@@ -92,11 +92,15 @@
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="userMenu">
                         <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>
-                        {% if not user.is_seller %}
-                        <li><a class="dropdown-item" href="{% url 'seller_create' %}">{% translate "Become seller" %}</a></li>
-                        {% else %}
-                        <li><a class="dropdown-item" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Go to seller profile" %}</a></li>
+                        <!-- Seller feature -->
+                        {% if seller_features_enabled %}
+                          {% if not user.is_seller %}
+                          <li><a class="dropdown-item" href="{% url 'seller_create' %}">{% translate "Become seller" %}</a></li>
+                          {% else %}
+                          <li><a class="dropdown-item" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Go to seller profile" %}</a></li>
+                          {% endif %}
                         {% endif %}
+                        <!--  -->
                         <li><hr class="dropdown-divider"></li>
                         <li>
                           <form action="{% url 'logout' %}" method="post">

@@ -71,7 +71,7 @@
                     </button>
                 {% endif %}
 
-                {% if request.user == product.seller.user %}
+                {% if request.user == product.seller.user and seller_features_enabled %}
                     <div class="border rounded p-3 bg-light mt-4">
                         <h6 class="text-secondary">{% translate "Owner Actions" %}</h6>
                         <div class="d-flex flex-column gap-2">

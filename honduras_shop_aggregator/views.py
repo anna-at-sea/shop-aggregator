@@ -2,14 +2,14 @@ import random
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import ListView
 
-from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.categories.models import Category
+from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.products.models import Product
 
 

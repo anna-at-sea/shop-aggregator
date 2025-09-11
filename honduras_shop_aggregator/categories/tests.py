@@ -90,10 +90,16 @@ class TestCategoryListRead(BaseTestCase):
         self.assertContains(response, self.category.name)
         self.assertContains(response, self.other_category.name)
         self.assertContains(
-            response, _(f'{self.product_count_first_category} products')
+            response,
+            _(
+                ("{count} products")
+            ).format(count=self.product_count_first_category)
         )
         self.assertContains(
-            response, _(f'{self.product_count_second_category} product')
+            response,
+            _(
+                ("{count} product")
+            ).format(count=self.product_count_second_category)
         )
 
     def test_read_category_list_authorized(self):

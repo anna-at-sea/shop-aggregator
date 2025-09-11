@@ -141,8 +141,8 @@ class TestProductListRead(BaseTestCase):
         response = self.client.get(reverse("product_list"), {"page": 1})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _('Load More'))
-        self.assertContains(response, _('Product 5'))  # belongs to page 1
-        self.assertNotContains(response, _('Product 4'))   # belongs to page 2
+        self.assertContains(response, 'Product 5')  # belongs to page 1
+        self.assertNotContains(response, 'Product 4')   # belongs to page 2
 
     def test_load_more_second_page_returns_next_batch(self):
         self.create_extra_products(self.paginate_by + 5)

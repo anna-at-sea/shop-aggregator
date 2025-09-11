@@ -28,6 +28,7 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', False)
 DATABASE_URL = os.getenv('DATABASE_URL')
+SELLER_FEATURES_ENABLED = True
 
 ALLOWED_HOSTS = [
     'webserver',
@@ -82,6 +83,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'honduras_shop_aggregator.context_processors.city_context',
+                'honduras_shop_aggregator.context_processors.seller_features',
             ],
         },
     },

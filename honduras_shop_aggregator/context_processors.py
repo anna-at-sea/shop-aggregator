@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from honduras_shop_aggregator.cities.models import City
 
 
@@ -21,4 +23,9 @@ def city_context(request):
     return {
         'current_city': selected_city,
         'cities': cities
+    }
+
+def seller_features(request):
+    return {
+        'seller_features_enabled': settings.SELLER_FEATURES_ENABLED
     }
