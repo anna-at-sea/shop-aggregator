@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import shutil
@@ -491,14 +492,7 @@ class TestImageUpload(BaseTestCase):
                 content=img_file.read(),
                 content_type='image/jpeg'
             )
-        with open(
-            os.path.join(IMAGE_PATH, "test_img_bigger_than_2_mb.jpg"), 'rb'
-        ) as img_file:
-            self.big_image = SimpleUploadedFile(
-                name='test_img_bigger_than_2_mb.jpg',
-                content=img_file.read(),
-                content_type='image/jpeg'
-            )
+        self.big_image = self.generate_big_image_file(16)
         with open(
             os.path.join(IMAGE_PATH, "test_img_wrong_format.txt"), 'rb'
         ) as txt_file:
@@ -519,6 +513,19 @@ class TestImageUpload(BaseTestCase):
 
     def tearDown(self):
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
+
+    def generate_big_image_file(self, size_in_mb=16):
+        img = Image.new("RGB", (5000, 5000), color="white")
+        img_bytes = io.BytesIO()
+        img.save(img_bytes, format="JPEG", quality=95)
+        img_content = img_bytes.getvalue()
+        if len(img_content) < size_in_mb * 1024 * 1024:
+            img_content += b'0' * ((size_in_mb * 1024 * 1024) - len(img_content))
+        return SimpleUploadedFile(
+            name=f"big_test_image_{size_in_mb}mb.jpg",
+            content=img_content,
+            content_type="image/jpeg"
+        )
 
     def test_image_upload_success(self):
         self.seller.is_verified = True
@@ -560,7 +567,7 @@ class TestImageUpload(BaseTestCase):
         self.assertFormError(
             form,
             'image',
-            _("Image size should not exceed 2 MB.")
+            _("Image size should not exceed 15 MB.")
         )
         self.product.refresh_from_db()
         self.assertEqual(self.product.image.name, 'products/placeholder.png')

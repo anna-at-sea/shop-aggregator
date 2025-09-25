@@ -106,7 +106,7 @@ class Product(models.Model):
         blank=True,
         null=True,
         default='products/placeholder.png',
-        help_text=_("Upload JPEG or PNG image up to 2MB.")
+        help_text=_("Upload JPEG or PNG image up to 15MB.")
     )
 
     def save(self, *args, **kwargs):

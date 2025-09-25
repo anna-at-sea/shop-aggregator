@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 
+{% block title %}{% if user.is_authenticated %}{{ user.username }} | {% endif %}Cangrejal{% endblock %}
 {% block content %}
 {% include "partials/flash_message.html" %}
 <h1 class="text-dark">{% translate "Welcome" %}{% if user.is_authenticated %}, {{ user.username }}{% else %}{% endif %} </h1>

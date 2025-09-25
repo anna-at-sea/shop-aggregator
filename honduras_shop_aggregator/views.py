@@ -27,8 +27,18 @@ class IndexView(SuccessMessageMixin, ListView):
             queryset = queryset.filter(
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
             ).distinct()
+        page = self.request.GET.get("page", "1")
+        print(f'page: {page}')
+        if page == "1":
+            seed = random.randint(0, 9999999)
+            self.request.session["shuffle_seed"] = seed
+            self.request.session.modified = True
+        else:
+            seed = self.request.session.get("shuffle_seed", 1)
+        print(f'seed: {seed}')
         products = list(queryset)
-        random.shuffle(products)
+        # this needs to be changed when number of products grows
+        random.Random(seed).shuffle(products)
         return products
 
     def get_context_data(self, **kwargs):

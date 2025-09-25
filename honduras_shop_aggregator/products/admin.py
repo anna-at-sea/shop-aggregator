@@ -14,11 +14,8 @@ class CustomProductAdmin(admin.ModelAdmin):
         "category",
         "product_link",
         "product_price",
-        "description",
         "is_active",
-        "stock_quantity",
-        "slug",
-        "image"
+        "stock_quantity"
     )
     search_fields = (
         "seller__store_name",

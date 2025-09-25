@@ -94,7 +94,7 @@ class BaseTestCase(TestCase):
 
 
 def validate_image(image):
-    max_size_mb = 2
+    max_size_mb = 15
     if image.size > max_size_mb * 1024 * 1024:
         raise ValidationError(_(f"Image size should not exceed {max_size_mb} MB."))
 

@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 
+{% block title %}{{ product.product_name }} | Cangrejal{% endblock %}
 {% block content %}
 {% include "partials/flash_message.html" %}
 
@@ -27,7 +28,7 @@
             <hr>
 
             {% if product.stock_quantity > 0 and product.is_active %}
-                <h4 class="text-success">${{ product.product_price }}</h4>
+                <h4 class="text-success">L{{ product.product_price }}</h4>
             {% endif %}
             <p>
                 {% if product.stock_quantity > 0 and product.is_active %}
