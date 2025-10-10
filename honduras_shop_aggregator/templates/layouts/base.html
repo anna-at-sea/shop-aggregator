@@ -12,7 +12,7 @@
     {% load static %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/png">
 </head>
 <body>
     <header>
@@ -22,8 +22,7 @@
           
               <!-- Logo -->
               <a class="navbar-brand d-flex flex-column align-items-center" href="{% url 'index' %}">
-                <img src="{% static 'images/logo.png' %}" alt="Cangrejal Logo" width="50" height="50">
-                <span class="fs-6">Cangrejal</span>
+                <img src="{% static 'images/logo.svg' %}" alt="Cangrejal Logo" width="80" height="80">
               </a>
           
               <!-- Search bar (flex-grow center) -->

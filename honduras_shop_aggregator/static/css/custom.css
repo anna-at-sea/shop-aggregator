@@ -112,3 +112,8 @@ main {
 .description-toggle-btn.expanded .btn-icon {
     transform: rotate(180deg);
 }
+
+.alert {
+    backdrop-filter: blur(6px);
+    background-color: rgba(255, 255, 255, 0.85);
+}
