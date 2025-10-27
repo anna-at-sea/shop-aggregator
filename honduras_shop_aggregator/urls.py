@@ -17,5 +17,6 @@ urlpatterns = i18n_patterns(
     path('categories/', include('honduras_shop_aggregator.categories.urls')),
     path('set-city/<int:city_pk>/', views.SetCityView.as_view(), name='set_city'),
     path('toggle-like/<int:product_pk>/', ToggleLikeView.as_view(), name='toggle_like'),
+    path('switch-mode/', views.switch_mode, name='switch_mode'),
     path('admin/', admin.site.urls),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

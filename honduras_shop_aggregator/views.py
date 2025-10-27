@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 
 from honduras_shop_aggregator.categories.models import Category
@@ -83,3 +84,11 @@ class SetCityView(View):
         request.session['city_name'] = city.name
 
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@require_POST
+def switch_mode(request):
+    mode = request.POST.get("mode")
+    if mode in ["user", "seller"]:
+        request.session["mode"] = mode
+    return redirect(request.META.get("HTTP_REFERER", "index"))

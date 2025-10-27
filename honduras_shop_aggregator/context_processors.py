@@ -25,7 +25,18 @@ def city_context(request):
         'cities': cities
     }
 
+
 def seller_features(request):
     return {
         'seller_features_enabled': settings.SELLER_FEATURES_ENABLED
+    }
+
+
+def user_mode(request):
+    mode = request.session.get('mode', 'user')
+    if not request.user.is_authenticated or not request.user.is_seller:
+        mode = 'user'
+        request.session['mode'] = 'user'
+    return {
+        'mode': mode
     }

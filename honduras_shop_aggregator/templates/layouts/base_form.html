@@ -15,13 +15,14 @@
     <h1 class="display-5">{{ heading }}</h1>
     <p></p>
     <p>{{ delete_prompt|default:'' }}</p>
+    <!-- fff -->
     {% if form.image or heading == _("Update product") %}
         <div class="d-flex align-items-start gap-4 mb-4 flex-wrap">
             <div class="flex-shrink-0">
                 <img src="{{ form.instance.image.url }}" 
                      alt="Current product image" 
                      class="img-thumbnail" 
-                     style="max-width: 200px; height: auto;">
+                     style="max-width: 300px; height: auto;">
             </div>
             {% if heading == _("Update product") %}
             <div class="border rounded p-3 bg-light">
@@ -60,6 +61,26 @@
         window.location.href = '{% url "index" %}';
       }
     }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const fileInput = document.querySelector('input[type="file"][name="image"]');
+      const existingPreview = document.querySelector('.flex-shrink-0 img'); // your old image on top
+    
+      if (!fileInput || !existingPreview) return;
+    
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = event => {
+            existingPreview.src = event.target.result; // replaces old image with new preview
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
 </script>
 
 {% endblock %}

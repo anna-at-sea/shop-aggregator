@@ -84,6 +84,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'honduras_shop_aggregator.context_processors.city_context',
                 'honduras_shop_aggregator.context_processors.seller_features',
+                'honduras_shop_aggregator.context_processors.user_mode',
             ],
         },
     },
