@@ -396,3 +396,83 @@ class TestSellerDelete(BaseTestCase):
             _("This store still has active products and cannot be deleted"),
             {'store_name': self.seller_with_product.store_name}
         )
+
+
+class TestUserModeSwitch(BaseTestCase):
+
+    def setUp(self):
+        self.seller = Seller.objects.get(pk=3)
+        self.user_seller = User.objects.get(pk=self.seller.user.pk)
+        self.normal_user = User.objects.get(pk=1)
+
+    def test_default_mode_for_anonymous_user(self):
+        response = self.client.get(reverse('index'))
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') not in html
+        assert _('Switch to User Mode') not in html
+        assert response.context['mode'] == 'user'
+
+    def test_default_mode_for_normal_user(self):
+        self.login_user(self.normal_user)
+        response = self.client.get(reverse('index'))
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') not in html
+        assert _('Switch to User Mode') not in html
+        assert response.context['mode'] == 'user'
+
+    def test_default_mode_for_seller(self):
+        self.login_user(self.user_seller)
+        response = self.client.get(reverse('index'))
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') in html
+        assert _('Switch to User Mode') not in html
+        assert response.context['mode'] == 'user'
+
+    def test_switch_to_seller_mode(self):
+        self.login_user(self.user_seller)
+        response = self.client.post(
+            reverse('switch_mode'), {'mode': 'seller'}, follow=True
+        )
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') not in html
+        assert _('Switch to User Mode') in html
+        assert self.client.session['mode'] == 'seller'
+        assert response.context['mode'] == 'seller'
+
+    def test_switch_back_to_user_mode(self):
+        self.login_user(self.user_seller)
+        self.client.post(
+            reverse('switch_mode'), {'mode': 'seller'}, follow=True
+        )
+        response = self.client.post(
+            reverse('switch_mode'), {'mode': 'user'}, follow=True
+        )
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') in html
+        assert _('Switch to User Mode') not in html
+        assert self.client.session['mode'] == 'user'
+        assert response.context['mode'] == 'user'
+
+    def test_non_seller_cannot_switch_to_seller_mode(self):
+        self.login_user(self.normal_user)
+        response = self.client.post(
+            reverse('switch_mode'), {'mode': 'seller'}, follow=True
+        )
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') not in html
+        assert _('Switch to User Mode') not in html
+        assert self.client.session['mode'] == 'user'
+        assert response.context['mode'] == 'user'
+
+    def test_mode_resets_on_logout(self):
+        self.login_user(self.user_seller)
+        self.client.post(
+            reverse('switch_mode'), {'mode': 'seller'}, follow=True
+        )
+        self.client.logout()
+        response = self.client.get(reverse('index'))
+        html = response.content.decode()
+        assert _('Switch to Seller Mode') not in html
+        assert _('Switch to User Mode') not in html
+        assert self.client.session['mode'] == 'user'
+        assert response.context['mode'] == 'user'
