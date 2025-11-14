@@ -92,13 +92,13 @@ class TestCategoryListRead(BaseTestCase):
         self.assertContains(
             response,
             _(
-                ("{count} products")
+                ("{count} productos")
             ).format(count=self.product_count_first_category)
         )
         self.assertContains(
             response,
             _(
-                ("{count} product")
+                ("{count} producto")
             ).format(count=self.product_count_second_category)
         )
 

@@ -18,7 +18,6 @@
 </head>
 <body>
     <header>
-      {% with request.resolver_match.url_name as current %}
         <nav class="navbar navbar-expand-lg navbar-dark 
           {% if mode == 'seller' %}
               bg-secondary
@@ -26,7 +25,6 @@
               bg-danger
           {% endif %}
           py-0 px-0 px-md-3 px-lg-5">
-      {% endwith %}
 
 
         <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-danger py-0 px-0 px-md-3 px-lg-5"> -->
@@ -39,7 +37,7 @@
               </a>
           
               <!-- Search bar (flex-grow center) -->
-              <form action="{% url 'product_list' %}" method="get" class="d-flex flex-grow-1 mx-3" style="max-width: 500px;">
+              <form action="{% url 'product_list' %}" method="get" class="d-flex flex-grow-1 mx-3" style="max-width: 450px;">
                 <input class="form-control search-input flex-shrink-1" type="text" name="search" value="{{ request.GET.search }}" 
                        placeholder="{% translate 'Search' %}" aria-label="Search">
                 <button class="btn search-btn btn-outline-light" type="submit">
@@ -54,17 +52,17 @@
               </button>
 
               </div>
-              <!-- Right-side collapsible content (position-static fixes dropdown alignment) -->
+              <!-- Right-side collapsible content -->
               <div class="collapse navbar-collapse" id="navbarRight">
           
-                <div class="row d-flex align-items-center justify-content-between" style="min-width: 400px;">
+                <div class="row d-flex align-items-center justify-content-between" style="min-width: 500px;">
                 <!-- Main Menu dropdown -->
-                <div class="col-6 col-lg-4">
+                <div class="col-6 col-lg-3">
                   <div class="dropdown mt-lg-0 d-none d-lg-inline">
                     <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="mainMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                       🛒 {% translate "Menu" %}
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="mainMenuDropdown">
+                    <ul class="dropdown-menu  dropdown-menu-end" aria-labelledby="mainMenuDropdown">
                       <li><a class="dropdown-item" href="{% url 'product_list' %}">{% translate "Products" %}</a></li>
                       <li><a class="dropdown-item" href="{% url 'category_list' %}">{% translate "Categories" %}</a></li>
                       <li><a class="dropdown-item" href="{% url 'seller_list' %}">{% translate "Sellers" %}</a></li>
@@ -79,15 +77,15 @@
                 </div>
 
 
-                <div class="col-6 col-lg-8 d-flex justify-content-start">
+                <div class="col-6 col-lg-9 d-flex justify-content-center">
                   <!-- City selector -->
-                  <div class="row row-cols-1 row-cols-lg-2 d-flex justify-content-center">
+                  <div class="row row-cols-1 row-cols-lg-2 d-flex justify-content-start">
                   <div class="col d-flex justify-content-center">
                   <div class="dropdown mt-lg-0">
                     <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                       📍 {{ current_city }}
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="cityDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="cityDropdown">
                       {% for city in cities %}
                         <li><a class="dropdown-item" href="{% url 'set_city' city.id %}">{{ city.name }}</a></li>
                       {% endfor %}
@@ -106,7 +104,7 @@
                         👤 {{ user.username|truncatechars:15 }}
                         {% endif %}
                       </button>
-                      <ul class="dropdown-menu" aria-labelledby="userMenu">
+                      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                         {% if user.is_seller %}
                         <li>
                           <form action="{% url 'switch_mode' %}" method="post" class="dropdown-item p-0 m-0">

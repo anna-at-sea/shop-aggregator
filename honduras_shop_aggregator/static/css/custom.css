@@ -121,3 +121,64 @@ main {
 .seller-tool {
     background-color: #f1f1f1;
 }
+
+/* === MODERN DROPDOWN STYLE === */
+.dropdown-menu {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 0;
+    animation: fadeIn 0.15s ease-in-out;
+    background-color: #fff;
+  }
+  
+  .dropdown-item {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f5f5f5;
+    color: #212529;
+  }
+  
+  .dropdown-header {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    padding: 0.5rem 1.2rem 0.2rem;
+  }
+  
+  .dropdown-divider {
+    margin: 0.4rem 0;
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-menu-end {
+    right: 0;
+    left: auto;
+  }
+  
+  /* Button look improvements */
+  .dropdown-toggle {
+    border: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .dropdown-toggle:hover,
+  .dropdown-toggle:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Fade-in animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+#mainMenuDropdown + .dropdown-menu {
+    margin-top: 16px; /* adjust 2–6px depending on look */
+}
