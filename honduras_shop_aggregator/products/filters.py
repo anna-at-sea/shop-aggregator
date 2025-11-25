@@ -30,7 +30,7 @@ class ProductFilter(django_filters.FilterSet):
         lookup_expr='lte',
         label=_("Price to")
     )
-    search = django_filters.CharFilter(method='filter_search', label="Search")
+    search = django_filters.CharFilter(method='filter_search', label=_("Search"))
 
     class Meta:
         model = Product

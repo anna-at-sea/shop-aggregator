@@ -5,38 +5,88 @@
 
 {% block title %}{% translate "Catalogue" %} | Cangrejal{% endblock %}
 {% block content %}
+
 {% include "partials/flash_message.html" %}
 
 <div class="container mt-4">
     <h1 class="text-dark mb-4">{% translate "All Products in" %} {{ current_city.name }}</h1>
 
+    <!-- Mobile Filter Button -->
+    <button id="mobile-filter-btn" class="btn btn-outline-dark d-md-none w-100 mb-3">
+        🔍 {% translate "Filter Products" %}
+    </button>
+
+    <!-- Mobile Filter Slide Panel -->
+    <div id="mobile-filter-panel" class="mobile-filter-panel d-md-none">
+        <div class="card shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="m-0">{% translate "Filters" %}</h5>
+                <button class="btn-close" id="close-filter"></button>
+            </div>
+
+            <form method="get">
+                {{ filter.form|crispy }}
+                <button type="submit" class="btn btn-danger w-100 mt-2">{% translate "Show" %}</button>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-12 col-md-3">
-            <div class="filter-sidebar">
-                <form method="get" class="card">
-                    <div class="card-body bg-light">
+        <!-- Desktop Sidebar -->
+        <div class="col-md-3 d-none d-md-block">
+            <div class="filter-sidebar card shadow-sm sticky-top" style="top: 90px;">
+                <div class="card-body bg-light">
+                    <h5 class="mb-3">{% translate "Filters" %}</h5>
+                    <form method="get">
                         {{ filter.form|crispy }}
-                        <button type="submit" class="btn btn-danger btn-sm">{% translate "Show" %}</button>
-                    </div>
-                </form>
+                        <button type="submit" class="btn btn-danger w-100">{% translate "Show" %}</button>
+                    </form>
+                </div>
             </div>
         </div>
 
+        <!-- Product List -->
         <div id="product-list" class="col-12 col-md-9">
             {% include "partials/_product_grid.html" %}
         </div>
     </div>
 
-{% if page_obj.has_next %}
-    <div class="text-center my-4">
-        <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
-            {% translate "Load More" %}
-        </button>
-    </div>
-{% endif %}
-
+    {% if page_obj.has_next %}
+        <div class="text-center my-4">
+            <button id="load-more-btn" class="btn btn-outline-danger btn-lg px-5" data-next-page="{{ page_obj.next_page_number }}">
+                {% translate "Load More" %}
+            </button>
+        </div>
+    {% endif %}
 </div>
 
-{% include "partials/_product_list_scripts.html" %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("JS loaded");
+
+    const mobileBtn = document.getElementById("mobile-filter-btn");
+    const panel = document.getElementById("mobile-filter-panel");
+    const closeBtn = document.getElementById("close-filter");
+
+    console.log("mobileBtn:", mobileBtn);
+    console.log("panel:", panel);
+    console.log("closeBtn:", closeBtn);
+
+    if (mobileBtn) {
+        mobileBtn.addEventListener("click", () => {
+            console.log("Filter button clicked");
+            panel.classList.add("mobile-filter-open");
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            console.log("Close clicked");
+            panel.classList.remove("mobile-filter-open");
+        });
+    }
+});
+</script>
+
 
 {% endblock %}

@@ -182,3 +182,46 @@ main {
 #mainMenuDropdown + .dropdown-menu {
     margin-top: 16px; /* adjust 2–6px depending on look */
 }
+
+/* Mobile filter panel hidden by default */
+.mobile-filter-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  z-index: 2000;
+  padding: 15px;
+}
+
+.mobile-filter-panel .card {
+  max-height: 90%;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+/* Modern card styling */
+.filter-sidebar.card {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-body {
+  border-radius: 12px;
+}
+
+#mobile-filter-btn {
+  border-radius: 10px;
+}
+
+.mobile-filter-open {
+  display: block !important;
+}
+
+@media (min-width: 992px) {
+  .navbar-wide {
+      min-width: 500px;
+  }
+}
