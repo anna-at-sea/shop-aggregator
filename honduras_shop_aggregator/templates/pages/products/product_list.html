@@ -9,6 +9,7 @@
 {% include "partials/flash_message.html" %}
 
 <div class="container mt-4">
+    {% include "partials/back_button.html" %}
     <h1 class="text-dark mb-4">{% translate "All Products in" %} {{ current_city.name }}</h1>
 
     <!-- Mobile Filter Button -->
@@ -88,5 +89,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
+{% include "partials/_product_list_scripts.html" %}
 
 {% endblock %}
