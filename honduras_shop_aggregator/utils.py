@@ -1,13 +1,18 @@
-import hashlib
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import get_messages
-from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
+from .image_utils import get_file_hash, image_upload_path, validate_image
+
+__all__ = [
+    "get_file_hash",
+    "image_upload_path",
+    "validate_image",
+]
 
 
 class UserLoginRequiredMixin(LoginRequiredMixin):
@@ -91,20 +96,3 @@ class BaseTestCase(TestCase):
         self.assertRedirects(response, reverse(redirect_to, kwargs=reverse_kwargs))
         self.assertTrue(get_messages(response.wsgi_request))
         self.assertContains(response, message)
-
-
-def validate_image(image):
-    max_size_mb = 15
-    if image.size > max_size_mb * 1024 * 1024:
-        raise ValidationError(_(f"Image size should not exceed {max_size_mb} MB."))
-
-
-def image_upload_path(instance, filename):
-    extension = filename.split('.')[-1]
-    folder = f"{instance._meta.verbose_name.lower()}s"
-    return f"{folder}/{instance.slug}.{extension.lower()}"
-
-
-def get_file_hash(file_path):
-    with open(file_path, 'rb') as f:
-        return hashlib.md5(f.read()).hexdigest()

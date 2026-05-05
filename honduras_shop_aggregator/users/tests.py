@@ -1,14 +1,21 @@
 import json
+import os
+import tempfile
 from os.path import join
 
 from django.contrib import auth
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from PIL import Image
 
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
+IMAGE_PATH = 'honduras_shop_aggregator/static/images'
+TEMP_MEDIA_ROOT = tempfile.mkdtemp()
 
 class TestAuthentication(BaseTestCase):
 
@@ -111,6 +118,7 @@ class TestUserProfileRead(BaseTestCase):
         self.assertEqual(response.status_code, 404)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class TestUserCreate(BaseTestCase):
 
     def setUp(self):
@@ -123,6 +131,12 @@ class TestUserCreate(BaseTestCase):
         )
         self.duplicate_username_data = self.users_data.get("create_duplicate_username")
         self.duplicate_email_data = self.users_data.get("create_duplicate_email")
+        with open(os.path.join(IMAGE_PATH, "test_img_to_crop.jpg"), 'rb') as img_file:
+            self.success_image = SimpleUploadedFile(
+                name='test_image_to_crop.jpg',
+                content=img_file.read(),
+                content_type='image/jpeg'
+            )
 
     def test_create_user_success(self):
         response = self.client.post(
@@ -131,6 +145,27 @@ class TestUserCreate(BaseTestCase):
         user = User.objects.get(username='complete_user')
         self.assertIsNotNone(user)
         self.assertTrue(User.objects.filter(username="complete_user").exists())
+        self.assertRedirectWithMessage(
+            response, 'login', _("User is registered successfully")
+        )
+
+    def test_create_user_with_profile_picture(self):
+        data = self.complete_user_data.copy()
+        data['image'] = self.success_image
+        response = self.client.post(
+            reverse('user_create'),
+            data,
+            format='multipart',
+            follow=True
+        )
+        user = User.objects.get(username='complete_user')
+        self.assertIsNotNone(user)
+        self.assertTrue(User.objects.filter(username="complete_user").exists())
+        user.refresh_from_db()
+        img = Image.open(user.image.path)
+        self.assertEqual(img.size, (240, 240))
+        self.assertIsNotNone(user.image)
+        self.assertEqual(user.image.name, f'users/{user.username}.jpg')
         self.assertRedirectWithMessage(
             response, 'login', _("User is registered successfully")
         )

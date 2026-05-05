@@ -1,6 +1,7 @@
 {% extends "layouts/base.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}{{ heading }} | Cangrejal{% endblock %}
 {% block content %}
@@ -19,7 +20,7 @@
     {% if form.image or heading == _("Update product") %}
         <div class="d-flex align-items-start gap-4 mb-4 flex-wrap">
             <div class="flex-shrink-0">
-                <img src="{{ form.instance.image.url }}" 
+                <img {% if form.instance.image %}src="{{ form.instance.image.url }}"{% else %}src="{% static 'images/store_placeholder.jpg' %}"{% endif %}
                      alt="Current product image" 
                      class="img-thumbnail" 
                      style="max-width: 300px; height: auto;">
@@ -37,7 +38,7 @@
             {% endif %}
         </div>
     {% endif %}
-    <form method="post"{% if form.image.value %} enctype="multipart/form-data"{% endif %}>
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|default:form|crispy }}
         <input 

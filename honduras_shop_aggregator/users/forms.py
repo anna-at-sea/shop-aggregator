@@ -16,6 +16,7 @@ class UserCreateForm(UserCreationForm):
             'username',
             'email',
             'preferred_delivery_city',
+            'image',
             'password1',
             'password2'
         ]
@@ -34,7 +35,8 @@ class UserUpdateForm(forms.ModelForm):
             'last_name',
             'username',
             'email',
-            'preferred_delivery_city'
+            'preferred_delivery_city',
+            'image'
         ]
 
     def __init__(self, *args, **kwargs):
