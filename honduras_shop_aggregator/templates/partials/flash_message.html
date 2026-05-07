@@ -1,33 +1,54 @@
 {% if messages %}
-  <div class="fixed-top mt-3 d-flex flex-column align-items-center" style="z-index: 1055;">
+  <div class="container-fluid px-0 mb-3">
     {% for message in messages %}
-      <div 
-        class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow rounded-3 px-4 py-3 mb-2"
+    <div class="flash-message-wrapper mb-3">
+      <div
+        class="alert 
+          {% if message.tags == 'error' %}
+            flash-message-danger
+          {% elif message.tags == 'success' %}
+            flash-message-success
+          {% elif message.tags == 'warning' %}
+            flash-message-warning
+          {% else %}
+            flash-message-secondary
+          {% endif %}
+          text-center border-0 rounded-4 shadow-sm py-3 px-4 mb-3 flash-message"
         role="alert"
-        style="min-width: 300px; max-width: 600px; opacity: 0; transition: opacity 0.5s ease;"
       >
         {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
+    </div>
     {% endfor %}
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const alerts = document.querySelectorAll('.alert');
+      const alerts = document.querySelectorAll('.flash-message-wrapper');
 
       alerts.forEach((alert, index) => {
-        // Fade in
+
+        // APPEAR
         setTimeout(() => {
+          alert.style.maxHeight = '200px';
           alert.style.opacity = '1';
+          alert.style.transform = 'translateY(0)';
         }, 100 * index);
 
-        // Auto-fade after 4 seconds
+        // DISAPPEAR
         setTimeout(() => {
-          alert.classList.remove('show');
           alert.style.opacity = '0';
-          setTimeout(() => alert.remove(), 500); // remove from DOM
-        }, 4000 + (index * 200));
+          alert.style.maxHeight = '0';
+          alert.style.transform = 'translateY(-10px)';
+          alert.style.margin = '0';
+          alert.style.padding = '0';
+
+          setTimeout(() => {
+            alert.remove();
+          }, 700);
+
+        }, 6000 + (index * 400));
+
       });
     });
   </script>

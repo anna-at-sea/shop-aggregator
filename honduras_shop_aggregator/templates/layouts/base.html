@@ -120,9 +120,9 @@
                             {% endif %}
                           </form>
                         </li>
-                        {% endif %}
 
                         <li><hr class="dropdown-divider"></li>
+                        {% endif %}
 
                         {% if mode == 'user' %}
                           <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>

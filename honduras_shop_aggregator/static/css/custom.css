@@ -225,3 +225,42 @@ main {
       min-width: 500px;
   }
 }
+
+.flash-message-warning {
+  background-color: rgba(255, 193, 7, 0.18); /* soft warning yellow */
+  color: #664d03;
+  backdrop-filter: blur(2px);
+}
+
+.flash-message-danger {
+  background-color: rgba(220, 53, 69, 0.14); /* soft red */
+  color: #842029;
+  backdrop-filter: blur(2px);
+}
+
+.flash-message-success {
+  background-color: rgba(25, 135, 84, 0.14); /* soft green */
+  color: #146c43;
+  backdrop-filter: blur(2px);
+}
+
+.flash-message-secondary {
+  background-color: rgba(108, 117, 125, 0.14); /* soft gray */
+  color: #41464b;
+  backdrop-filter: blur(2px);
+}
+
+.flash-message-wrapper {
+  overflow: hidden;
+
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+
+  transition:
+    max-height 0.7s ease,
+    opacity 0.7s ease,
+    transform 0.7s ease,
+    margin 0.7s ease,
+    padding 0.7s ease;
+}
