@@ -128,7 +128,7 @@ main {
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     padding: 0.5rem 0;
-    animation: fadeIn 0.15s ease-in-out;
+    /* animation: fadeIn 0.15s ease-in-out; */
     background-color: #fff;
   }
   
@@ -138,7 +138,7 @@ main {
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
   }
   
-  .dropdown-item:hover {
+  .btn-transparent.dropdown-item:hover {
     background-color: #f5f5f5;
     color: #212529;
   }
@@ -168,8 +168,8 @@ main {
     transition: background-color 0.2s ease, color 0.2s ease;
   }
   
-  .dropdown-toggle:hover,
-  .dropdown-toggle:focus {
+  .btn-transparent.dropdown-toggle:hover,
+  .btn-transparent.dropdown-toggle:focus {
     background-color: rgba(255, 255, 255, 0.1);
   }
   

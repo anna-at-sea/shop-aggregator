@@ -26,7 +26,14 @@ class TestDefaultSessionCity(BaseTestCase):
         self.assertContains(response, 'Capital')
 
     def test_default_city_for_user_with_preferred_city(self):
-        self.login_user(self.user_with_city)
+        self.client.post(
+            reverse('login'),
+            {
+                'username': self.user_with_city.username,
+                'password': 'correct_password',
+            },
+            follow=True,
+        )
         response = self.client.get(reverse('index'))
         self.assertEqual(self.client.session.get('city_pk'), 2)
         self.assertContains(response, 'Second City')

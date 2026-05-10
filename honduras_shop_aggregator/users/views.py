@@ -13,6 +13,7 @@ from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from honduras_shop_aggregator import utils
+from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.users.forms import (
     EmailOrUsernameAuthenticationForm, UserCreateForm, UserDeleteForm,
@@ -107,6 +108,19 @@ class UserLoginView(SuccessMessageMixin, LoginView):
     def get_success_message(self, *args, **kwargs):
         return _("You are logged in")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.request.user
+        capital_city = City.objects.get(pk=1)
+        city = user.preferred_delivery_city
+        if city:
+            self.request.session['city_pk'] = city.pk
+            self.request.session['city_name'] = city.name
+        else:
+            self.request.session['city_pk'] = capital_city.pk
+            self.request.session['city_name'] = capital_city.name
+        return response
+
 
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy('index')
@@ -167,6 +181,18 @@ class UserFormUpdateView(
         })
         return context
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.object
+        capital_city = City.objects.get(pk=1)
+        city = user.preferred_delivery_city
+        if city:
+            self.request.session['city_pk'] = city.pk
+            self.request.session['city_name'] = city.name
+        else:
+            self.request.session['city_pk'] = capital_city.pk
+            self.request.session['city_name'] = capital_city.name
+        return response
 
 class UserPasswordChangeView(
     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
