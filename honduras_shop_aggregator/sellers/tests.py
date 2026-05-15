@@ -1,8 +1,13 @@
 import json
+import os
+import tempfile
 from os.path import join
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from PIL import Image
 
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.models import Seller
@@ -10,6 +15,8 @@ from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
+IMAGE_PATH = 'honduras_shop_aggregator/static/images'
+TEMP_MEDIA_ROOT = tempfile.mkdtemp()
 
 class TestPrivateSellerProfileRead(BaseTestCase):
 
@@ -125,6 +132,7 @@ class TestSellerListRead(BaseTestCase):
         self.assertContains(response, _("No sellers found."))
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class TestSellerCreate(BaseTestCase):
 
     def setUp(self):
@@ -141,6 +149,12 @@ class TestSellerCreate(BaseTestCase):
             "create_duplicate_store_name"
         )
         self.duplicate_website_data = self.sellers_data.get("create_duplicate_website")
+        with open(os.path.join(IMAGE_PATH, "test_img_to_crop.jpg"), 'rb') as img_file:
+            self.success_image = SimpleUploadedFile(
+                name='test_image_to_crop.jpg',
+                content=img_file.read(),
+                content_type='image/jpeg'
+            )
 
     def test_create_seller_success(self):
         self.login_user(self.user_without_store)
@@ -152,6 +166,31 @@ class TestSellerCreate(BaseTestCase):
         self.assertTrue(Seller.objects.filter(store_name="complete_seller").exists())
         self.assertFalse(new_seller.is_verified)
         self.assertEqual(new_seller.user, self.user_without_store)
+        self.assertRedirectWithMessage(
+            response,
+            'user_profile',
+            _("Store is registered and awaiting verification"),
+            {'username': self.user_without_store.username}
+        )
+
+    def test_create_seller_with_profile_picture(self):
+        data = self.complete_seller_data.copy()
+        data['image'] = self.success_image
+        self.login_user(self.user_without_store)
+        response = self.client.post(
+            reverse('seller_create'),
+            data,
+            format='multipart',
+            follow=True
+        )
+        seller = Seller.objects.get(store_name='complete_seller')
+        self.assertIsNotNone(seller)
+        self.assertTrue(Seller.objects.filter(store_name='complete_seller').exists())
+        seller.refresh_from_db()
+        img = Image.open(seller.image.path)
+        self.assertEqual(img.size, (240, 240))
+        self.assertIsNotNone(seller.image)
+        self.assertEqual(seller.image.name, f'sellers/{seller.store_name}.jpg')
         self.assertRedirectWithMessage(
             response,
             'user_profile',
