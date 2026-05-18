@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
+from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.image_utils import (image_upload_path,
                                                   validate_image)
 from honduras_shop_aggregator.users.models import User
@@ -58,6 +59,13 @@ class Seller(models.Model):
         blank=True,
         null=True,
         help_text=_("Upload JPEG or PNG image up to 15MB.")
+    )
+    city = models.ForeignKey(
+        City,
+        on_delete=models.PROTECT,
+        related_name="sellers",
+        blank=True,
+        null=True,
     )
 
     def clean(self):

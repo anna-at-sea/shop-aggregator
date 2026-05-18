@@ -37,6 +37,12 @@
                 </p>
                 {% endif %}
 
+                {% if seller.city %}
+                <p class="text-muted">
+                    📍 {{ seller.city }}
+                </p>
+                {% endif %}
+
                 <!-- Meta info -->
                 <p class="text-muted mb-1">
                     {% translate "Registered On" %}: {{ seller.date_registered }}

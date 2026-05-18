@@ -120,6 +120,13 @@ class ProductFormCreateView(
         form.instance.seller = self.request.user.seller
         return form
 
+    def get_initial(self):
+        initial = super().get_initial()
+        seller = self.request.user.seller
+        if seller.city:
+            initial['origin_city'] = seller.city
+        return initial
+
 
 class ProductFormUpdateImageView(
     utils.UserLoginRequiredMixin, utils.SellerPermissionMixin,

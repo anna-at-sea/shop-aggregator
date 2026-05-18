@@ -355,6 +355,27 @@ class TestSellerUpdate(BaseTestCase):
         )
         self.assertRedirectWithMessage(response)
 
+    def test_seller_city(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.seller.refresh_from_db()
+        self.assertIsNone(self.seller.city)
+        data = self.complete_seller_data.copy()
+        data['city'] = 2
+        response = self.client.post(
+            reverse('seller_update', kwargs={
+                'store_name': self.seller.store_name
+            }),
+            data,
+            follow=True
+        )
+        self.seller.refresh_from_db()
+        self.assertEqual(self.seller.city.pk, 2)
+        response = self.client.get(reverse('product_create'))
+        form = response.context['form']
+        self.assertEqual(form.initial['origin_city'], self.seller.city)
+
 
 class TestSellerDelete(BaseTestCase):
 
