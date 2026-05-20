@@ -125,6 +125,9 @@ class ProductFormCreateView(
         seller = self.request.user.seller
         if seller.city:
             initial['origin_city'] = seller.city
+        initial['delivery_cities'] = list(
+            seller.delivery_cities.values_list('pk', flat=True)
+        )
         return initial
 
 

@@ -68,6 +68,14 @@ class Seller(models.Model):
         null=True,
     )
 
+    delivery_cities = models.ManyToManyField(
+        City,
+        blank=True,
+        related_name="default_delivery_sellers",
+        verbose_name=_("Default delivery cities"),
+        help_text=_("Cities where this seller usually delivers products.")
+    )
+
     def clean(self):
         if self.pk:
             original = Seller.objects.get(pk=self.pk)

@@ -13,6 +13,7 @@ class SellerCreateForm(forms.ModelForm):
             'store_name',
             'website',
             'city',
+            'delivery_cities',
             'description',
             'image'
         ]
@@ -27,7 +28,7 @@ class SellerUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Seller
-        fields = ['store_name', 'city', 'description', 'image']
+        fields = ['store_name', 'city', 'delivery_cities', 'description', 'image']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)

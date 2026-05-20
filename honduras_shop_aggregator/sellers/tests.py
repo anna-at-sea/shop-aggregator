@@ -363,6 +363,7 @@ class TestSellerUpdate(BaseTestCase):
         self.assertIsNone(self.seller.city)
         data = self.complete_seller_data.copy()
         data['city'] = 2
+        data['delivery_cities'] = [1, 2]
         response = self.client.post(
             reverse('seller_update', kwargs={
                 'store_name': self.seller.store_name
@@ -372,9 +373,16 @@ class TestSellerUpdate(BaseTestCase):
         )
         self.seller.refresh_from_db()
         self.assertEqual(self.seller.city.pk, 2)
+        self.assertEqual(
+            list(self.seller.delivery_cities.values_list('pk', flat=True)), [1, 2]
+        )
         response = self.client.get(reverse('product_create'))
         form = response.context['form']
         self.assertEqual(form.initial['origin_city'], self.seller.city)
+        self.assertCountEqual(
+            form.initial['delivery_cities'],
+            list(self.seller.delivery_cities.values_list('pk', flat=True))
+        )
 
 
 class TestSellerDelete(BaseTestCase):
