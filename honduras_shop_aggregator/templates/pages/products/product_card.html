@@ -27,18 +27,20 @@
 
             <hr>
 
-            {% if product.stock_quantity > 0 and product.is_active %}
+            {% if product.is_available %}
                 <h4 class="text-success">L{{ product.product_price }}</h4>
             {% endif %}
             <p>
-                {% if product.stock_quantity > 0 and product.is_active %}
+                {% if product.is_available %}
                     <span class="text-success">{% translate "In stock" %}</span>
-                {% else %}
+                {% elif not product.stock_quantity > 0 %}
                     <span class="text-danger">{% translate "Out of stock" %}</span>
+                {% else %}
+                    <span class="text-danger">{% translate "Currently unavailable" %}</span>
                 {% endif %}
             </p>
             <p>
-                {% if not product.stock_quantity > 0 or not product.is_active %}{% else %}
+                {% if not product.stock_quantity > 0 or not product.is_active or product.is_deleted %}{% else %}
                     {% if current_city == product.origin_city %}
                         <span class="text-success">{% translate "Available in your city" %}</span>
                     {% else %}

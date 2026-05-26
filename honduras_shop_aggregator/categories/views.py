@@ -23,7 +23,8 @@ class CategoryListView(SuccessMessageMixin, ListView):
             products = Product.objects.filter(
                 category=category,
                 is_active=True,
-                stock_quantity__gt=0
+                stock_quantity__gt=0,
+                is_deleted=False
             )
             if city_pk:
                 products = products.filter(
@@ -53,7 +54,8 @@ class CategoryPageView(
         products = Product.objects.filter(
             category__slug=category_slug,
             is_active=True,
-            stock_quantity__gt=0
+            stock_quantity__gt=0,
+            is_deleted=False
         )
         if city_pk:
             products = products.filter(

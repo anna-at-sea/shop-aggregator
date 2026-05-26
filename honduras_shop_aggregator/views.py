@@ -22,7 +22,9 @@ class IndexView(SuccessMessageMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(is_active=True, stock_quantity__gt=0)
+        queryset = queryset.filter(
+            is_active=True, stock_quantity__gt=0, is_deleted=False
+        )
         city_pk = self.request.session.get('city_pk')
         if city_pk:
             queryset = queryset.filter(

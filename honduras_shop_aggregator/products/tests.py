@@ -898,6 +898,7 @@ class TestProductSoftDelete(BaseTestCase):
         )
         self.product.refresh_from_db()
         self.assertTrue(self.product.is_deleted)
+        self.assertFalse(self.product.is_available)
         self.assertFalse(self.product.is_active)
         response = self.client.get(
             reverse('seller_profile', kwargs={'store_name': self.seller.store_name})
@@ -905,6 +906,11 @@ class TestProductSoftDelete(BaseTestCase):
         self.assertNotContains(response, self.product.product_name)
         response = self.client.get(reverse('product_list'))
         self.assertNotContains(response, self.product.product_name)
+        response = self.client.get(reverse(
+            'product_card', kwargs={'slug': self.product.slug}),
+            follow=True
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_product_unauthorized(self):
         response = self.client.post(

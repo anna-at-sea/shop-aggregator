@@ -110,6 +110,14 @@ class Product(models.Model):
         help_text=_("Upload JPEG or PNG image up to 15MB.")
     )
 
+    @property
+    def is_available(self):
+        return (
+            self.is_active
+            and not self.is_deleted
+            and self.stock_quantity > 0
+        )
+
     def save(self, *args, **kwargs):
 
         if not self.slug:

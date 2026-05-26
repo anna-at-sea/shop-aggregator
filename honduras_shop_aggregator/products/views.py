@@ -46,7 +46,9 @@ class ProductFilterView(SuccessMessageMixin, FilterView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(is_active=True, stock_quantity__gt=0)
+        queryset = queryset.filter(
+            is_active=True, stock_quantity__gt=0, is_deleted=False
+        )
         city_pk = self.request.session.get('city_pk')
         if city_pk:
             queryset = queryset.filter(
@@ -204,7 +206,7 @@ class ProductSoftDeleteView(
         product.is_deleted = True  # to remove from seller queryset
         product.deleted_at = timezone.now()
         product.is_active = False  # to remove from users querysets
-        product.save(update_fields=["is_deleted", "is_active"])
+        product.save(update_fields=["deleted_at", "is_deleted", "is_active"])
         return super().form_valid(form)
 
     def get_success_url(self):

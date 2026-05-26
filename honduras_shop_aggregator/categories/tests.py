@@ -73,12 +73,14 @@ class TestCategoryListRead(BaseTestCase):
         self.product_count_first_category = Product.objects.filter(
             category=1,
             is_active=True,
-            stock_quantity__gt=0
+            stock_quantity__gt=0,
+            is_deleted=False
         ).count()
         self.product_count_second_category = Product.objects.filter(
             category=2,
             is_active=True,
-            stock_quantity__gt=0
+            stock_quantity__gt=0,
+            is_deleted=False
         ).count()
 
     def test_read_category_list_unauthorized(self):
