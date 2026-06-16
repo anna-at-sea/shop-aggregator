@@ -30,7 +30,7 @@ if settings.SELLER_FEATURES_ENABLED:
         ),
         path(
             '<str:store_name>/delete/',
-            views.SellerFormDeleteView.as_view(),
+            views.SellerSoftDeleteView.as_view(),
             name='seller_delete'
         ),
     ]

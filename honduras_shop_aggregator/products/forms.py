@@ -62,7 +62,7 @@ class ProductUpdateForm(forms.ModelForm):
 
 class ProductDeleteForm(forms.ModelForm):
     password_confirm = forms.CharField(
-        label=_("Enter store owner's account password to confirm store deletion"),
+        label=_("Enter store owner's account password to confirm product deletion"),
         widget=forms.PasswordInput,
         required=True
     )

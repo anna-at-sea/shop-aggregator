@@ -17,7 +17,7 @@ class ProductFilter(django_filters.FilterSet):
         label=_("Category")
     )
     seller = django_filters.ModelChoiceFilter(
-        queryset=Seller.objects.all(),
+        queryset=Seller.objects.filter(is_deleted=False),
         label=_("Sold by")
     )
     price_min = django_filters.NumberFilter(

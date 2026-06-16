@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import transaction
 from django.db.models import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -23,6 +24,8 @@ class SellerListView(SuccessMessageMixin, ListView):
     template_name = 'pages/sellers/seller_list.html'
     context_object_name = 'sellers'
 
+    def get_queryset(self):
+        return Seller.objects.filter(is_deleted=False)
 
 class SellerProfileView(
     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
@@ -36,7 +39,9 @@ class SellerProfileView(
     paginate_by = 20
 
     def get_object(self):
-        return get_object_or_404(Seller, store_name=self.kwargs["store_name"])
+        return get_object_or_404(
+            Seller, store_name=self.kwargs["store_name"], is_deleted=False
+        )
 
     def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -90,7 +95,9 @@ class PublicSellerProfileView(
     paginate_by = 20
 
     def get_object(self):
-        return get_object_or_404(Seller, store_name=self.kwargs["store_name"])
+        return get_object_or_404(
+            Seller, store_name=self.kwargs["store_name"], is_deleted=False
+        )
 
     def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -213,9 +220,55 @@ class SellerFormUpdateView(
         return context
 
 
-class SellerFormDeleteView(
+# class SellerFormDeleteView(
+#     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
+#     SuccessMessageMixin, DeleteView
+# ):
+#     form_class = SellerDeleteForm
+#     model = Seller
+#     template_name = 'layouts/base_form.html'
+#     success_url = reverse_lazy('index')
+
+#     def get_object(self):
+#         self.object = get_object_or_404(Seller, store_name=self.kwargs['store_name'])
+#         return self.object
+
+#     def get_success_message(self, *args, **kwargs):
+#         return _("Store deleted successfully")
+
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         kwargs["request"] = self.request
+#         return kwargs
+
+#     def get_context_data(self, *args, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context.update({
+#             'delete_prompt': (
+#                 _("Are you sure you want to delete store ") + f"{self.object}?"
+#             ),
+#             'button_class': 'btn btn-danger',
+#             'button_text': _("Yes, delete")
+#         })
+#         return context
+
+#     def form_valid(self, form):
+#         try:
+#             return super().form_valid(form)
+#         except ProtectedError:
+#             messages.add_message(
+#                 self.request,
+#                 messages.ERROR,
+#                 _("This store still has active products and cannot be deleted")
+#             )
+#             return redirect(
+#                 'seller_profile', store_name=self.request.user.seller.store_name
+#             )
+
+
+class SellerSoftDeleteView(
     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
-    SuccessMessageMixin, DeleteView
+    SuccessMessageMixin, UpdateView
 ):
     form_class = SellerDeleteForm
     model = Seller
@@ -225,6 +278,19 @@ class SellerFormDeleteView(
     def get_object(self):
         self.object = get_object_or_404(Seller, store_name=self.kwargs['store_name'])
         return self.object
+
+    @transaction.atomic
+    def form_valid(self, form):
+        seller = form.save(commit=False)
+        seller.seller_products.update(
+            is_deleted=True,
+            is_active=False,
+            deleted_at=timezone.now(),
+        )
+        seller.is_deleted = True
+        seller.deleted_at = timezone.now()
+        seller.save(update_fields=["deleted_at", "is_deleted"])
+        return super().form_valid(form)
 
     def get_success_message(self, *args, **kwargs):
         return _("Store deleted successfully")
@@ -236,24 +302,15 @@ class SellerFormDeleteView(
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
+        product_count = self.object.seller_products.filter(is_deleted=False).count()
         context.update({
-            'delete_prompt': (
-                _("Are you sure you want to delete store ") + f"{self.object}?"
-            ),
+            'delete_prompt': "\n".join([
+                _("Are you sure you want to delete store ") + f"{self.object}?",
+                f"{product_count} " + _("active products will also be deleted."),
+                _("This action cannot be undone through the website."),
+                _("After deleting this store, you will not be able to create another store using this account."),
+            ]),
             'button_class': 'btn btn-danger',
             'button_text': _("Yes, delete")
         })
         return context
-
-    def form_valid(self, form):
-        try:
-            return super().form_valid(form)
-        except ProtectedError:
-            messages.add_message(
-                self.request,
-                messages.ERROR,
-                _("This store still has active products and cannot be deleted")
-            )
-            return redirect(
-                'seller_profile', store_name=self.request.user.seller.store_name
-            )

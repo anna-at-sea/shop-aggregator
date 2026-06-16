@@ -75,6 +75,8 @@ class Seller(models.Model):
         verbose_name=_("Default delivery cities"),
         help_text=_("Cities where this seller usually delivers products.")
     )
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     def clean(self):
         if self.pk:

@@ -38,7 +38,6 @@ class IndexView(SuccessMessageMixin, ListView):
             self.request.session.modified = True
         else:
             seed = self.request.session.get("shuffle_seed", 1)
-        print(f'seed: {seed}')
         products = list(queryset)
         # this needs to be changed when number of products grows
         random.Random(seed).shuffle(products)
