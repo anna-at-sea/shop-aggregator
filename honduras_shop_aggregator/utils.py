@@ -56,7 +56,7 @@ class SellerPermissionMixin:
         if not (request.user.is_seller and request.user.seller.is_verified):
             messages.warning(
                 request,
-                _("Only verified sellers can add and edit products.")
+                _("Only verified sellers with active store can add and edit products.")
             )
             return redirect('index')
         if kwargs.get('slug'):

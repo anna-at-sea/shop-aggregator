@@ -39,7 +39,7 @@ class User(AbstractUser):
 
     @property
     def is_seller(self):
-        return hasattr(self, 'seller')
+        return hasattr(self, 'seller') and not self.seller.is_deleted
 
     def save(self, *args, **kwargs):
         old_image_path = None

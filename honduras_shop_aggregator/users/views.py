@@ -243,9 +243,9 @@ class UserFormDeleteView(
         object = self.get_object()
         context.update({
             'delete_prompt': (
-                _("Are you sure you want to delete ") + f"{object}? "
-                  "Deleting your account will also remove all your saved products. "
-                  "This action is permanent and cannot be undone."
+                _("Are you sure you want to delete ") + f"{object}? " +
+                _("Deleting your account will also remove all your saved products. ") +
+                _("This action is permanent and cannot be undone.")
             ),
             'button_class': 'btn btn-danger',
             'button_text': _("Yes, delete")

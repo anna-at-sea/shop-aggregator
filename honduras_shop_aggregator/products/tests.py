@@ -260,7 +260,7 @@ class TestProductCreate(BaseTestCase):
         self.assertRedirectWithMessage(
             response,
             'index',
-            _("Only verified sellers can add and edit products.")
+            _("Only verified sellers with active store can add and edit products.")
         )
 
     def test_create_product_by_non_verified_seller(self):
@@ -276,7 +276,7 @@ class TestProductCreate(BaseTestCase):
         self.assertRedirectWithMessage(
             response,
             'index',
-            _("Only verified sellers can add and edit products.")
+            _("Only verified sellers with active store can add and edit products.")
         )
 
     def test_create_product_missing_price(self):
@@ -647,7 +647,7 @@ class TestImageUpload(BaseTestCase):
         self.assertRedirectWithMessage(
             response,
             'index',
-            _("Only verified sellers can add and edit products.")
+            _("Only verified sellers with active store can add and edit products.")
         )
 
     def test_image_upload_by_other_seller(self):
@@ -762,7 +762,7 @@ class TestProductUpdate(BaseTestCase):
         self.assertRedirectWithMessage(
             response,
             'index',
-            _("Only verified sellers can add and edit products.")
+            _("Only verified sellers with active store can add and edit products.")
         )
 
     def test_update_product_with_price_zero(self):
@@ -936,7 +936,7 @@ class TestProductSoftDelete(BaseTestCase):
         self.assertRedirectWithMessage(
             response,
             'index',
-            _("Only verified sellers can add and edit products.")
+            _("Only verified sellers with active store can add and edit products.")
         )
 
     def test_delete_product_wrong_password(self):

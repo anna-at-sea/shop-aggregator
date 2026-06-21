@@ -2,14 +2,14 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import transaction
-from django.db.models import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, ListView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 
 from honduras_shop_aggregator import utils
 from honduras_shop_aggregator.products.models import Product
@@ -156,18 +156,25 @@ class SellerFormCreateView(
     template_name = 'layouts/base_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_seller:
+        if request.user.is_authenticated and hasattr(request.user, 'seller'):
             messages.add_message(
                 self.request,
                 messages.ERROR,
                 _(
                     "You already have a store associated with your account. "
-                    "Each user can register only one store. "
-                    "If you wish to create another store, "
-                    "please log in with a different account or register a new one."
+                    "Each user can register only one store. If your store has been "
+                    "deleted, it cannot be recreated through the website. To operate "
+                    "another store, please use a different account or register "
+                    "a new one."
                 )
             )
-            return redirect('seller_profile', store_name=request.user.seller.store_name)
+            if request.user.seller.is_deleted:
+                return redirect('index')
+            else:
+                return redirect(
+                    'seller_profile', store_name=request.user.seller.store_name
+                )
+            
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_message(self, *args, **kwargs):
@@ -304,11 +311,13 @@ class SellerSoftDeleteView(
         context = super().get_context_data(**kwargs)
         product_count = self.object.seller_products.filter(is_deleted=False).count()
         context.update({
-            'delete_prompt': "\n".join([
+            'delete_prompt': " ".join([
                 _("Are you sure you want to delete store ") + f"{self.object}?",
                 f"{product_count} " + _("active products will also be deleted."),
                 _("This action cannot be undone through the website."),
-                _("After deleting this store, you will not be able to create another store using this account."),
+                "\n",
+                _("After deleting this store,"),
+                _("you will not be able to create another store using this account."),
             ]),
             'button_class': 'btn btn-danger',
             'button_text': _("Yes, delete")

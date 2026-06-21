@@ -50,6 +50,25 @@ class TestPrivateSellerProfileRead(BaseTestCase):
         self.assertContains(response, _("Store Settings"))
         self.assertContains(response, _("Add New Product"))
 
+    def test_read_deleted_profile_authorized(self):
+        self.login_user(self.user)
+        self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.seller.store_name}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        self.seller.refresh_from_db()
+        response = self.client.get(reverse(
+            'seller_profile', kwargs={'store_name': self.seller.store_name}),
+            follow=True
+        )
+        self.assertNotContains(response, self.active_product.product_name)
+        self.assertNotContains(response, self.unavailable_product.product_name)
+        self.assertNotContains(response, _("Your Products"))
+        self.assertNotContains(response, _("Store Settings"))
+        self.assertNotContains(response, _("Add New Product"))
+
     def test_read_other_profile_authorized(self):
         self.other_seller = Seller.objects.get(pk=2)
         self.login_user(self.user)
@@ -106,6 +125,17 @@ class TestPublicSellerProfileRead(BaseTestCase):
         self.assertNotContains(response, _("Store Settings"))
         self.assertNotContains(response, _("Add New Product"))
 
+    def test_deleted_seller_profile_returns_404(self):
+        self.login_user(self.user)
+        self.seller.is_deleted = True
+        self.seller.save()
+        response = self.client.get(
+            reverse(
+                'public_seller_profile', kwargs={'store_name': self.seller.store_name}
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
 
 class TestSellerListRead(BaseTestCase):
 
@@ -123,6 +153,14 @@ class TestSellerListRead(BaseTestCase):
         response = self.client.get(reverse('seller_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.seller.store_name)
+
+    def test_read_seller_list_authorized_with_deleted_seller(self):
+        self.seller.is_deleted = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.get(reverse('seller_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.seller.store_name)
 
     def test_read_seller_list_empty(self):
         Product.objects.all().delete()
@@ -250,9 +288,10 @@ class TestSellerCreate(BaseTestCase):
             'seller_profile',
             _(
                 "You already have a store associated with your account. "
-                "Each user can register only one store. "
-                "If you wish to create another store, "
-                "please log in with a different account or register a new one."
+                    "Each user can register only one store. If your store has been "
+                    "deleted, it cannot be recreated through the website. To operate "
+                    "another store, please use a different account or register "
+                    "a new one."
             ),
             {'store_name': self.user.seller.store_name}
         )
@@ -403,7 +442,8 @@ class TestSellerDelete(BaseTestCase):
                 kwargs={'store_name': self.seller.store_name}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertFalse(Seller.objects.filter(pk=1).exists())
+        self.seller.refresh_from_db()
+        self.assertTrue(self.seller.is_deleted)
         self.assertTrue(User.objects.filter(pk=3).exists())
         self.assertRedirectWithMessage(
             response, 'index', _("Store deleted successfully")
@@ -416,7 +456,8 @@ class TestSellerDelete(BaseTestCase):
                 kwargs={'store_name': self.seller.store_name}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertTrue(Seller.objects.filter(pk=1).exists())
+        self.seller.refresh_from_db()
+        self.assertFalse(self.seller.is_deleted)
         self.assertRedirectWithMessage(response)
 
     def test_delete_seller_wrong_password(self):
@@ -427,7 +468,8 @@ class TestSellerDelete(BaseTestCase):
                 kwargs={'store_name': self.seller.store_name}
             ), {'password_confirm': 'wrong_password'}, follow=True
         )
-        self.assertTrue(Seller.objects.filter(pk=1).exists())
+        self.seller.refresh_from_db()
+        self.assertFalse(self.seller.is_deleted)
         form = response.context['form']
         self.assertFormError(
             form, 'password_confirm', _("Incorrect password.")
@@ -443,7 +485,8 @@ class TestSellerDelete(BaseTestCase):
                 kwargs={'store_name': self.other_seller.store_name}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertTrue(Seller.objects.filter(pk=2).exists())
+        self.other_seller.refresh_from_db()
+        self.assertFalse(self.other_seller.is_deleted)
         self.assertRedirectWithMessage(
             response, 'index',
             _("You don&#x27;t have permission to access other store profile.")
@@ -457,13 +500,77 @@ class TestSellerDelete(BaseTestCase):
                 kwargs={'store_name': self.seller_with_product.store_name}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertTrue(Seller.objects.filter(pk=3).exists())
-        self.assertRedirectWithMessage(
-            response,
-            'seller_profile',
-            _("This store still has active products and cannot be deleted"),
-            {'store_name': self.seller_with_product.store_name}
+        self.seller_with_product.refresh_from_db()
+        self.assertTrue(self.seller_with_product.is_deleted)
+        self.assertFalse(
+            self.seller_with_product.seller_products.filter(is_deleted=False).exists()
         )
+        self.assertFalse(
+            self.seller_with_product.seller_products.filter(is_active=True).exists()
+        )
+        self.assertRedirectWithMessage(
+            response, 'index', _("Store deleted successfully")
+        )
+
+    def test_delete_already_deleted_seller(self):
+        self.login_user(self.user)
+        self.seller.is_deleted = True
+        self.seller.save()
+        response = self.client.post(
+            reverse('seller_delete', kwargs={'store_name': self.seller.store_name}),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        self.seller.refresh_from_db()
+        self.assertTrue(self.seller.is_deleted)
+        self.assertRedirectWithMessage(
+            response, 'index',
+            _("You don't have permission to access other store profile.")
+        )
+
+    def test_products_invisible_after_seller_deletion(self):
+        self.login_user(self.user_with_seller_with_product)
+        self.client.post(
+            reverse(
+                'seller_delete',
+                kwargs={'store_name': self.seller_with_product.store_name}
+            ),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        response = self.client.get(
+            reverse(
+                'product_card',
+                kwargs={'slug': self.seller_with_product.seller_products.first().slug}
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_cannot_create_new_seller_after_deletion(self):
+        self.login_user(self.user)
+        self.seller.is_deleted = True
+        self.seller.save()
+        response = self.client.get(reverse('seller_create'), follow=True)
+        self.assertRedirectWithMessage(
+            response, 'index',
+                _(
+                    "You already have a store associated with your account. "
+                    "Each user can register only one store. If your store has been "
+                    "deleted, it cannot be recreated through the website. To operate "
+                    "another store, please use a different account or register "
+                    "a new one."
+                )
+        )
+
+    def test_seller_tools_not_visible_after_deletion(self):
+        self.login_user(self.user)
+        self.seller.is_deleted = True
+        self.seller.save()
+        response = self.client.get(reverse('index'))
+        html = response.content.decode()
+        self.assertNotIn(_("Seller tools"), html)
+        self.assertNotIn(_("Manage my products"), html)
+        self.assertNotIn(_("Add new product"), html)
 
 
 class TestUserModeSwitch(BaseTestCase):
