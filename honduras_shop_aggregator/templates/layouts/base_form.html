@@ -15,9 +15,11 @@
 
     <h1 class="display-5">{{ heading }}</h1>
     <p></p>
+    {% if delete_prompt %}
     <div class="alert alert-danger" role="alert">
       <p class="mb-0" style="white-space: pre-line;">{{ delete_prompt|default:'' }}</p>
     </div>
+    {% endif %}
     <!-- fff -->
     {% if form.image or heading == _("Update product") %}
         <div class="d-flex align-items-start gap-4 mb-4 flex-wrap">

@@ -1,0 +1,141 @@
+{% load static %}
+{% load i18n %}
+
+<nav class="navbar navbar-expand-lg navbar-dark 
+        {% if mode == 'seller' %}
+            bg-secondary
+        {% else %}
+            bg-danger
+        {% endif %}
+        py-0 px-0 px-md-3 px-lg-5">
+
+    <div class="container-fluid d-flex align-items-center flex-nowrap">
+    
+        <!-- Left -->
+         <div class="navbar-left-mobile d-flex justify-content-start flex-grow-1">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'images/logo.svg' %}" alt="Cangrejal Logo" width="80" height="80">
+            </a>
+        </div>
+    
+        <!-- Center -->
+        <div class="navbar-search-mobile d-flex flex-grow-1">
+            <form action="{% url 'product_list' %}" method="get" class="d-flex flex-grow-1 mx-1">
+                <input class="form-control search-input" type="text" name="search" value="{{ request.GET.search }}" 
+                        placeholder="{% translate 'Search' %}" aria-label="Search">
+                <button class="btn search-btn btn-outline-light" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+    
+        <!-- Right -->
+         <div class="navbar-right-mobile d-flex align-items-center justify-content-end flex-grow-1">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarRight"
+                    aria-controls="navbarRight" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+         </div>
+
+    </div>
+
+        <div class="collapse navbar-collapse py-3" id="navbarRight">
+        <!-- Main Menu -->
+            <div class="row text-center mb-3">
+                <div class="col">
+                    <a class="nav-link text-white" href="{% url 'product_list' %}">
+                        {% translate "Products" %}
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="nav-link text-white" href="{% url 'category_list' %}">
+                        {% translate "Categories" %}
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="nav-link text-white" href="{% url 'seller_list' %}">
+                        {% translate "Sellers" %}
+                    </a>
+                </div>
+            </div>
+            <hr>
+        <!-- City selector -->
+            <div class="row">
+                <div class="col d-flex justify-content-center">
+                    <div class="dropdown">
+                        <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="mobileCityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            📍 {{ current_city }}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="mobileCityDropdown">
+                            {% for city in cities %}
+                            <li><a class="dropdown-item" href="{% url 'set_city' city.id %}">{{ city.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+    
+        <!-- User menu -->
+            {% if user.is_authenticated %}
+                <div class="col d-flex justify-content-center">
+                    <div class="dropdown">
+                        <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="mobileUserMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if mode == 'seller' %}
+                        👤 {{ user.seller.store_name|truncatechars:15 }}
+                        {% else %}
+                        👤 {{ user.username|truncatechars:15 }}
+                        {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileUserMenu">
+                        {% if user.is_seller %}
+                        <li>
+                            <form action="{% url 'switch_mode' %}" method="post" class="dropdown-item p-0 m-0">
+                            {% csrf_token %}
+                            {% if mode == 'seller' %}
+                                <button type="submit" name="mode" value="user" class="dropdown-item text-center">
+                                🔁 {% translate "Switch to User Mode" %}
+                                </button>
+                            {% else %}
+                                <button type="submit" name="mode" value="seller" class="dropdown-item text-center">
+                                🛍️ {% translate "Switch to Seller Mode" %}
+                                </button>
+                            {% endif %}
+                            </form>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+
+                        {% if mode == 'user' %}
+                            <li><a class="dropdown-item" href="{% url 'user_profile' user.username %}">{% translate "Profile" %}</a></li>
+                        {% else %}
+                            {% if seller_features_enabled and user.is_seller %}
+                            <li class="dropdown-header text-muted small seller-tool">{% translate "Seller tools" %}</li>
+                            <li><a class="dropdown-item seller-tool" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Manage my products" %}</a></li>
+                            <li><a class="dropdown-item seller-tool" href="{% url 'product_create' %}">{% translate "Add new product" %}</a></li>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <input type="submit" class="dropdown-item text-danger" value="{% translate 'Logout' %}">
+                            </form>
+                        </li>
+                        </ul>
+                        {% else %}
+                        <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;">
+                        👤 {% translate "Profile" %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileUserMenu">
+                            <li><a class="dropdown-item" href="{% url 'anonymous_profile' %}">{% translate "Saved products" %}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><small><a class="dropdown-item" href="{% url 'user_create' %}">{% translate "Log in" %} | {% translate "Register" %}</a></small></li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+            </div>
+        </div>
+
+</nav>
