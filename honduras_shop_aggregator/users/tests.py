@@ -385,24 +385,53 @@ class TestPasswordChange(BaseTestCase):
         self.assertRedirectWithMessage(response)
 
 
-class TestUserDelete(BaseTestCase):
+class TestUserSoftDelete(BaseTestCase):
 
     def setUp(self):
         self.user = User.objects.get(pk=1)
         self.user_with_store = User.objects.get(pk=3)
 
-    def test_delete_user_success(self):
+    def test_soft_delete_user_success(self):
         self.login_user(self.user)
+        old_email = self.user.email
         response = self.client.post(
             reverse(
                 'user_delete',
                 kwargs={'username': self.user.username}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertFalse(User.objects.filter(pk=1).exists())
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_deleted)
+        self.assertFalse(self.user.is_active)
+        self.assertEqual(
+            self.user.deleted_email,
+            old_email
+        )
+        self.assertEqual(
+            self.user.email,
+            f"deleted-{self.user.pk}@deleted.local"
+        )
         self.assertRedirectWithMessage(
             response, 'index', _("Account deleted successfully")
         )
+
+    def test_soft_delete_logs_out_user(self):
+        self.login_user(self.user)
+        self.client.post(
+            reverse(
+                'user_delete',
+                kwargs={'username': self.user.username}
+            ), {'password_confirm': 'correct_password'}, follow=True
+        )
+        user = auth.get_user(self.client)
+        self.assertFalse(user.is_authenticated)
+
+    def test_deleted_user_cannot_login(self):
+        self.user.is_active = False
+        self.user.is_deleted = True
+        self.user.save()
+        success = self.login_user(self.user)
+        self.assertFalse(success)
 
     def test_delete_user_with_store(self):
         self.login_user(self.user_with_store)
@@ -412,7 +441,9 @@ class TestUserDelete(BaseTestCase):
                 kwargs={'username': self.user_with_store.username}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertTrue(User.objects.filter(pk=3).exists())
+        self.user_with_store.refresh_from_db()
+        self.assertFalse(self.user_with_store.is_deleted)
+        self.assertTrue(self.user_with_store.is_active)
         self.assertRedirectWithMessage(
             response,
             'user_profile',
@@ -428,7 +459,9 @@ class TestUserDelete(BaseTestCase):
                 kwargs={'username': self.user.username}
             ), {'password_confirm': 'wrong_password'}, follow=True
         )
-        self.assertTrue(User.objects.filter(pk=1).exists())
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.is_deleted)
+        self.assertTrue(self.user.is_active)
         form = response.context['form']
         self.assertFormError(
             form, 'password_confirm', _("Incorrect password.")
@@ -444,7 +477,9 @@ class TestUserDelete(BaseTestCase):
                 kwargs={'username': self.other_user.username}
             ), {'password_confirm': 'correct_password'}, follow=True
         )
-        self.assertTrue(User.objects.filter(pk=2).exists())
+        self.other_user.refresh_from_db()
+        self.assertFalse(self.other_user.is_deleted)
+        self.assertTrue(self.other_user.is_active)
         self.assertRedirectWithMessage(
             response, 'index',
             _("You don&#x27;t have permission to view or edit other user.")

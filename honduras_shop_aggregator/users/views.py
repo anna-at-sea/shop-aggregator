@@ -1,16 +1,17 @@
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, TemplateView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 
 from honduras_shop_aggregator import utils
 from honduras_shop_aggregator.cities.models import City
@@ -33,7 +34,9 @@ class UserProfileView(
     paginate_by = 20
 
     def get_object(self):
-        return get_object_or_404(User, username=self.kwargs["username"])
+        return get_object_or_404(
+            User, username=self.kwargs["username"], is_deleted=False
+        )
 
     def get_context_data(self, **kwargs):
             context = super().get_context_data(**kwargs)
@@ -165,7 +168,9 @@ class UserFormUpdateView(
     template_name = 'layouts/base_form.html'
 
     def get_object(self):
-        return get_object_or_404(User, username=self.kwargs['username'])
+        return get_object_or_404(
+            User, username=self.kwargs['username'], is_deleted=False
+        )
 
     def get_success_url(self):
         return reverse_lazy('user_profile', kwargs={'username': self.object.username})
@@ -218,9 +223,9 @@ class UserPasswordChangeView(
         return context
 
 
-class UserFormDeleteView(
+class UserSoftDeleteView(
     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
-    SuccessMessageMixin, DeleteView
+    UpdateView
 ):
     form_class = UserDeleteForm
     model = User
@@ -228,10 +233,40 @@ class UserFormDeleteView(
     success_url = reverse_lazy('index')
 
     def get_object(self):
-        return get_object_or_404(User, username=self.kwargs['username'])
+        self.object = get_object_or_404(
+            User, username=self.kwargs['username'], is_deleted=False
+        )
+        return self.object
 
-    def get_success_message(self, *args, **kwargs):
-        return _("Account deleted successfully")
+    def form_valid(self, form):
+        print("FORM VALID")
+        user = self.get_object()
+        if user.is_seller:
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                _("This account is linked to a store and cannot be deleted")
+            )
+            return redirect('user_profile', username=self.request.user.username)
+        user.deleted_email = user.email
+        user.email = f"deleted-{user.pk}@deleted.local"
+        user.is_deleted = True
+        user.deleted_at = timezone.now()
+        user.is_active = False
+        user.save(update_fields=[
+            "deleted_at",
+            "is_deleted",
+            "is_active",
+            "deleted_email",
+            "email"
+        ])
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _("Account deleted successfully")
+        )
+        logout(self.request)
+        return redirect(self.get_success_url())
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -240,10 +275,10 @@ class UserFormDeleteView(
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        object = self.get_object()
+        user = self.get_object()
         context.update({
             'delete_prompt': (
-                _("Are you sure you want to delete ") + f"{object}? " +
+                _("Are you sure you want to delete ") + f"{user}? " +
                 _("Deleting your account will also remove all your saved products. ") +
                 _("This action is permanent and cannot be undone.")
             ),
@@ -251,14 +286,3 @@ class UserFormDeleteView(
             'button_text': _("Yes, delete")
         })
         return context
-
-    def form_valid(self, form):
-        try:
-            return super().form_valid(form)
-        except ProtectedError:
-            messages.add_message(
-                self.request,
-                messages.ERROR,
-                _("This account is linked to a store and cannot be deleted")
-            )
-            return redirect('user_profile', username=self.request.user.username)

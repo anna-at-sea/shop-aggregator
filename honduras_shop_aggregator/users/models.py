@@ -36,6 +36,9 @@ class User(AbstractUser):
         null=True,
         help_text=_("Upload JPEG or PNG image up to 15MB.")
     )
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(blank=True, null=True)
+    deleted_email = models.EmailField(blank=True, null=True)
 
     @property
     def is_seller(self):

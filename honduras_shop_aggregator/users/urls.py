@@ -28,7 +28,7 @@ urlpatterns = [
     ),
     path(
         '<str:username>/delete/',
-        views.UserFormDeleteView.as_view(),
+        views.UserSoftDeleteView.as_view(),
         name='user_delete'
     ),
 ]
