@@ -1,0 +1,139 @@
+{% extends 'layouts/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% translate "Create Store" %} | Cangrejal{% endblock %}
+{% block content %}
+{% include "partials/flash_message.html" %}
+
+<div class="container py-5">
+
+    <!-- Hero -->
+    <div class="text-center mb-5">
+        <i class="bi bi-shop display-2 text-danger"></i>
+        <h1 class="display-5 mt-3">
+            {% translate "Open your store on Cangrejal" %}
+        </h1>
+
+        <p class="lead text-muted mx-auto" style="max-width:700px;">
+            {% translate "Reach local customers, publish products in minutes and manage everything from one place." %}
+        </p>
+    </div>
+
+
+    <!-- Steps -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-circle fs-1 text-danger"></i>
+                    <h5 class="mt-3">
+                        {% translate "1. Create an account" %}
+                    </h5>
+                    <p class="text-muted">
+                        {% translate "Register your personal account before creating your store." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-shop-window fs-1 text-danger"></i>
+                    <h5 class="mt-3">
+                        {% translate "2. Create your store" %}
+                    </h5>
+                    <p class="text-muted">
+                        {% translate "Choose your store name, website and delivery city." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-seam fs-1 text-danger"></i>
+                    <h5 class="mt-3">
+                        {% translate "3. Add products" %}
+                    </h5>
+                    <p class="text-muted">
+                        {% translate "Start publishing products and reach customers immediately." %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Action Card -->
+    <div class="card shadow border-0">
+
+        <div class="card-body text-center p-5">
+
+            {% if not user.is_authenticated %}
+
+                <h3>{% translate "Ready to start?" %}</h3>
+
+                <p class="text-muted mb-4">
+                    {% translate "The first step is creating your free account." %}
+                </p>
+
+                <a href="{% url 'login' %}?next={% url 'become_seller' %}"
+                   class="btn btn-danger btn-lg px-5">
+                    {% translate "Log in or Register" %}
+                </a>
+
+
+            {% elif user.is_seller %}
+
+                <h3>{% translate "You already have a store" %}</h3>
+
+                <p class="text-muted mb-4">
+                    {% translate "Continue managing your existing store." %}
+                </p>
+
+                <a href="{% url 'seller_profile' user.seller.store_name %}"
+                   class="btn btn-secondary btn-lg px-5">
+                    {% translate "Go to my store" %}
+                </a>
+
+
+            {% elif user.has_deleted_store %}
+
+                <h3>{% translate "Your previous store was closed" %}</h3>
+
+                <p class="text-muted">
+                    {% translate "For security and historical consistency, a new store cannot be created using the same account." %}
+                </p>
+
+                <div class="alert alert-warning mt-4">
+                    {% translate "Please create a new user account if you wish to open another store." %}
+                </div>
+
+
+            {% else %}
+
+                <h3>{% translate "Everything is ready!" %}</h3>
+
+                <p class="text-muted mb-4">
+                    {% translate "Let's create your store." %}
+                </p>
+
+                <a href="{% url 'seller_create' %}"
+                   class="btn btn-danger btn-lg px-5">
+                    {% translate "Create my store" %}
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

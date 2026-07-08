@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from honduras_shop_aggregator import utils
@@ -26,6 +26,24 @@ class SellerListView(SuccessMessageMixin, ListView):
 
     def get_queryset(self):
         return Seller.objects.filter(is_deleted=False)
+
+
+class BecomeSellerView(TemplateView):
+    template_name = "pages/sellers/become_seller.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if not user.is_authenticated:
+            context["state"] = "anonymous"
+        elif user.is_seller:
+            context["state"] = "seller"
+        elif user.has_deleted_store:
+            context["state"] = "deleted_seller"
+        else:
+            context["state"] = "user"
+        return context
+
 
 class SellerProfileView(
     utils.UserLoginRequiredMixin, utils.UserPermissionMixin,
@@ -182,7 +200,7 @@ class SellerFormCreateView(
 
     def get_success_url(self):
         return reverse_lazy(
-            'user_profile', kwargs={'username': self.object.user.username}
+            'seller_profile', kwargs={'store_name': self.object.store_name}
         )
 
     def get_context_data(self, *args, **kwargs):

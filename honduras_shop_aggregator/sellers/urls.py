@@ -33,6 +33,11 @@ if settings.SELLER_FEATURES_ENABLED:
             views.SellerSoftDeleteView.as_view(),
             name='seller_delete'
         ),
+        path(
+            'become-seller/',
+            views.BecomeSellerView.as_view(),
+            name='become_seller'
+        )
     ]
 
 urlpatterns += [

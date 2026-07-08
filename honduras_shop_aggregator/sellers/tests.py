@@ -170,6 +170,68 @@ class TestSellerListRead(BaseTestCase):
         self.assertContains(response, _("No sellers found."))
 
 
+class TestBecomeSellerPage(BaseTestCase):
+
+    def setUp(self):
+        self.seller = Seller.objects.get(pk=1)
+        self.user = User.objects.get(pk=self.seller.user.pk)
+        self.user_without_store = User.objects.get(pk=1)
+        with open(join(FIXTURE_PATH, "sellers_test_data.json")) as f:
+            self.sellers_data = json.load(f)
+        self.complete_seller_data = self.sellers_data.get("create_complete")
+
+    def test_become_seller_anonymous(self):
+        response = self.client.get(reverse('become_seller'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, _("The first step is creating your free account.")
+        )
+        self.assertContains(response, _("Log in or Register"))
+        self.assertNotContains(response, _("Let's create your store."))
+        self.assertContains(
+            response, reverse("login") + f"?next={reverse('become_seller')}"
+        )
+
+    def test_login_next_redirect_to_become_seller(self):
+        response = self.client.post(
+            reverse("login") + "?next=" + reverse("become_seller"),
+            {
+                "username": self.user_without_store.username,
+                "password": "correct_password",
+            },
+            follow=True,
+        )
+        self.assertRedirects(response, reverse("become_seller"))
+
+    def test_become_seller_logged_in(self):
+        self.login_user(self.user_without_store)
+        response = self.client.get(reverse('become_seller'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Let's create your store."))
+        self.assertContains(response, _("Create my store"))
+        self.assertNotContains(response, _("Log in or Register"))
+        self.assertContains(response, reverse("seller_create"))
+
+    def test_become_seller_existing_seller(self):
+        self.login_user(self.user)
+        response = self.client.get(reverse('become_seller'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Go to my store"))
+        self.assertNotContains(response, _("Create my store"))
+
+    def test_become_seller_deleted_seller(self):
+        self.login_user(self.user)
+        self.seller.is_deleted = True
+        self.seller.save()
+        response = self.client.get(reverse('become_seller'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _("Please create a new user account if you wish to open another store.")
+        )
+        self.assertNotContains(response, _("Create my store"))
+
+
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class TestSellerCreate(BaseTestCase):
 
@@ -206,9 +268,9 @@ class TestSellerCreate(BaseTestCase):
         self.assertEqual(new_seller.user, self.user_without_store)
         self.assertRedirectWithMessage(
             response,
-            'user_profile',
+            'seller_profile',
             _("Store is registered and awaiting verification"),
-            {'username': self.user_without_store.username}
+            {'store_name': self.user_without_store.seller.store_name}
         )
 
     def test_create_seller_with_profile_picture(self):
@@ -231,9 +293,9 @@ class TestSellerCreate(BaseTestCase):
         self.assertEqual(seller.image.name, f'sellers/{seller.store_name}.jpg')
         self.assertRedirectWithMessage(
             response,
-            'user_profile',
+            'seller_profile',
             _("Store is registered and awaiting verification"),
-            {'username': self.user_without_store.username}
+            {'store_name': self.user_without_store.seller.store_name}
         )
 
     def test_create_seller_unauthorized(self):

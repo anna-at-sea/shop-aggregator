@@ -39,6 +39,65 @@
     </div>
 {% endif %}
 
+<hr>
+
+<!-- Become Seller -->
+{% if not user.is_seller and not user.has_deleted_store %}
+<div class="my-5">
+    <div class="card border-0 shadow bg-light overflow-hidden">
+        <div class="row g-0 align-items-center">
+
+            <div class="col-md-8">
+                <div class="card-body p-4">
+
+                    <span class="badge bg-danger mb-2">
+                        {% translate "For local businesses" %}
+                    </span>
+
+                    <h2 class="h3">
+                        {% translate "Open your own store on Cangrejal" %}
+                    </h2>
+
+                    <p class="text-muted mb-4">
+                        {% translate "Create your store for free, publish your products, and connect with customers in your city." %}
+                    </p>
+
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            {% translate "Free to create a store" %}
+                        </li>
+
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            {% translate "Unlimited product listings" %}
+                        </li>
+
+                        <li>
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            {% translate "Manage everything from one dashboard" %}
+                        </li>
+                    </ul>
+
+                    <a href="{% url 'become_seller' %}"
+                       class="btn btn-danger btn-lg">
+                        <i class="bi bi-shop me-2"></i>
+                        {% translate "Start selling" %}
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center p-4">
+                <i class="bi bi-shop display-1 text-danger opacity-75"></i>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
 {% include "partials/_product_list_scripts.html" %}
 
 {% endblock %}

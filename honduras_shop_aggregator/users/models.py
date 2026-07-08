@@ -44,6 +44,10 @@ class User(AbstractUser):
     def is_seller(self):
         return hasattr(self, 'seller') and not self.seller.is_deleted
 
+    @property
+    def has_deleted_store(self):
+        return hasattr(self, 'seller') and self.seller.is_deleted
+
     def save(self, *args, **kwargs):
         old_image_path = None
         old_image_name = None

@@ -106,7 +106,10 @@ class UserLoginView(SuccessMessageMixin, LoginView):
         return context
 
     def get_success_url(self):
-        return reverse_lazy('index')
+        next_url = self.get_redirect_url()
+        if next_url:
+            return next_url
+        return reverse_lazy("index")
 
     def get_success_message(self, *args, **kwargs):
         return _("You are logged in")
