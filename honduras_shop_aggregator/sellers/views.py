@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import transaction
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -68,6 +69,34 @@ class SellerProfileView(
                 seller=profile_seller,
                 is_deleted=False
             )
+            search = self.request.GET.get("search")
+            if search:
+                products = products.filter(
+                    product_name__icontains=search
+                )
+            status = self.request.GET.get("status")
+            if status == "active":
+                products = products.filter(
+                    is_active=True,
+                    stock_quantity__gt=0,
+                )
+            elif status == "inactive":
+                products = products.filter(
+                    is_active=False
+                )
+            elif status == "out":
+                products = products.filter(
+                    stock_quantity=0
+                )
+            sort = self.request.GET.get("sort")
+            if sort == "product_name":
+                products = products.order_by("product_name")
+            elif sort == "-likes":
+                products = products.annotate(
+                    likes_count=Count("likes")
+                ).order_by("-likes_count")
+            else:
+                products = products.order_by("-date_added")
             for product in products:
                 product.is_liked = product.likes.filter(user=self.request.user).exists()
             paginator = Paginator(products, self.paginate_by)
@@ -87,7 +116,7 @@ class SellerProfileView(
         request = self.request
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             html = render_to_string(
-                "partials/_product_grid.html", 
+                "partials/_seller_product_grid.html", 
                 {"products": context["products"], "request": request},
                 request=request
             )

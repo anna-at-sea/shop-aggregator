@@ -5,7 +5,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener("click", function () {
             const nextPage = this.dataset.nextPage;
-            fetch(`?page=${nextPage}`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+            const params = new URLSearchParams(window.location.search);
+            params.set("page", nextPage);
+            fetch(`?${params.toString()}`, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
                 .then(response => response.json())
                 .then(data => {
                     productList.insertAdjacentHTML("beforeend", data.html);

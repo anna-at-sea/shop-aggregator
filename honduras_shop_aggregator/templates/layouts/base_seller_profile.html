@@ -82,8 +82,8 @@
                 <h4 class="card-title text-secondary mt-2 mb-4">{% block product_title %}{% translate "Products" %}{% endblock %}</h4>
                 
                 {% block owner_add_button %}{% endblock %}
-                
-                {% include "partials/_product_grid.html" %}
+                {% block search %}{% endblock %}
+                {% block product_grid %}{% endblock %}
             </div>
         </div>
     </div>

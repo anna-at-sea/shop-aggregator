@@ -58,7 +58,7 @@ class TestProductCardRead(BaseTestCase):
             follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, _("Out of stock"))
+        self.assertContains(response, _("Currently unavailable"))
         self.assertNotContains(response, 'data-test-id="unliked">🤍')
 
     def test_read_product_card_out_of_stock(self):
@@ -698,6 +698,7 @@ class TestProductUpdate(BaseTestCase):
         self.link_in_name_data = self.products_data.get(
             "update_link_in_name"
         )
+
     def test_update_product_success(self):
         self.seller.is_verified = True
         self.seller.save()
@@ -870,6 +871,85 @@ class TestProductUpdate(BaseTestCase):
         self.assertNotEqual(
             self.change_seller_attempt_data['seller'],
             self.seller.pk
+        )
+
+    def test_toggle_product_active(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                "product_toggle_active",
+                kwargs={"slug": self.product.slug}
+            )
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.product.is_active)
+
+    def test_toggle_product_twice(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse(
+                "product_toggle_active",
+                kwargs={"slug": self.product.slug}
+            )
+        )
+        self.client.post(
+            reverse(
+                "product_toggle_active",
+                kwargs={"slug": self.product.slug}
+            )
+        )
+        self.product.refresh_from_db()
+        self.assertTrue(self.product.is_active)
+
+    def test_other_user_cannot_toggle(self):
+        other_user = User.objects.get(pk=2)
+        other_user.seller.is_verified = True
+        other_user.seller.save()
+        self.login_user(other_user)
+        self.client.post(
+            reverse(
+                "product_toggle_active",
+                kwargs={"slug": self.product.slug}
+            )
+        )
+        self.product.refresh_from_db()
+        self.assertTrue(self.product.is_active)
+
+    def test_anonymous_cannot_toggle(self):
+        response = self.client.post(
+            reverse(
+                "product_toggle_active",
+                kwargs={"slug": self.product.slug}
+            ),
+            follow=True
+        )
+        self.product.refresh_from_db()
+        self.assertTrue(self.product.is_active)
+        self.assertRedirectWithMessage(response)
+
+    def test_toggle_returns_json(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                "product_toggle_active",
+                kwargs={"slug": self.product.slug}
+            )
+        )
+        self.assertJSONEqual(
+            response.content,
+            {
+                "success": True,
+                "active": False,
+                "price": str(self.product.product_price),
+                "message": _("Product hidden"),
+            },
         )
 
 

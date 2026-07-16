@@ -82,6 +82,103 @@ class TestPrivateSellerProfileRead(BaseTestCase):
             _("You don&#x27;t have permission to access other store profile.")
         )
 
+    def test_seller_profile_search(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"search": self.active_product.product_name},
+        )
+        self.assertContains(response, self.active_product.product_name)
+        for other in Product.objects.filter(
+            seller=self.seller
+        ).exclude(pk=self.active_product.pk):
+            self.assertNotContains(response, other.product_name)
+
+    def test_seller_profile_filter_active(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"status": "active"},
+        )
+        self.assertContains(response, self.active_product.product_name)
+        self.assertNotContains(response, self.unavailable_product.product_name)
+        self.assertNotContains(response, self.out_of_stock_product.product_name)
+
+    def test_seller_profile_filter_inactive(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"status": "inactive"},
+        )
+        self.assertNotContains(response, self.active_product.product_name)
+        self.assertContains(response, self.unavailable_product.product_name)
+        self.assertNotContains(response, self.out_of_stock_product.product_name)
+
+    def test_seller_profile_filter_out_of_stock(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"status": "out"},
+        )
+        self.assertNotContains(response, self.active_product.product_name)
+        self.assertNotContains(response, self.unavailable_product.product_name)
+        self.assertContains(response, self.out_of_stock_product.product_name)
+
+    def test_seller_profile_sort_name(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"sort": "product_name"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_seller_profile_ajax_returns_json(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["Content-Type"],
+            "application/json",
+        )
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+
+    def test_seller_profile_ajax_uses_seller_grid(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        html = response.json()["html"]
+        self.assertIn(_("Edit Product"), html)
+        self.assertIn("product-active-toggle", html)
+
 
 class TestPublicSellerProfileRead(BaseTestCase):
 

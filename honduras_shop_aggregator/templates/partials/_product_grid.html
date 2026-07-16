@@ -33,18 +33,11 @@
                     {% endif %}
                 </p>
                 {% if user.is_authenticated and user == product.seller.user and seller_features_enabled %}
-                <strong>{% translate "Stock" %}:</strong> {{ product.stock_quantity }}<br>
-                <strong>{% translate "Active" %}:</strong> 
-                    {% if product.is_active %}
-                        <span class="text-success">{% translate "Yes" %}</span>
-                    {% else %}
-                        <span class="text-danger">{% translate "No" %}</span>
-                    {% endif %}
-                <br>
-                <strong>{% translate "Saved" %}:</strong> {{ product.likes.all.count }}
-                <br>
-                <a href="{% url 'product_update' product.slug %}" class="btn btn-danger btn-sm mt-2">{% translate "Edit Product Info" %}</a>
-                {% else %}
+                <span class="badge bg-secondary mb-2">
+                    <i class="bi bi-box-seam"></i>
+                    {% translate "Your Product" %}
+                </span>
+                {% endif %}
                 <p class="card-text mb-0 text-muted small seller-name">
                     {% translate "Sold by" %}: <span class="fw-medium text-secondary">{{ product.seller }}</span>
                 </p>
@@ -61,7 +54,6 @@
                         {% endif %}
                     {% endif %}
                 </p>
-                {% endif %}
             </div>
         </div>
     </div>

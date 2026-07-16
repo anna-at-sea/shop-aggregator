@@ -33,6 +33,11 @@ if settings.SELLER_FEATURES_ENABLED:
             views.ProductSoftDeleteView.as_view(),
             name='product_delete'
         ),
+        path(
+            '<str:slug>/toggle-active/',
+            views.ProductToggleActiveView.as_view(),
+            name='product_toggle_active'
+        ),
     ]
 
 urlpatterns += [

@@ -39,3 +39,72 @@
     {% translate "View Public Store Page" %}
 </a>
 {% endblock %}
+
+{% block search %}
+<form method="get" class="row g-2 mb-4">
+
+    <div class="col-md-5">
+        <input
+            type="text"
+            class="form-control"
+            name="search"
+            placeholder="{% translate 'Search products...' %}"
+            value="{{ request.GET.search }}">
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select" name="status">
+            <option value="">{% translate "All products" %}</option>
+            <option value="active"
+                {% if request.GET.status == "active" %}selected{% endif %}>
+                {% translate "Active" %}
+            </option>
+            <option value="inactive"
+                {% if request.GET.status == "inactive" %}selected{% endif %}>
+                {% translate "Hidden" %}
+            </option>
+            <option value="out"
+                {% if request.GET.status == "out" %}selected{% endif %}>
+                {% translate "Out of stock" %}
+            </option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select" name="sort">
+
+            <option value="-created_at">
+                {% translate "Newest first" %}
+            </option>
+
+            <option value="product_name"
+                {% if request.GET.sort == "product_name" %}selected{% endif %}>
+                {% translate "Name A-Z" %}
+            </option>
+
+            <option value="-likes"
+                {% if request.GET.sort == "-likes" %}selected{% endif %}>
+                {% translate "Most saved" %}
+            </option>
+
+        </select>
+    </div>
+
+    <div class="col-md-1 d-grid">
+        <button class="btn btn-danger">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+
+</form>
+
+<a
+    href="{% url 'seller_profile' user.seller.store_name %}"
+    class="btn btn-outline-secondary btn-sm mb-4">
+
+    {% translate "Reset filters" %}
+
+</a>
+{% endblock %}
+
+{% block product_grid %}{% include "partials/_seller_product_grid.html" %}{% endblock %}

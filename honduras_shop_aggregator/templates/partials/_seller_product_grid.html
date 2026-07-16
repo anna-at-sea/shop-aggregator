@@ -1,0 +1,184 @@
+{% load i18n %}
+
+<div id="product-list">
+{% if products %}
+<div class="row row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-3 gy-4 mb-4">
+
+{% for product in products %}
+<div class="col">
+
+    <div class="card shadow-sm h-100">
+
+        <div class="position-relative product-image-wrapper">
+            <a href="{% url 'product_card' product.slug %}">
+                <img src="{{ product.image.url }}"
+                    class="card-img-top"
+                    alt="{{ product.product_name }}"
+                    style="max-height:300px; object-fit:contain;">
+            </a>
+
+            {% if not product.stock_quantity or not product.is_active or product.is_deleted %}
+            <div class="unavailable-overlay">
+                {% translate "Not available" %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-body d-flex flex-column">
+
+            <h5 class="card-title product-name">
+                {{ product.product_name }}
+            </h5>
+
+            <p class="mb-2 product-price-status">
+                {% if product.stock_quantity and product.is_active %}
+                    <span class="fs-5 fw-bold">
+                        L{{ product.product_price }}
+                    </span>
+                {% else %}
+                    <span class="text-muted">
+                        {% translate "Unavailable" %}
+                    </span>
+                {% endif %}
+            </p>
+
+            <hr>
+
+            <div class="small">
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{% translate "Stock" %}</span>
+                    <strong>{{ product.stock_quantity }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{% translate "Saved" %}</span>
+                    <strong>{{ product.likes.count }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <span>{% translate "Active" %}</span>
+
+                    <div class="form-check form-switch m-0">
+                        <div class="form-check form-switch">
+                            {% csrf_token %}
+                            <input
+                                class="form-check-input product-active-toggle"
+                                type="checkbox"
+                                data-url="{% url 'product_toggle_active' product.slug %}"
+                                {% if product.is_active %}checked{% endif %}
+                            >
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mt-auto pt-3 d-grid gap-2">
+
+                <a href="{% url 'product_update' product.slug %}"
+                   class="btn btn-danger btn-sm">
+                    <i class="bi bi-pencil"></i>
+                    {% translate "Edit Product" %}
+                </a>
+
+                <a href="{% url 'product_card' product.slug %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    {% translate "View Public Page" %}
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrftoken = getCookie("csrftoken");
+        document.querySelectorAll(".product-active-toggle").forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                checkbox.disabled = true;
+                fetch(checkbox.dataset.url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrftoken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showToast(
+                        data.message,
+                        data.active ? "success" : "warning"
+                    );
+                    const imageWrapper = checkbox
+                        .closest(".card")
+                        .querySelector(".product-image-wrapper");
+                    let overlay = imageWrapper.querySelector(".unavailable-overlay");
+                    if (!data.active) {
+                        if (!overlay) {
+                            overlay = document.createElement("div");
+                            overlay.className = "unavailable-overlay";
+                            overlay.textContent = "Not available";
+                            imageWrapper.appendChild(overlay);
+                        }
+                    } else {
+                        if (overlay) {
+                            overlay.remove();
+                        }
+                    }
+                    const priceStatus = checkbox
+                        .closest(".card")
+                        .querySelector(".product-price-status");
+                    if (data.active) {
+                        priceStatus.innerHTML =
+                            `<span class="fs-5 fw-bold">L${data.price}</span>`;
+                    }
+                    else {
+                        priceStatus.innerHTML =
+                            `<span class="text-muted">Unavailable</span>`;
+                    }
+                })
+                .catch(() => {
+                    checkbox.checked = !checkbox.checked;
+                    alert("Couldn't update product.");
+                })
+                .finally(() => {
+                    checkbox.disabled = false;
+                });
+            });
+        });
+    });
+</script>
+
+{% else %}
+
+<div class="alert alert-info mt-3">
+    {% translate "No products found." %}
+</div>
+
+{% endif %}
+</div>

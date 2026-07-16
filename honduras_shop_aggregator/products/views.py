@@ -1,11 +1,13 @@
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django_filters.views import FilterView
@@ -87,6 +89,32 @@ class ProductFilterView(SuccessMessageMixin, FilterView):
                 )
             })
         return super().render_to_response(context, **response_kwargs)
+
+
+class ProductToggleActiveView(
+    utils.UserLoginRequiredMixin, utils.SellerPermissionMixin, SuccessMessageMixin, View
+):
+
+    def post(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, slug=kwargs["slug"])
+        if product.seller.user != request.user:
+            messages.warning(
+                    request,
+                    _("You don't have permission to access this product.")
+                )
+            return redirect("index")
+        product.is_active = not product.is_active
+        product.save(update_fields=["is_active"])
+        return JsonResponse({
+            "success": True,
+            "active": product.is_active,
+            "price": str(product.product_price),
+            "message": (
+                _("Product activated")
+                if product.is_active
+                else _("Product hidden")
+            )
+        })
 
 
 class ProductFormCreateView(

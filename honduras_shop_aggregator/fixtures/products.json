@@ -23,6 +23,7 @@
         "product_price": 100,
         "slug": "unavailable_product",
         "seller": 3,
+        "stock_quantity": 1,
         "is_active": false,
         "category": 1,
         "origin_city": 1
