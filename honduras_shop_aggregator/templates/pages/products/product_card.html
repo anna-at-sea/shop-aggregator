@@ -11,8 +11,61 @@
 
     <div class="row">
         <div class="col-md-5">
-            <div class="border rounded shadow-sm p-3 bg-white">
-                <img src="{{ product.image.url }}" alt="{{ product.product_name }}" class="img-fluid w-100" style="max-height: 500px; object-fit: contain;">
+            <div class="border rounded shadow-sm p-2 bg-white">
+                <div id="productCarousel" class="carousel slide">
+                    <div class="carousel-inner">
+                        <!-- Cover image -->
+                        <div class="carousel-item active">
+                            <img
+                                src="{{ product.image.url }}"
+                                alt="{{ product.product_name }}"
+                                class="img-fluid w-100 product-image-preview"
+                                style="max-height:500px; object-fit:contain; cursor: zoom-in;"
+                            >
+                        </div>
+                        <!-- Gallery -->
+                        {% for image in product.gallery.all %}
+                        <div class="carousel-item">
+                            <img
+                                src="{{ image.image.url }}"
+                                class="img-fluid w-100 product-image-preview"
+                                alt="{{ product.product_name }}"
+                                style="max-height:500px; object-fit:contain; cursor: zoom-in;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if product.gallery.count %}
+                        <button
+                            class="carousel-control-prev"
+                            type="button"
+                            data-bs-target="#productCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button
+                            class="carousel-control-next"
+                            type="button"
+                            data-bs-target="#productCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                        <div class="carousel-indicators">
+                            <button
+                                type="button"
+                                data-bs-target="#productCarousel"
+                                data-bs-slide-to="0"
+                                class="active">
+                            </button>
+                            {% for image in product.gallery.all %}
+                            <button
+                                type="button"
+                                data-bs-target="#productCarousel"
+                                data-bs-slide-to="{{ forloop.counter }}">
+                            </button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -109,6 +162,60 @@
 </div>
 
 
+<div
+    id="image-lightbox"
+    class="position-fixed top-0 start-0 w-100 h-100 d-none"
+    style="
+        background: rgba(0,0,0,.85);
+        z-index:2000;
+    "
+>
+    <button id="close-lightbox" class="lightbox-close">
+        <i class="bi bi-x-lg"></i>
+    </button>
+
+    <div class="d-flex justify-content-center align-items-center h-100 lightbox-content">
+        <div
+            id="lightboxCarousel"
+            class="carousel slide w-100"
+            data-bs-interval="false">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img
+                        src="{{ product.image.url }}"
+                        class="img-fluid w-100"
+                        style="max-height:500px; object-fit:contain;">
+                </div>
+                {% for image in product.gallery.all %}
+                <div class="carousel-item">
+                    <img
+                        src="{{ image.image.url }}"
+                        class="img-fluid w-100"
+                        style="max-height:500px; object-fit:contain;">
+                </div>
+                {% endfor %}
+            </div>
+            {% if product.gallery.count %}
+            <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#lightboxCarousel"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#lightboxCarousel"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
       const likeButtons = document.querySelectorAll('.like-btn');
@@ -138,6 +245,43 @@
         });
       });
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const lightbox = document.getElementById("image-lightbox");
+        const closeButton = document.getElementById("close-lightbox");
+        const pageCarousel =
+            bootstrap.Carousel.getOrCreateInstance(
+                document.getElementById("productCarousel")
+            );
+        const lightboxCarousel =
+            bootstrap.Carousel.getOrCreateInstance(
+                document.getElementById("lightboxCarousel")
+            );
+        document.querySelectorAll(".product-image-preview")
+            .forEach(function(image){
+                image.addEventListener("click", function(){
+                    const activeIndex =
+                        [...document.querySelectorAll("#productCarousel .carousel-item")]
+                        .findIndex(item => item.classList.contains("active"));
+                    lightboxCarousel.to(activeIndex);
+                    lightbox.classList.remove("d-none");
+                });
+            });
+        closeButton.addEventListener("click", function () {
+            lightbox.classList.add("d-none");
+        });
+        lightbox.addEventListener("click", function (e) {
+            if (e.target === lightbox) {
+                lightbox.classList.add("d-none");
+            }
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+                lightbox.classList.add("d-none");
+            }
+        });
+    });
+        
 </script>
 
 {% endblock %}

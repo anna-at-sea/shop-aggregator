@@ -7,11 +7,11 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from PIL import Image
 
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.image_utils import (image_upload_path,
+                                                  process_image,
                                                   validate_image)
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
@@ -153,24 +153,9 @@ class Product(models.Model):
             and self.image.name != 'products/placeholder.png'
             and self.image.name != old_image_name
         ):
-            try:
-                img_path = self.image.path
-                img = Image.open(img_path)
-                output_size = (500, 500)
-                width, height = img.size
-                min_side = min(width, height)
-                left = (width - min_side) / 2
-                top = (height - min_side) / 2
-                right = (width + min_side) / 2
-                bottom = (height + min_side) / 2
-                img = img.crop((left, top, right, bottom))
-                img = img.resize(output_size, Image.Resampling.LANCZOS)
-                img.save(img_path)
-                if old_image_path and os.path.exists(old_image_path):
-                    os.remove(old_image_path)
-            except Exception as e:
-                raise ValidationError(_("Image processing failed") + f": {e}")
-
+            process_image(self.image.path)
+            if old_image_path and os.path.exists(old_image_path):
+                os.remove(old_image_path)
     def clean(self):
         super().clean()
 
@@ -219,3 +204,45 @@ class Product(models.Model):
 # + add to the flash message that if product is not active then
 # you may change is_activesetting or if you want to replace that 
 # card with the new one first delete that product
+
+class ProductImage(models.Model):
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="gallery",
+    )
+
+    image = models.ImageField(
+        upload_to=image_upload_path,
+        validators=[validate_image],
+        help_text=_("Upload JPEG or PNG image up to 15MB.")
+    )
+
+    order = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        help_text=_("Display order")
+    )
+
+    class Meta:
+        ordering = ["order", "pk"]
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.order:
+            last = (
+                ProductImage.objects.filter(product=self.product).order_by("-order")
+                .first()
+            )
+            self.order = 1 if last is None else last.order + 1
+        super().save(*args, **kwargs)
+        process_image(self.image.path)
+
+    def delete(self, *args, **kwargs):
+        image_path = self.image.path if self.image else None
+        super().delete(*args, **kwargs)
+        if image_path and os.path.exists(image_path):
+            os.remove(image_path)
+
+    def __str__(self):
+        return f"{self.product.product_name} - Image #{self.order}"

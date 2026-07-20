@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import Product
+from .models import Product, ProductImage
+
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
 
 
 @admin.register(Product)
@@ -26,8 +31,23 @@ class CustomProductAdmin(admin.ModelAdmin):
     list_filter = (
         "is_deleted",
         "is_active",
+        "seller__store_name",
         "category",
         "origin_city",
         "delivery_cities"
     )
     ordering = ("date_added",)
+    inlines = [ProductImageInline]
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "product",
+        "order",
+    )
+    ordering = (
+        "product",
+        "order",
+    )
