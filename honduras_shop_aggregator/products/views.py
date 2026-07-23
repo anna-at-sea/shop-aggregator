@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -18,7 +19,7 @@ from honduras_shop_aggregator.products.forms import (ProductCreateForm,
                                                      ProductDeleteForm,
                                                      ProductImageUpdateForm,
                                                      ProductUpdateForm)
-from honduras_shop_aggregator.products.models import Product
+from honduras_shop_aggregator.products.models import Product, ProductImage
 
 
 class ProductCardView(
@@ -161,31 +162,124 @@ class ProductFormCreateView(
         return initial
 
 
-class ProductFormUpdateImageView(
+class ProductImageManageView(
     utils.UserLoginRequiredMixin, utils.SellerPermissionMixin,
-    SuccessMessageMixin, UpdateView
+    SuccessMessageMixin, View
 ):
-    model = Product
-    form_class = ProductImageUpdateForm
-    template_name = 'layouts/base_form.html'
+    template_name = 'pages/products/manage_images.html'
     slug_field = "slug"
     slug_url_kwarg = "slug"
     context_object_name = "product"
 
-    def get_success_message(self, *args, **kwargs):
-        return _("Image updated successfully")
+    def get(self, request, slug):
+        product = get_object_or_404(Product, slug=slug, is_deleted=False)
+        form = ProductImageUpdateForm(instance=product)
+        context = {
+            "heading": _("Manage Product Images"),
+            "product": product,
+            "form": form,
+            "gallery": [
+                {
+                    "id": image.pk,
+                    "url": image.image.url,
+                    "order": image.order,
+                }
+                for image in product.gallery.all()
+            ],
+            "gallery_limit": 8,
+            "gallery_count": product.gallery.count(),
+            "remaining_images": 8 - product.gallery.count(),
+        }
+        return render(
+            request,
+            "pages/products/manage_images.html",
+            context,
+        )
 
-    def get_success_url(self):
-        return reverse_lazy('product_card', kwargs={'slug': self.object.slug})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'heading': _("Update Product Image"),
-            'button_text': _("Update Image"),
-            'form': self.get_form()
-        })
-        return context
+    @transaction.atomic
+    def post(self, request, slug):
+        product = get_object_or_404(Product, slug=slug, is_deleted=False)
+        form = ProductImageUpdateForm(
+            request.POST,
+            request.FILES,
+            instance=product,
+        )
+        if not form.is_valid():
+            context = {
+                "heading": _("Manage Product Images"),
+                "product": product,
+                "form": form,
+                "gallery": [
+                    {
+                        "id": image.pk,
+                        "url": image.image.url,
+                        "order": image.order,
+                    }
+                    for image in product.gallery.all()
+                ],
+                "gallery_limit": 8,
+                "gallery_count": product.gallery.count(),
+                "remaining_images": 8 - product.gallery.count(),
+            }
+            return render(
+                request,
+                self.template_name,
+                context,
+            )
+        form.save()
+        gallery_files = request.FILES.getlist("gallery_images")
+        remaining = max(
+            0,
+            8 - product.gallery.count()
+        )
+        gallery_files = gallery_files[:remaining]
+        ids = request.POST.getlist("delete_images")
+        print(request.POST.lists())
+        ProductImage.objects.filter(
+            product=product,
+            pk__in=ids,
+        ).delete()
+        existing_ids = set(
+            product.gallery.values_list("pk", flat=True)
+        )
+        existing = {
+            str(image.pk): image
+            for image in product.gallery.all()
+        }
+        for file in gallery_files:
+            ProductImage.objects.create(
+                product=product,
+                image=file,
+            )
+        gallery_order = request.POST.get("gallery_order", "")
+        tokens = gallery_order.split(",")
+        new_images = ProductImage.objects.filter(
+            product=product
+        ).exclude(
+            pk__in=existing_ids
+        ).order_by("pk")
+        new_index = 0
+        order = 1
+        for token in tokens:
+            if token.startswith("new-"):
+                if new_index < len(new_images):
+                    image = new_images[new_index]
+                    image.order = order
+                    image.save(update_fields=["order"])
+                    new_index += 1
+            elif token in existing:
+                image = existing[token]
+                image.order = order
+                image.save(update_fields=["order"])
+            order += 1
+        messages.success(
+            request,
+            _("Images updated successfully.")
+        )
+        return redirect(
+            "product_card",
+            slug=product.slug,
+        )
 
 
 class ProductFormUpdateView(

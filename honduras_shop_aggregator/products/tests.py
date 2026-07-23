@@ -541,7 +541,7 @@ class TestImageUpload(BaseTestCase):
         self.assertRedirectWithMessage(
             response,
             'product_card',
-            _("Image updated successfully"),
+            _("Images updated successfully."),
             {'slug': self.product.slug}
         )
         img_path = self.product.image.path

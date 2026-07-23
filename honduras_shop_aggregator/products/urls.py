@@ -20,7 +20,7 @@ if settings.SELLER_FEATURES_ENABLED:
         ),
         path(
             '<str:slug>/update_image/',
-            views.ProductFormUpdateImageView.as_view(),
+            views.ProductImageManageView.as_view(),
             name='product_update_image'
         ),
         path(

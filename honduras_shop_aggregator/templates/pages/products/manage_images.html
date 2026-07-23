@@ -1,0 +1,352 @@
+{% extends "layouts/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+{{ heading }} | Cangrejal
+{% endblock %}
+
+{% block content %}
+{% include "partials/flash_message.html" %}
+
+<div class="container">
+
+    {% include "partials/back_button.html" %}
+
+    <h1 class="display-5 mb-4">
+        {{ heading }}
+    </h1>
+
+    <form id="image-form" method="post" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        <div class="row">
+
+            <!-- COVER IMAGE -->
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-header">
+                        <strong>{% translate "Cover Image" %}</strong>
+                    </div>
+
+                    <div class="card-body text-center">
+
+                        <img
+                            id="cover-preview"
+                            src="{{ product.image.url }}"
+                            class="img-fluid rounded border mb-3"
+                            style="max-height:300px; object-fit:contain;"
+                        >
+
+                        {{ form.image|as_crispy_field }}
+
+                        <small class="text-muted">
+                            {% translate "This image is shown in product listings." %}
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- GALLERY -->
+
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-header d-flex justify-content-between">
+
+                        <strong>
+                            {% translate "Gallery Images" %}
+                        </strong>
+
+                        <span class="text-muted">
+
+                            {{ gallery_count }}/{{ gallery_limit }}
+
+                        </span>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div id="gallery-grid" class="row g-3"></div>
+
+                        
+                        <hr>
+
+                        {% if remaining_images > 0 %}
+
+                        <label class="form-label">
+
+                            <strong>
+
+                                {% translate "Add Gallery Images" %}
+
+                            </strong>
+
+                        </label>
+
+                        <input
+                            id="gallery-input"
+                            type="file"
+                            name="gallery_images"
+                            multiple
+                            accept="image/png,image/jpeg"
+                            class="form-control"
+                        >
+
+                        <small class="text-muted">
+
+                            {% blocktranslate with count=remaining_images %}
+                            You can upload {{ count }} more image(s).
+                            {% endblocktranslate %}
+
+                        </small>
+
+                        {% else %}
+
+                        <div class="alert alert-warning">
+
+                            {% blocktranslate with limit=gallery_limit %}
+                            Maximum of {{ limit }} gallery images reached.
+                            {% endblocktranslate %}
+
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+
+            <input
+                type="hidden"
+                id="gallery-order"
+                name="gallery_order"
+            >
+
+            <button class="btn btn-danger">
+
+                <i class="bi bi-check-lg"></i>
+
+                {% translate "Save Changes" %}
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{{ gallery|json_script:"gallery-data" }}
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+    const input = document.querySelector("#id_image");
+    const preview = document.querySelector("#cover-preview");
+    if(input){
+        input.addEventListener("change", function(){
+            if(this.files.length){
+                preview.src = URL.createObjectURL(this.files[0]);
+            }
+        });
+    }
+});
+
+const galleryData =
+    JSON.parse(
+        document.getElementById("gallery-data").textContent
+    );
+
+const galleryGrid =
+    document.getElementById("gallery-grid");
+
+let galleryItems =
+    galleryData.map(image => ({
+        id: image.id,
+        url: image.url,
+        file: null,
+        deleted: false,
+        isNew: false
+    }));
+
+const galleryFiles = new DataTransfer();
+
+const galleryInput =
+    document.getElementById("gallery-input");
+
+const form =
+    document.querySelector("form");
+
+form.addEventListener("submit", function () {
+    updateDeletedImages();
+    updateGalleryOrder();
+});
+
+galleryInput.addEventListener("change", function () {
+    [...this.files].forEach(file => {
+        galleryFiles.items.add(file);
+        galleryItems.push({
+            id: null,
+            url: URL.createObjectURL(file),
+            file: file,
+            deleted: false,
+            isNew: true
+        });
+    });
+    galleryInput.files = galleryFiles.files;
+    renderGallery();
+    updateGalleryOrder();
+    updateDeletedImages();
+});
+
+let draggedIndex = null;
+
+function syncDataTransfer(){
+    const transfer = new DataTransfer();
+    galleryItems
+        .filter(item => item.isNew && !item.deleted)
+        .forEach(item=>{
+
+            transfer.items.add(item.file);
+
+        });
+    galleryFiles.items.clear();
+    [...transfer.files].forEach(file=>{
+        galleryFiles.items.add(file);
+    });
+    galleryInput.files = galleryFiles.files;
+}
+
+function createGalleryCard(item, index) {
+    const col = document.createElement("div");
+    col.className = "col-md-4";
+    col.draggable = true;
+    col.dataset.index = index;
+    col.style.cursor = "grab";
+    col.addEventListener("dragstart", function () {
+        draggedIndex = index;
+        col.style.opacity = ".5";
+    });
+    col.addEventListener("dragend", function () {
+        col.style.opacity = "1";
+    });
+    col.addEventListener("dragover", function (event) {
+        event.preventDefault();
+    });
+    col.addEventListener("drop", function () {
+        if (
+            draggedIndex === null ||
+            draggedIndex === index
+        ){
+            return;
+        }
+        const draggedItem =
+            galleryItems.splice(draggedIndex, 1)[0];
+        galleryItems.splice(
+            index,
+            0,
+            draggedItem
+        );
+        draggedIndex = null;
+        syncDataTransfer();
+        renderGallery();
+        updateGalleryOrder();
+        updateDeletedImages();
+    });
+    const card = document.createElement("div");
+    card.className = "card h-100 shadow-sm";
+    col.appendChild(card);
+    // ---------- IMAGE ----------
+    const image = document.createElement("img");
+    image.src = item.url;
+    image.className = "card-img-top";
+    image.style.height = "180px";
+    image.style.objectFit = "cover";
+    card.appendChild(image);
+    // ---------- BODY ----------
+    const body = document.createElement("div");
+    body.className = "card-body text-center";
+    card.appendChild(body);
+    // ---------- DELETE BUTTON ----------
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "btn btn-outline-danger btn-sm";
+    deleteButton.textContent = "{% translate 'Delete' %}";
+    deleteButton.addEventListener("click", function(){
+        item.deleted = true;
+        syncDataTransfer();
+        renderGallery();
+        updateGalleryOrder();
+        updateDeletedImages();
+    });
+    body.appendChild(deleteButton);
+    return col;
+}
+
+function updateGalleryOrder(){
+    const hidden =
+        document.getElementById("gallery-order");
+    hidden.value = galleryItems
+        .filter(item => !item.deleted)
+        .map((item,index)=>{
+            if(item.id){
+                return item.id;
+            }
+            return "new-" + index;
+        })
+        .join(",");
+}
+
+function renderGallery() {
+    galleryGrid.innerHTML = "";
+    galleryItems.forEach(function(item, index) {
+        if (item.deleted) {
+            return;
+        }
+        galleryGrid.appendChild(
+            createGalleryCard(item, index)
+        );
+    });
+}
+
+renderGallery();
+updateGalleryOrder();
+updateDeletedImages();
+
+function updateDeletedImages(){
+    document
+        .querySelectorAll(".delete-hidden")
+        .forEach(e => e.remove());
+    galleryItems
+        .filter(item => item.deleted && item.id)
+        .forEach(item => {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "delete_images";
+            input.value = item.id;
+            input.className = "delete-hidden";
+            form.appendChild(input);
+        });
+}
+
+</script>
+
+{% endblock %}
