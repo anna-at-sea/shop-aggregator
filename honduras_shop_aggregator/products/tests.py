@@ -549,8 +549,8 @@ class TestImageUpload(BaseTestCase):
             width, height = img.size
             self.assertEqual(
                 (width, height),
-                (500, 500),
-                msg="Image should be resized to 500x500"
+                (1200, 1200),
+                msg="Image should be resized to 1200x1200"
             )
         placeholder_path = os.path.join(TEMP_MEDIA_ROOT, 'products', 'placeholder.png')
         self.assertTrue(os.path.exists(placeholder_path))

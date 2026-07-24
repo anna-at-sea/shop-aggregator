@@ -22,6 +22,12 @@
 
         {% csrf_token %}
 
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
         <div class="row">
 
             <!-- COVER IMAGE -->
@@ -47,6 +53,10 @@
 
                         <small class="text-muted">
                             {% translate "This image is shown in product listings." %}
+                            <br>
+                            {% translate "For the best appearance, upload square images." %}
+                            <br>
+                            {% translate "Non-square images will automatically be placed on a white background without cropping." %}
                         </small>
 
                     </div>
@@ -67,12 +77,6 @@
                             {% translate "Gallery Images" %}
                         </strong>
 
-                        <span class="text-muted">
-
-                            {{ gallery_count }}/{{ gallery_limit }}
-
-                        </span>
-
                     </div>
 
                     <div class="card-body">
@@ -82,16 +86,10 @@
                         
                         <hr>
 
-                        {% if remaining_images > 0 %}
-
                         <label class="form-label">
-
                             <strong>
-
                                 {% translate "Add Gallery Images" %}
-
                             </strong>
-
                         </label>
 
                         <input
@@ -103,25 +101,20 @@
                             class="form-control"
                         >
 
-                        <small class="text-muted">
-
+                        <small
+                            id="gallery-counter"
+                            class="text-muted"
+                        >
+                            {{ gallery_count }}/{{ gallery_limit }}
+                            —
                             {% blocktranslate with count=remaining_images %}
-                            You can upload {{ count }} more image(s).
+                            {{ count }} image(s) remaining
                             {% endblocktranslate %}
-
+                            <br>
+                            {% translate "For the best appearance, upload square images." %}
+                            <br>
+                            {% translate "Non-square images will automatically be placed on a white background without cropping." %}
                         </small>
-
-                        {% else %}
-
-                        <div class="alert alert-warning">
-
-                            {% blocktranslate with limit=gallery_limit %}
-                            Maximum of {{ limit }} gallery images reached.
-                            {% endblocktranslate %}
-
-                        </div>
-
-                        {% endif %}
 
                     </div>
 
@@ -193,11 +186,19 @@ const galleryInput =
     document.getElementById("gallery-input");
 
 const form =
-    document.querySelector("form");
+    document.getElementById("image-form");
 
-form.addEventListener("submit", function () {
+form.addEventListener("submit", function (event) {
     updateDeletedImages();
     updateGalleryOrder();
+    const visible =
+        galleryItems.filter(item => !item.deleted).length;
+    if (visible > 8) {
+        event.preventDefault();
+        alert(
+            "{% translate 'You cannot upload more than 8 gallery images.' %}"
+        );
+    }
 });
 
 galleryInput.addEventListener("change", function () {
@@ -213,6 +214,7 @@ galleryInput.addEventListener("change", function () {
     });
     galleryInput.files = galleryFiles.files;
     renderGallery();
+    updateCounter();
     updateGalleryOrder();
     updateDeletedImages();
 });
@@ -268,6 +270,7 @@ function createGalleryCard(item, index) {
         draggedIndex = null;
         syncDataTransfer();
         renderGallery();
+        updateCounter();
         updateGalleryOrder();
         updateDeletedImages();
     });
@@ -279,7 +282,7 @@ function createGalleryCard(item, index) {
     image.src = item.url;
     image.className = "card-img-top";
     image.style.height = "180px";
-    image.style.objectFit = "cover";
+    image.style.objectFit = "contain";
     card.appendChild(image);
     // ---------- BODY ----------
     const body = document.createElement("div");
@@ -294,6 +297,7 @@ function createGalleryCard(item, index) {
         item.deleted = true;
         syncDataTransfer();
         renderGallery();
+        updateCounter();
         updateGalleryOrder();
         updateDeletedImages();
     });
@@ -328,6 +332,7 @@ function renderGallery() {
 }
 
 renderGallery();
+updateCounter();
 updateGalleryOrder();
 updateDeletedImages();
 
@@ -345,6 +350,27 @@ function updateDeletedImages(){
             input.className = "delete-hidden";
             form.appendChild(input);
         });
+}
+
+function updateCounter(){
+    const visible =
+        galleryItems.filter(item => !item.deleted).length;
+    const remaining = 8 - visible;
+    const counter =
+        document.getElementById("gallery-counter");
+    counter.innerHTML =
+        `${visible}/8 — ${remaining} image(s) remaining`
+        + "<br>"
+        + "{% translate 'For the best appearance, upload square images.' %}"
+        + "<br>"
+        + "{% translate 'Non-square images will automatically be placed on a white background without cropping.' %}";
+    if(remaining < 0){
+        counter.classList.remove("text-muted");
+        counter.classList.add("text-danger");
+    }else{
+        counter.classList.remove("text-danger");
+        counter.classList.add("text-muted");
+    }
 }
 
 </script>

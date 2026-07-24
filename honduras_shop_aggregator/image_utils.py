@@ -34,21 +34,42 @@ def get_file_hash(file_path):
         return hashlib.md5(f.read()).hexdigest()
 
 
-def process_image(image_path, size=(500, 500)):
+def process_image(image_path, size=(1200, 1200)):
     """
-    Crops the image to a centered square and resizes it.
+    Keeps the whole image visible.
+
+    The image is resized so that its longest side becomes
+    the target size while preserving aspect ratio.
+
+    Remaining space is filled with white.
     """
     try:
         img = Image.open(image_path)
+        if img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+        target = size[0]
         width, height = img.size
-        min_side = min(width, height)
-        left = (width - min_side) / 2
-        top = (height - min_side) / 2
-        right = (width + min_side) / 2
-        bottom = (height + min_side) / 2
-        img = img.crop((left, top, right, bottom))
-        img = img.resize(size, Image.Resampling.LANCZOS)
-        img.save(image_path)
+        longest_side = max(width, height)
+        scale = target / longest_side
+        new_width = round(width * scale)
+        new_height = round(height * scale)
+        img = img.resize(
+            (new_width, new_height),
+            Image.Resampling.LANCZOS,
+        )
+        canvas = Image.new(
+            "RGB",
+            size,
+            (255, 255, 255)
+        )
+        x = (target - new_width) // 2
+        y = (target - new_height) // 2
+        canvas.paste(img, (x, y))
+        canvas.save(
+            image_path,
+            quality=90,
+            optimize=True
+        )
     except Exception as e:
         raise ValidationError(
             _("Image processing failed") + f": {e}"

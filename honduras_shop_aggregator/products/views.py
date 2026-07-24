@@ -226,15 +226,43 @@ class ProductImageManageView(
                 self.template_name,
                 context,
             )
-        form.save()
         gallery_files = request.FILES.getlist("gallery_images")
-        remaining = max(
-            0,
-            8 - product.gallery.count()
-        )
-        gallery_files = gallery_files[:remaining]
         ids = request.POST.getlist("delete_images")
-        print(request.POST.lists())
+        remaining_existing = (
+            product.gallery.count()
+            - len(ids)
+        )
+        total_after_save = (
+            remaining_existing
+            + len(gallery_files)
+        )
+        if total_after_save > 8:
+            form.add_error(
+                None,
+                _("Maximum of 8 gallery images allowed.")
+            )
+            context = {
+                "heading": _("Manage Product Images"),
+                "product": product,
+                "form": form,
+                "gallery": [
+                    {
+                        "id": image.pk,
+                        "url": image.image.url,
+                        "order": image.order,
+                    }
+                    for image in product.gallery.all()
+                ],
+                "gallery_limit": 8,
+                "gallery_count": product.gallery.count(),
+                "remaining_images": 8 - product.gallery.count(),
+            }
+            return render(
+                request,
+                self.template_name,
+                context,
+            )
+        form.save()
         ProductImage.objects.filter(
             product=product,
             pk__in=ids,
