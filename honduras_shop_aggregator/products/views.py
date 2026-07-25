@@ -263,10 +263,8 @@ class ProductImageManageView(
                 context,
             )
         form.save()
-        ProductImage.objects.filter(
-            product=product,
-            pk__in=ids,
-        ).delete()
+        for image in ProductImage.objects.filter(product=product, pk__in=ids,):
+            image.delete()
         existing_ids = set(
             product.gallery.values_list("pk", flat=True)
         )

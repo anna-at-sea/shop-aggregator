@@ -373,6 +373,10 @@ function updateCounter(){
     }
 }
 
+form.addEventListener("submit", function () {
+    this.querySelector("button[type=submit]").disabled = true;
+});
+
 </script>
 
 {% endblock %}

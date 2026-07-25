@@ -14,7 +14,7 @@ from PIL import Image
 
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.cities.models import City
-from honduras_shop_aggregator.products.models import Product
+from honduras_shop_aggregator.products.models import Product, ProductImage
 from honduras_shop_aggregator.products.views import ProductFilterView
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
@@ -668,6 +668,187 @@ class TestImageUpload(BaseTestCase):
             'index',
             _("You don&#x27;t have permission to access this product.")
         )
+
+    def test_gallery_image_upload(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                "product_update_image",
+                kwargs={"slug": self.product.slug},
+            ),
+            data={
+                "gallery_images": [self.success_image],
+                "gallery_order": "new-0",
+            },
+            follow=True,
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "product_card",
+            _("Images updated successfully."),
+            {"slug": self.product.slug},
+        )
+        self.assertEqual(
+            ProductImage.objects.filter(product=self.product).count(),
+            1,
+        )
+        image = ProductImage.objects.get(product=self.product)
+        self.assertTrue(
+            image.image.name.startswith(
+                f"product images/{self.product.slug}-gallery-"
+            )
+        )
+        self.assertEqual(image.order, 1)
+
+    def test_gallery_image_delete(self):
+        image = ProductImage.objects.create(
+            product=self.product,
+            image=self.success_image,
+        )
+        image_path = image.image.path
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse(
+                "product_update_image",
+                kwargs={"slug": self.product.slug},
+            ),
+            data={
+                "delete_images": str(image.pk),
+                "gallery_order": "",
+            },
+            follow=True,
+        )
+        self.assertFalse(
+            ProductImage.objects.filter(pk=image.pk).exists()
+        )
+        self.assertFalse(os.path.exists(image_path))
+
+    def test_gallery_order_is_updated(self):
+        img1 = ProductImage.objects.create(
+            product=self.product,
+            image=self.success_image,
+        )
+        img2 = ProductImage.objects.create(
+            product=self.product,
+            image=self.new_image,
+        )
+        self.assertEqual(img2.order, 2)
+        self.assertEqual(img1.order, 1)
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse(
+                "product_update_image",
+                kwargs={"slug": self.product.slug},
+            ),
+            data={
+                "gallery_order": f"{img2.pk},{img1.pk}",
+            },
+            follow=True,
+        )
+        img1.refresh_from_db()
+        img2.refresh_from_db()
+        self.assertEqual(img2.order, 1)
+        self.assertEqual(img1.order, 2)
+
+    def test_gallery_limit(self):
+        for i in range(8):
+            ProductImage.objects.create(
+                product=self.product,
+                image=self.success_image,
+            )
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                "product_update_image",
+                kwargs={"slug": self.product.slug},
+            ),
+            data={
+                "gallery_images": [self.new_image],
+                "gallery_order": ",".join(
+                    str(img.pk)
+                    for img in self.product.gallery.all()
+                ) + ",new-8",
+            },
+        )
+        form = response.context["form"]
+        self.assertFormError(
+            form,
+            None,
+            _("Maximum of 8 gallery images allowed."),
+        )
+
+    def test_gallery_image_processed(self):
+        image = ProductImage.objects.create(
+            product=self.product,
+            image=self.success_image,
+        )
+        with Image.open(image.image.path) as img:
+            self.assertEqual(
+                img.size,
+                (1200, 1200),
+            )
+
+    def test_gallery_image_appears_and_disappears_on_product_page(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse(
+                "product_update_image",
+                kwargs={"slug": self.product.slug},
+            ),
+            data={
+                "gallery_images": [self.success_image],
+                "gallery_order": "new-0",
+            },
+            follow=True,
+        )
+        self.assertEqual(
+            ProductImage.objects.filter(product=self.product).count(),
+            1,
+        )
+        image = ProductImage.objects.get(product=self.product)
+        response = self.client.get(
+            reverse(
+                "product_card",
+                kwargs={"slug": self.product.slug},
+            )
+        )
+        self.assertContains(response, image.image.url)
+        self.assertContains(response, 'id="productCarousel"')
+        self.assertContains(response, "carousel-control-next")
+        self.client.post(
+            reverse(
+                "product_update_image",
+                kwargs={"slug": self.product.slug},
+            ),
+            data={
+                "delete_images": str(image.pk),
+                "gallery_order": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(
+            ProductImage.objects.filter(product=self.product).count(),
+            0,
+        )
+        response = self.client.get(
+            reverse(
+                "product_card",
+                kwargs={"slug": self.product.slug},
+            )
+        )
+        self.assertNotContains(response, image.image.url,)
+        self.assertNotContains(response, "carousel-control-next")
+        self.assertNotContains(response, "carousel-control-prev")
 
 
 class TestProductUpdate(BaseTestCase):
