@@ -246,3 +246,80 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} - Image #{self.order}"
+
+
+class ProductVariation(models.Model):
+
+    class VariationType(models.TextChoices):
+        SIZE = "size", _("Size")
+        COLOR = "color", _("Color")
+        MATERIAL = "material", _("Material")
+        STYLE = "style", _("Style")
+        CAPACITY = "capacity", _("Capacity")
+        WEIGHT = "weight", _("Weight")
+        PATTERN = "pattern", _("Pattern")
+        OTHER = "other", _("Other")
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="variations",
+    )
+
+    variation_type = models.CharField(
+        max_length=20,
+        choices=VariationType.choices,
+    )
+
+    custom_type = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text=_("Required only when 'Other' is selected."),
+    )
+
+    value = models.CharField(
+        max_length=100,
+    )
+
+    order = models.PositiveSmallIntegerField(
+        default=1,
+    )
+
+    class Meta:
+        ordering = ["order", "pk"]
+
+    def clean(self):
+        if (
+            self.variation_type == self.VariationType.OTHER
+            and not self.custom_type.strip()
+        ):
+            raise ValidationError({
+                "custom_type": _(
+                    "Please specify the variation type."
+                )
+            })
+
+    @property
+    def display_type(self):
+        if self.variation_type == self.VariationType.OTHER:
+            return self.custom_type
+        return self.get_variation_type_display()
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.order:
+            last = (
+                ProductVariation.objects.filter(
+                    product=self.product
+                ).order_by("-order").first()
+            )
+            self.order = 1 if last is None else last.order + 1
+
+        self.full_clean()
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return (
+            f"{self.product.product_name} | "
+            f"{self.display_type}: {self.value}"
+        )

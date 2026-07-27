@@ -1,0 +1,164 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+<hr class="my-4">
+
+<h4>{% translate "Product Variations" %}</h4>
+
+<div id="variation-list"></div>
+
+{{ context_variations|json_script:"variation-data" }}
+
+<button
+    type="button"
+    id="add-variation"
+    class="btn btn-outline-secondary btn-sm mt-2">
+    + {% translate "Add variation" %}
+</button>
+
+<template id="variation-template">
+
+<div class="variation-row border rounded p-3 mt-3">
+
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <label>{% translate "Type" %}</label>
+
+            <select
+                class="form-select variation-type"
+                name="variation_type">
+
+                {% for value,label in variation_type_choices %}
+                    <option value="{{ value }}">
+                        {{ label }}
+                    </option>
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-4 custom-type-wrapper d-none">
+
+            <label>{% translate "Custom type" %}</label>
+
+            <input
+                type="text"
+                class="form-control"
+                name="variation_custom_type">
+
+        </div>
+
+        <div class="col-md-4">
+
+            <label>{% translate "Value" %}</label>
+
+            <input
+                type="text"
+                class="form-control"
+                name="variation_value">
+
+        </div>
+
+    </div>
+
+    <button
+        type="button"
+        class="btn btn-outline-danger btn-sm mt-3 remove-variation">
+
+        {% translate "Remove" %}
+
+    </button>
+
+</div>
+
+</template>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const list =
+        document.getElementById("variation-list");
+
+    if(!list){
+        return;
+    }
+
+    const data =
+    JSON.parse(
+        document.getElementById("variation-data").textContent
+    );
+
+    const template =
+        document.getElementById("variation-template");
+
+    function addVariation(){
+
+        const clone =
+            template.content.cloneNode(true);
+
+        const row =
+            clone.querySelector(".variation-row");
+
+        const select =
+            row.querySelector(".variation-type");
+
+        const wrapper =
+            row.querySelector(".custom-type-wrapper");
+
+        select.addEventListener("change", function(){
+            wrapper.classList.toggle(
+                "d-none",
+                this.value !== "other"
+            );
+        });
+
+        row.querySelector(".remove-variation")
+            .addEventListener("click", function(){
+                row.remove();
+            });
+
+        list.appendChild(clone);
+    }
+
+    document
+        .getElementById("add-variation")
+        .addEventListener("click", addVariation);
+
+    // Populate existing variations
+    data.forEach(function(item){
+
+        addVariation();
+
+        const rows =
+            document.querySelectorAll(".variation-row");
+
+        const current =
+            rows[rows.length - 1];
+
+        current.querySelector(".variation-type").value =
+            item.variation_type;
+
+        if(item.variation_type === "other"){
+
+            current
+                .querySelector(".custom-type-wrapper")
+                .classList.remove("d-none");
+
+            current.querySelector(
+                '[name="variation_custom_type"]'
+            ).value = item.custom_type;
+        }
+
+        current.querySelector(
+            '[name="variation_value"]'
+        ).value = item.value;
+
+    });
+
+});
+
+</script>

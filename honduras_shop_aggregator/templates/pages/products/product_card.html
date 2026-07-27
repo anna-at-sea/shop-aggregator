@@ -10,7 +10,7 @@
     {% include "partials/back_button.html" %}
 
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-5 product-gallery-column">
             <div class="border rounded shadow-sm p-2 bg-white">
                 <div id="productCarousel" class="carousel slide">
                     <div class="carousel-inner">
@@ -106,6 +106,31 @@
                 {% endif %}
             </p>
 
+            {% if grouped_variations %}
+            <hr>
+            <h6 class="text-secondary mb-3">
+                {% translate "Available Options" %}
+            </h6>
+            {% for type, values in grouped_variations.items %}
+            <div class="mb-3">
+                <small class="text-muted d-block mb-1">
+                    {{ type }}
+                </small>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for value in values %}
+                    <span
+                        class="badge rounded-pill bg-light text-dark border px-3 py-2">
+                        {{ value }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <small class="text-muted">
+                {% translate "Available variations may differ depending on the seller." %}
+            </small>
+            {% endif %}
+
             <div class="d-grid gap-2 my-3">
                 {% if product.is_active and product.stock_quantity > 0 %}
                     {% if product.product_link %}
@@ -126,39 +151,60 @@
                         {% endif %}
                     </button>
                 {% endif %}
-
-                {% if request.user == product.seller.user and seller_features_enabled %}
-                    <div class="border rounded p-3 bg-light mt-4">
-                        <h6 class="text-secondary">{% translate "Owner Actions" %}</h6>
-                        <div class="d-flex flex-column gap-2">
-                            <a href="{% url 'product_update' product.slug %}" class="btn btn-outline-secondary btn-sm">
-                                ✏️ {% translate "Edit Product Info" %}
-                            </a>
-                            <a href="{% url 'product_update_image' product.slug %}" class="btn btn-outline-secondary btn-sm">
-                                🖼️ {% translate "Edit Product Image" %}
-                            </a>
-                            <form method="post" action="{% url 'product_delete' product.slug %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger">
-                                    🗑️ {% translate "Delete Product" %}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
             </div>
+
+            {% if product.description %}
+            <hr>
+            <h5 class="text-dark mb-3">
+                {% translate "Product Description" %}
+            </h5>
+            <div
+                class="border rounded p-3 bg-light"
+                style="white-space: pre-wrap;">
+                {{ product.description }}
+            </div>
+            {% endif %}
 
         </div>
     </div>
 
-    {% if product.description %}
+    {% if request.user == product.seller.user and seller_features_enabled %}
     <div class="row mt-5">
         <div class="col">
-            <h4 class="text-dark">{% translate "Product Description" %}</h4>
-            <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">{{ product.description }}</div>
+            <div class="border rounded p-3 bg-light">
+                <h5 class="text-secondary mb-3">
+                    {% translate "Owner Actions" %}
+                </h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a
+                        href="{% url 'product_update' product.slug %}"
+                        class="btn btn-outline-secondary">
+                        <i class="bi bi-pencil-square me-1"></i>
+                        {% translate "Edit Product Info" %}
+                    </a>
+                    <a
+                        href="{% url 'product_update_image' product.slug %}"
+                        class="btn btn-outline-secondary">
+                        <i class="bi bi-images me-1"></i>
+                        {% translate "Edit Product Images" %}
+                    </a>
+                    <form
+                        method="post"
+                        action="{% url 'product_delete' product.slug %}">
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>
+                            {% translate "Delete Product" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
     {% endif %}
+
 </div>
 
 

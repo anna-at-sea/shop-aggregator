@@ -14,7 +14,8 @@ from PIL import Image
 
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.cities.models import City
-from honduras_shop_aggregator.products.models import Product, ProductImage
+from honduras_shop_aggregator.products.models import (Product, ProductImage,
+                                                      ProductVariation)
 from honduras_shop_aggregator.products.views import ProductFilterView
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
@@ -1132,6 +1133,208 @@ class TestProductUpdate(BaseTestCase):
                 "message": _("Product hidden"),
             },
         )
+
+
+class TestProductVariations(BaseTestCase):
+
+    def setUp(self):
+        self.product = Product.objects.get(pk=1)
+        self.seller = self.product.seller
+        self.user = self.seller.user
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        with open(os.path.join(FIXTURE_PATH, "products_test_data.json")) as f:
+            self.products_data = json.load(f)
+        self.update_product_data = self.products_data["update_complete"]
+        self.create_product_data = self.products_data["create_complete"]
+
+    def test_create_product_with_variations(self):
+        data = self.create_product_data.copy()
+        data.update({
+            "variation_type": ["size", "color"],
+            "variation_value": ["M", "Black"],
+            "variation_custom_type": ["", ""],
+        })
+        response = self.client.post(
+            reverse("product_create"),
+            data,
+            follow=True,
+        )
+        print(Product.objects.all())
+        product = Product.objects.get(product_name="testproduct_1")
+        self.assertEqual(product.variations.count(), 2)
+        self.assertTrue(
+            product.variations.filter(
+                variation_type="size",
+                value="M",
+            ).exists()
+        )
+        self.assertTrue(
+            product.variations.filter(
+                variation_type="color",
+                value="Black",
+            ).exists()
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "product_update_image",
+            _("Product is added successfully. Please add image of the product"),
+            {"slug": product.slug},
+        )
+
+    def test_create_product_variations_on_product_update(self):
+        data = self.update_product_data.copy()
+        data.update({
+            "variation_type": ["size", "color"],
+            "variation_value": ["S", "Red"],
+            "variation_custom_type": ["", ""],
+        })
+        response = self.client.post(
+            reverse(
+                "product_update",
+                kwargs={"slug": self.product.slug},
+            ),
+            data,
+            follow=True,
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.variations.count(), 2)
+        self.assertTrue(
+            self.product.variations.filter(
+                variation_type="size",
+                value="S",
+            ).exists()
+        )
+        self.assertTrue(
+            self.product.variations.filter(
+                variation_type="color",
+                value="Red",
+            ).exists()
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "product_card",
+            _("Product information is updated successfully"),
+            {"slug": self.product.slug},
+        )
+
+    def test_update_replaces_existing_variations(self):
+        ProductVariation.objects.create(
+            product=self.product,
+            variation_type="size",
+            value="M",
+        )
+        data = self.update_product_data.copy()
+        data.update({
+            "variation_type": ["color"],
+            "variation_value": ["Blue"],
+            "variation_custom_type": [""],
+        })
+        self.client.post(
+            reverse(
+                "product_update",
+                kwargs={"slug": self.product.slug},
+            ),
+            data,
+            follow=True,
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.variations.count(), 1)
+        variation = self.product.variations.first()
+        self.assertEqual(variation.variation_type, "color")
+        self.assertEqual(variation.value, "Blue")
+
+    def test_empty_variation_is_ignored(self):
+        data = self.update_product_data.copy()
+        data.update({
+            "variation_type": ["size"],
+            "variation_value": [""],
+            "variation_custom_type": [""],
+        })
+        self.client.post(
+            reverse(
+                "product_update",
+                kwargs={"slug": self.product.slug},
+            ),
+            data,
+            follow=True,
+        )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.variations.count(), 0)
+
+    def test_other_variation_uses_custom_type(self):
+        data = self.update_product_data.copy()
+        data.update({
+            "variation_type": ["other"],
+            "variation_value": ["Carbon Fiber"],
+            "variation_custom_type": ["Finish"],
+        })
+        self.client.post(
+            reverse(
+                "product_update",
+                kwargs={"slug": self.product.slug},
+            ),
+            data,
+            follow=True,
+        )
+        variation = self.product.variations.first()
+        self.assertEqual(variation.variation_type, "other")
+        self.assertEqual(variation.custom_type, "Finish")
+        self.assertEqual(variation.value, "Carbon Fiber")
+        self.assertEqual(variation.display_type, "Finish")
+
+    def test_variations_are_displayed_on_product_page(self):
+        ProductVariation.objects.create(
+            product=self.product,
+            variation_type="size",
+            value="XL",
+        )
+        ProductVariation.objects.create(
+            product=self.product,
+            variation_type="color",
+            value="Blue",
+        )
+        response = self.client.get(
+            reverse(
+                "product_card",
+                kwargs={"slug": self.product.slug},
+            )
+        )
+        self.assertContains(response, "Available Options")
+        self.assertContains(response, "Size")
+        self.assertContains(response, "XL")
+        self.assertContains(response, "Color")
+        self.assertContains(response, "Blue")
+
+    def test_removed_variations_are_not_displayed(self):
+        ProductVariation.objects.create(
+            product=self.product,
+            variation_type="size",
+            value="XL",
+        )
+        data = self.update_product_data.copy()
+        data.update({
+            "variation_type": [],
+            "variation_value": [],
+            "variation_custom_type": [],
+        })
+        self.client.post(
+            reverse(
+                "product_update",
+                kwargs={"slug": self.product.slug},
+            ),
+            data,
+            follow=True,
+        )
+        response = self.client.get(
+            reverse(
+                "product_card",
+                kwargs={"slug": self.product.slug},
+            )
+        )
+        self.assertNotContains(response, "Available Options")
+        self.assertNotContains(response, "XL")
 
 
 class TestProductSoftDelete(BaseTestCase):

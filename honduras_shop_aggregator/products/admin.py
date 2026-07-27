@@ -1,10 +1,15 @@
 from django.contrib import admin
 
-from .models import Product, ProductImage
+from .models import Product, ProductImage, ProductVariation
 
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
+    extra = 1
+
+
+class ProductVariationInline(admin.TabularInline):
+    model = ProductVariation
     extra = 1
 
 
@@ -37,7 +42,7 @@ class CustomProductAdmin(admin.ModelAdmin):
         "delivery_cities"
     )
     ordering = ("date_added",)
-    inlines = [ProductImageInline]
+    inlines = [ProductImageInline, ProductVariationInline]
 
 
 @admin.register(ProductImage)
@@ -50,4 +55,21 @@ class ProductImageAdmin(admin.ModelAdmin):
     ordering = (
         "product",
         "order",
+    )
+
+@admin.register(ProductVariation)
+class ProductVariationAdmin(admin.ModelAdmin):
+    list_display = (
+        "product",
+        "display_type",
+        "value",
+        "order",
+    )
+    list_filter = (
+        "variation_type",
+    )
+    search_fields = (
+        "product__product_name",
+        "value",
+        "custom_type",
     )

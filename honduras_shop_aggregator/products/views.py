@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
@@ -19,7 +21,8 @@ from honduras_shop_aggregator.products.forms import (ProductCreateForm,
                                                      ProductDeleteForm,
                                                      ProductImageUpdateForm,
                                                      ProductUpdateForm)
-from honduras_shop_aggregator.products.models import Product, ProductImage
+from honduras_shop_aggregator.products.models import (Product, ProductImage,
+                                                      ProductVariation)
 
 
 class ProductCardView(
@@ -38,6 +41,16 @@ class ProductCardView(
         if self.request.user.pk:
             product.is_liked = product.likes.filter(user=self.request.user).exists()
         return product
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["grouped_variations"] = OrderedDict()
+        for variation in self.object.variations.all():
+            context["grouped_variations"].setdefault(
+                variation.display_type,
+                []
+            ).append(variation.value)
+        return context
 
 
 class ProductFilterView(SuccessMessageMixin, FilterView):
@@ -137,13 +150,18 @@ class ProductFormCreateView(
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'heading': _("Add Product"),
-            'button_text': _("Add")
+            "heading": _("Add Product"),
+            "button_text": _("Add"),
+            "variation_type_choices": ProductVariation.VariationType.choices,
+            "context_variations": [],
+            "show_variations": True,
         })
         return context
 
     def form_valid(self, form):
         form.instance.seller = self.request.user.seller
+        self.object = form.save()
+        self.save_variations()
         return super().form_valid(form)
 
     def get_form(self, form_class=None):
@@ -160,6 +178,22 @@ class ProductFormCreateView(
             seller.delivery_cities.values_list('pk', flat=True)
         )
         return initial
+
+    def save_variations(self):
+        types = self.request.POST.getlist("variation_type")
+        values = self.request.POST.getlist("variation_value")
+        customs = self.request.POST.getlist("variation_custom_type")
+        for index, (t, v, c) in enumerate(zip(types, values, customs), start=1):
+            v = v.strip()
+            if not v:
+                continue
+            ProductVariation.objects.create(
+                product=self.object,
+                variation_type=t,
+                custom_type=c.strip() if t == "other" else "",
+                value=v,
+                order=index,
+            )
 
 
 class ProductImageManageView(
@@ -332,9 +366,44 @@ class ProductFormUpdateView(
         context.update({
             'heading': _("Update product"),
             'button_text': _("Update"),
-            'button_class': 'btn btn-secondary'
+            'button_class': 'btn btn-secondary',
+            'variation_type_choices': ProductVariation.VariationType.choices,
+            'context_variations': [
+                {
+                    "variation_type": variation.variation_type,
+                    "custom_type": variation.custom_type,
+                    "value": variation.value,
+                    "order": variation.order,
+                }
+                for variation in self.object.variations.all()
+            ],
+            'show_variations': True,
         })
         return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        ProductVariation.objects.filter(
+            product=self.object
+        ).delete()
+        self.save_variations()
+        return super().form_valid(form)
+
+    def save_variations(self):
+        types = self.request.POST.getlist("variation_type")
+        values = self.request.POST.getlist("variation_value")
+        customs = self.request.POST.getlist("variation_custom_type")
+        for index, (t, v, c) in enumerate(zip(types, values, customs), start=1):
+            v = v.strip()
+            if not v:
+                continue
+            ProductVariation.objects.create(
+                product=self.object,
+                variation_type=t,
+                custom_type=c.strip() if t == "other" else "",
+                value=v,
+                order=index,
+            )
 
 
 class ProductSoftDeleteView(

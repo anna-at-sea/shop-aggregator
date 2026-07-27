@@ -36,7 +36,8 @@
                 </p>
                 <a href="{% url 'product_update_image' form.instance.slug %}" 
                    class="btn btn-outline-secondary btn-sm">
-                    🖼️ {% translate "Update Product Image" %}
+                   <i class="bi bi-images me-1"></i>
+                    {% translate "Update Product Image" %}
                 </a>
             </div>
             {% endif %}
@@ -45,6 +46,11 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|default:form|crispy }}
+
+        {% if show_variations %}
+            {% include "partials/product_variations_form.html" %}
+        {% endif %}
+
         <input 
             class="{{ button_class|default:'btn btn-danger' }}"
             type="submit"

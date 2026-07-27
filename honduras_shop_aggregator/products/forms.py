@@ -2,10 +2,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Field, Layout
 from django import forms
 from django.contrib.auth import authenticate
+from django.forms.models import inlineformset_factory
 from django.forms.widgets import FileInput
 from django.utils.translation import gettext_lazy as _
 
-from .models import Product
+from .models import Product, ProductVariation
 
 
 class ProductCreateForm(forms.ModelForm):
@@ -84,3 +85,29 @@ class ProductDeleteForm(forms.ModelForm):
         ):
             raise forms.ValidationError(_("Incorrect password."))
         return password
+
+
+class ProductVariationForm(forms.ModelForm):
+
+    class Meta:
+        model = ProductVariation
+        fields = (
+            "variation_type",
+            "custom_type",
+            "value",
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["custom_type"].widget.attrs.update({
+            "style": "display:none;"
+        })
+
+
+ProductVariationFormSet = inlineformset_factory(
+    Product,
+    ProductVariation,
+    form=ProductVariationForm,
+    extra=1,
+    can_delete=True,
+)
