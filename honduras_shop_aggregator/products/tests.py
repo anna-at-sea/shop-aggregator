@@ -1161,7 +1161,6 @@ class TestProductVariations(BaseTestCase):
             data,
             follow=True,
         )
-        print(Product.objects.all())
         product = Product.objects.get(product_name="testproduct_1")
         self.assertEqual(product.variations.count(), 2)
         self.assertTrue(
@@ -1288,7 +1287,7 @@ class TestProductVariations(BaseTestCase):
         ProductVariation.objects.create(
             product=self.product,
             variation_type="size",
-            value="XL",
+            value="Extra Large",
         )
         ProductVariation.objects.create(
             product=self.product,
@@ -1303,7 +1302,7 @@ class TestProductVariations(BaseTestCase):
         )
         self.assertContains(response, "Available Options")
         self.assertContains(response, "Size")
-        self.assertContains(response, "XL")
+        self.assertContains(response, "Extra Large")
         self.assertContains(response, "Color")
         self.assertContains(response, "Blue")
 
@@ -1311,7 +1310,7 @@ class TestProductVariations(BaseTestCase):
         ProductVariation.objects.create(
             product=self.product,
             variation_type="size",
-            value="XL",
+            value="Extra Large",
         )
         data = self.update_product_data.copy()
         data.update({
@@ -1334,7 +1333,7 @@ class TestProductVariations(BaseTestCase):
             )
         )
         self.assertNotContains(response, "Available Options")
-        self.assertNotContains(response, "XL")
+        self.assertNotContains(response, "Extra Large")
 
 
 class TestProductSoftDelete(BaseTestCase):
