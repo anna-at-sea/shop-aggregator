@@ -26,7 +26,9 @@
             </div>
 
             <form method="get">
-                {{ filter.form|crispy }}
+                <div class="dynamic-filter-form">
+                    {% include "partials/filter_form.html" %}
+                </div>
                 <button type="submit" class="btn btn-danger w-100 mt-2">{% translate "Show" %}</button>
             </form>
         </div>
@@ -39,7 +41,9 @@
                 <div class="card-body bg-light">
                     <h5 class="mb-3">{% translate "Filters" %}</h5>
                     <form method="get">
-                        {{ filter.form|crispy }}
+                        <div class="dynamic-filter-form">
+                            {% include "partials/filter_form.html" %}
+                        </div>
                         <button type="submit" class="btn btn-danger w-100">{% translate "Show" %}</button>
                     </form>
                 </div>
@@ -87,6 +91,50 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+</script>
+
+<script>
+
+function updateFilterForm(event) {
+    const form = event.target.closest("form");
+    const wrapper = form.querySelector(".dynamic-filter-form");
+    const category =
+        form.querySelector("[name=category]");
+    const search =
+        form.querySelector("[name=search]");
+    const params = new URLSearchParams();
+    if (category.value)
+        params.append("category", category.value);
+    if (search.value)
+        params.append("search", search.value);
+    fetch("{% url 'product_list' %}?" + params.toString(), {
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        wrapper.innerHTML = data.filter_html;
+        bindDynamicFilters();
+    });
+}
+
+function bindDynamicFilters() {
+    document.querySelectorAll("form").forEach(form => {
+        const category = form.querySelector("[name=category]");
+        const search = form.querySelector("[name=search]");
+        if (category) {
+            category.addEventListener("change", updateFilterForm);
+        }
+        if (search) {
+            search.addEventListener("input", updateFilterForm);
+        }
+    });
+}
+
+bindDynamicFilters();
+
 </script>
 
 {% include "partials/_product_list_scripts.html" %}

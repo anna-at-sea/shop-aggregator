@@ -1,10 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import get_messages
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
+from honduras_shop_aggregator.products.filters import ProductFilter
+from honduras_shop_aggregator.products.models import Product
 
 from .image_utils import get_file_hash, image_upload_path, validate_image
 
@@ -96,3 +100,32 @@ class BaseTestCase(TestCase):
         self.assertRedirects(response, reverse(redirect_to, kwargs=reverse_kwargs))
         self.assertTrue(get_messages(response.wsgi_request))
         self.assertContains(response, message)
+
+
+class ProductFilterMixin:
+
+    def get_base_queryset(self):
+        queryset = Product.objects.filter(
+            is_active=True,
+            stock_quantity__gt=0,
+            is_deleted=False,
+        )
+
+        city_pk = self.request.session.get("city_pk")
+
+        if city_pk:
+            queryset = queryset.filter(
+                Q(origin_city=city_pk) |
+                Q(delivery_cities=city_pk)
+            ).distinct()
+
+        return queryset
+
+    def get_product_filter(self):
+        queryset = self.get_base_queryset()
+
+        return ProductFilter(
+            self.request.GET,
+            queryset=queryset,
+            available_products=queryset,
+        )

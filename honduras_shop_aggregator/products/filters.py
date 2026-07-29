@@ -56,7 +56,39 @@ class ProductFilter(django_filters.FilterSet):
         ).order_by('-name_exact', 'product_name')
         return queryset
 
-    def __init__(self, *args, category_locked=False, **kwargs):
+    def get_filtered_products(self, queryset):
+        products = queryset
+        category = self.data.get("category")
+        if category:
+            products = products.filter(category=category)
+        search = self.data.get("search")
+        if search:
+            products = self.filter_search(products, "search", search)
+        return products
+
+    @property
+    def show_seller_filter(self):
+        return bool(
+            self.data.get("category") or self.data.get("search")
+        )
+
+    def __init__(
+        self,
+        *args,
+        category_locked=False,
+        available_products=None,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
-        if category_locked and 'category' in self.filters:
-            self.filters.pop('category')
+        if category_locked and "category" in self.filters:
+            self.filters.pop("category")
+        if available_products is None:
+            return
+        products = self.get_filtered_products(available_products)
+        self.filters["seller"].queryset = (
+            Seller.objects.filter(
+                seller_products__in=products,
+                is_deleted=False,
+            )
+            .distinct()
+        )

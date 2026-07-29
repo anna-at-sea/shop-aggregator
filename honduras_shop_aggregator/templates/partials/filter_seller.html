@@ -1,0 +1,5 @@
+{% load crispy_forms_tags %}
+
+{% if filter.show_seller_filter and filter.form.seller.field.queryset.exists %}
+    {{ filter.form.seller|as_crispy_field }}
+{% endif %}

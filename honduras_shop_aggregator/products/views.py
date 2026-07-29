@@ -3,7 +3,6 @@ from collections import OrderedDict
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -53,56 +52,78 @@ class ProductCardView(
         return context
 
 
-class ProductFilterView(SuccessMessageMixin, FilterView):
+class ProductFilterView(
+    utils.ProductFilterMixin, SuccessMessageMixin, FilterView,
+):
     model = Product
-    template_name = 'pages/products/product_list.html'
-    context_object_name = 'products'
+    template_name = "pages/products/product_list.html"
+    context_object_name = "products"
     filterset_class = ProductFilter
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(
-            is_active=True, stock_quantity__gt=0, is_deleted=False
-        )
-        city_pk = self.request.session.get('city_pk')
-        if city_pk:
-            queryset = queryset.filter(
-                Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
-            ).distinct()
-        return queryset
+        return self.get_base_queryset()
+
+    def get_filterset(self, filterset_class):
+        return self.get_product_filter()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        products = context['products']
+        products = context["products"]
         if self.request.user.is_authenticated:
-            liked_ids = self.request.user.likes.values_list("product_id", flat=True)
+            liked_ids = set(
+                self.request.user.likes.values_list(
+                    "product_id",
+                    flat=True,
+                )
+            )
             for product in products:
                 product.is_liked = product.pk in liked_ids
         else:
-            liked_products = self.request.session.get('liked_products', [])
+            liked_products = set(
+                self.request.session.get(
+                    "liked_products",
+                    [],
+                )
+            )
             for product in products:
                 product.is_liked = product.pk in liked_products
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        """Return JSON if AJAX, otherwise full page."""
         request = self.request
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            html = render_to_string(
-                "partials/_product_grid.html", 
-                {"products": context["products"], "request": request},
-                request=request
+            products_html = render_to_string(
+                "partials/_product_grid.html",
+                {
+                    "products": context["products"],
+                    "request": request,
+                },
+                request=request,
+            )
+            filter_html = render_to_string(
+                "partials/filter_form.html",
+                {
+                    "filter": context["filter"],
+                },
+                request=request,
             )
             page_obj = context["page_obj"]
             return JsonResponse({
-                "html": html,
+                "html": products_html,
+                "products_html": products_html,
+                "filter_html": filter_html,
                 "has_next": page_obj.has_next(),
                 "next_page": (
-                    page_obj.next_page_number() if page_obj.has_next() else None
-                )
+                    page_obj.next_page_number()
+                    if page_obj.has_next()
+                    else None
+                ),
             })
-        return super().render_to_response(context, **response_kwargs)
+        return super().render_to_response(
+            context,
+            **response_kwargs,
+        )
 
 
 class ProductToggleActiveView(

@@ -95,3 +95,12 @@ class CategoryPageView(
                 )
             })
         return super().render_to_response(context, **response_kwargs)
+
+    def get_filterset(self, filterset_class):
+        queryset = self.get_queryset()
+        return filterset_class(
+            self.request.GET,
+            queryset=queryset,
+            available_products=queryset,
+            category_locked=True
+        )

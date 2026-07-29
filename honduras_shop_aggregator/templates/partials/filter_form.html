@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+
+{{ filter.form.category|as_crispy_field }}
+
+{% include "partials/filter_seller.html" %}
+
+{{ filter.form.price_min|as_crispy_field }}
+{{ filter.form.price_max|as_crispy_field }}
+{{ filter.form.search|as_crispy_field }}
