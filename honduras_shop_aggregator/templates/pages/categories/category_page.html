@@ -10,7 +10,15 @@
 <div class="container mt-4">
     {% include "partials/back_button.html" %}
 
-    <h1 class="text-dark mb-4">{{ category.name }} {% translate "in" %} {{ current_city.name }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-dark mb-0">{{ category.name }} {% translate "in" %} {{ current_city.name }}</h1>
+        <span class="text-muted">
+            <span id="products-count">
+                {{ products_count }}
+            </span>
+            {% translate "products" %}
+        </span>
+    </div>
 
     <!-- Mobile Filter Button -->
     <button id="mobile-filter-btn" class="btn btn-outline-dark d-md-none w-100 mb-3">
@@ -26,8 +34,9 @@
             </div>
 
             <form method="get">
-                {{ filter.form|crispy }}
-                <button type="submit" class="btn btn-danger w-100 mt-2">{% translate "Show" %}</button>
+                <div class="dynamic-filter-form">
+                    {% include "partials/filter_form.html" %}
+                </div>
             </form>
         </div>
     </div>
@@ -39,8 +48,9 @@
                 <div class="card-body bg-light">
                     <h5 class="mb-3">{% translate "Filters" %}</h5>
                     <form id="filter-sidebar" method="get">
-                        {{ filter.form|crispy }}
-                        <button type="submit" class="btn btn-danger w-100">{% translate "Show" %}</button>
+                        <div class="dynamic-filter-form">
+                            {% include "partials/filter_form.html" %}
+                        </div>
                     </form>
                 </div>
             </div>
@@ -89,7 +99,131 @@
             });
         }
     });
-    </script>
+</script>
+
+<script>
+
+function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+
+function updateFilters(event) {
+    const form = event.target.closest("form");
+    const wrapper = form.querySelector(".dynamic-filter-form");
+    const params = new URLSearchParams(
+        new FormData(form)
+    );
+    // Update browser URL without reloading the page
+    const query = params.toString();
+    history.replaceState(
+        null,
+        "",
+        query ? `?${query}` : window.location.pathname
+    );
+    fetch(window.location.pathname + "?" + params.toString(),
+        {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+    .then(r => r.json())
+    .then(data => {
+        // Update this filter form
+        document.querySelectorAll(".dynamic-filter-form").forEach(wrapper => {
+            wrapper.innerHTML = data.filter_html;
+        });
+        // Update products
+        document.getElementById("product-list").innerHTML =
+            data.products_html;
+        document.getElementById("products-count").textContent =
+            data.products_count;
+        // Update Load More button
+        updateLoadMoreButton(data);
+        // Rebind newly rendered form
+        bindDynamicFilters();
+        attachLikeEvents();
+    });
+}
+
+const debouncedUpdate =
+    debounce(updateFilters, 400);
+
+function bindDynamicFilters() {
+    document.querySelectorAll("form").forEach(form => {
+        form.querySelectorAll("input, select").forEach(field => {
+            // Search + price
+            if (
+                field.type === "text" ||
+                field.type === "number"
+            ) {
+                field.oninput = debouncedUpdate;
+
+            }
+            // Category
+            // Seller checkboxes
+            // Sorting
+            else {
+                field.onchange = updateFilters;
+            }
+        });
+        const clearButton = form.querySelector(".clear-filters-btn");
+        if (clearButton) {
+            clearButton.addEventListener(
+                "click",
+                clearFilters
+            );
+        }
+    });
+}
+
+function clearFilters(event) {
+    const form =
+        event.target instanceof HTMLFormElement
+            ? event.target
+            : event.target.closest("form");
+    form.querySelectorAll(
+        "input, select"
+    ).forEach(field => {
+        if (
+            field.type === "checkbox" ||
+            field.type === "radio"
+        ) {
+            field.checked = false;
+        }
+        else {
+            field.value = "";
+        }
+    });
+    updateFilters({
+        target: form
+    });
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    bindDynamicFilters
+);
+
+function updateLoadMoreButton(data) {
+    const button = document.getElementById("load-more-btn");
+    if (!button)
+        return;
+    if (data.has_next) {
+        button.dataset.nextPage = data.next_page;
+        button.style.display = "";
+    } else {
+        button.style.display = "none";
+    }
+    bindLoadMoreButton();
+}
+
+</script>
 
 {% include "partials/_product_list_scripts.html" %}
 

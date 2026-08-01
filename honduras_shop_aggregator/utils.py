@@ -104,28 +104,33 @@ class BaseTestCase(TestCase):
 
 class ProductFilterMixin:
 
+    def get_category_slug(self):
+        return None
+
     def get_base_queryset(self):
         queryset = Product.objects.filter(
             is_active=True,
             stock_quantity__gt=0,
             is_deleted=False,
         )
-
+        category_slug = self.get_category_slug()
+        if category_slug:
+            queryset = queryset.filter(
+                category__slug=category_slug,
+            )
         city_pk = self.request.session.get("city_pk")
-
         if city_pk:
             queryset = queryset.filter(
                 Q(origin_city=city_pk) |
                 Q(delivery_cities=city_pk)
             ).distinct()
-
         return queryset
 
     def get_product_filter(self):
         queryset = self.get_base_queryset()
-
         return ProductFilter(
             self.request.GET,
             queryset=queryset,
             available_products=queryset,
+            category_locked=bool(self.get_category_slug()),
         )

@@ -361,3 +361,13 @@ main {
         align-self:flex-start;
     }
 }
+
+.filter-checkbox-list {
+    max-height: 140px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #dee2e6;
+    border-radius: .375rem;
+    padding: .5rem;
+    background: white;
+}

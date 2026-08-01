@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+<div class="mb-3">
+    <label class="form-label">
+        {% translate "Price" %}
+    </label>
+
+    <div class="row g-2">
+        <div class="col-6">
+            {{ filter.form.price_min|as_crispy_field }}
+        </div>
+
+        <div class="col-6">
+            {{ filter.form.price_max|as_crispy_field }}
+        </div>
+    </div>
+</div>

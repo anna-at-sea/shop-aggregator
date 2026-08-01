@@ -1,9 +1,19 @@
+{% load i18n %}
 {% load crispy_forms_tags %}
 
-{{ filter.form.category|as_crispy_field }}
+{{ filter.form.sort|as_crispy_field }}
+{% if filter.form.category %}
+    {{ filter.form.category|as_crispy_field }}
+{% endif %}
 
 {% include "partials/filter_seller.html" %}
 
-{{ filter.form.price_min|as_crispy_field }}
-{{ filter.form.price_max|as_crispy_field }}
+{% include "partials/filter_price.html" %}
 {{ filter.form.search|as_crispy_field }}
+
+<button
+    type="button"
+    class="btn btn-outline-secondary w-100 mt-3 clear-filters-btn"
+>
+    {% translate "Clear filters" %}
+</button>

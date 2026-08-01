@@ -271,7 +271,7 @@ class TestProductFilters(BaseTestCase):
     def test_combined_filters_and_search(self):
         response = self.client.get(
             reverse('product_list'),
-            {"price_max": 100, "seller": 3}
+            {"price_max": 100, "category": 1, "seller": 3}
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(
@@ -313,7 +313,7 @@ class TestProductFilters(BaseTestCase):
         )
         response = self.client.get(
             reverse('product_list'),
-            {"seller": 3, "category": 3}
+            {"category": 3, "seller": 3}
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(

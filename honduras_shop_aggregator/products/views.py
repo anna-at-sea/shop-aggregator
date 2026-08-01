@@ -70,6 +70,7 @@ class ProductFilterView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         products = context["products"]
+        context["products_count"] = self.object_list.count()
         if self.request.user.is_authenticated:
             liked_ids = set(
                 self.request.user.likes.values_list(
@@ -119,6 +120,7 @@ class ProductFilterView(
                     if page_obj.has_next()
                     else None
                 ),
+                "products_count": context["products_count"],
             })
         return super().render_to_response(
             context,
