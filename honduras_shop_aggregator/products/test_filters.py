@@ -268,7 +268,7 @@ class TestProductFilters(BaseTestCase):
             self.out_of_stock_product.product_name
         )
 
-    def test_combined_filters_and_search(self):
+    def test_combined_price_category_seller(self):
         response = self.client.get(
             reverse('product_list'),
             {"price_max": 100, "category": 1, "seller": 3}
@@ -294,6 +294,8 @@ class TestProductFilters(BaseTestCase):
             response,
             self.out_of_stock_product.product_name
         )
+
+    def test_combined_category_seller(self):
         response = self.client.get(
             reverse('product_list'),
             {"category": 1, "seller": 2}
@@ -330,6 +332,17 @@ class TestProductFilters(BaseTestCase):
         )
         response = self.client.get(
             reverse('product_list'),
+            {"category": 1, "seller": 1}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _('No products found.')
+        )
+
+    def test_combined_category_search(self):
+        response = self.client.get(
+            reverse('product_list'),
             {"category": 1, "search": "oth"}
             # there is 'other' in names of 2 products
         )
@@ -346,15 +359,7 @@ class TestProductFilters(BaseTestCase):
             response,
             self.product_price_555_cat_3_sel_3.product_name
         )
-        response = self.client.get(
-            reverse('product_list'),
-            {"category": 1, "seller": 1}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            _('No products found.')
-        )
+        
 
     def test_invalid_filters_passed_to_url(self):
         response = self.client.get(
@@ -375,6 +380,50 @@ class TestProductFilters(BaseTestCase):
             response,
             _('No products found.')
         )
+
+    def test_seller_filter_visibility(self):
+        # seller filter hidden initially, appears when category or search selected
+        response = self.client.get(reverse("product_list"))
+        self.assertFalse(
+            response.context["filter"].show_seller_filter
+        )
+        response = self.client.get(
+            reverse("product_list"),
+            {"category": 1},
+        )
+        self.assertTrue(
+            response.context["filter"].show_seller_filter
+        )
+        response = self.client.get(
+            reverse("product_list"),
+            {"search": "test"},
+        )
+        self.assertTrue(
+            response.context["filter"].show_seller_filter
+        )
+
+    def test_products_count_matches_queryset(self):
+        response = self.client.get(
+            reverse("product_list"),
+            {"category": 1},
+        )
+        self.assertEqual(
+            response.context["products_count"],
+            response.context["object_list"].count(),
+        )
+
+    def test_ajax_filter_response(self):
+        response = self.client.get(
+            reverse("product_list"),
+            {"category": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("products_html", data)
+        self.assertIn("filter_html", data)
+        self.assertIn("products_count", data)
+        self.assertIn("has_next", data)
 
 
 class TestSearchAndFiltersInCategories(BaseTestCase):
@@ -400,10 +449,13 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
         soup = BeautifulSoup(response_without_filter.content, 'html.parser')
         filter_form = soup.find('form', {'id': 'filter-sidebar'})
         self.assertIsNotNone(filter_form)
+        self.assertIsNone(
+            soup.find("select", {"name": "category"})
+        )
         self.assertNotIn(_('Category'), filter_form.text)
         # self.assertNotContains(response_without_filter, _("Category"))
 
-    def test_combines_filters_and_search_in_category(self):
+    def test_combined_price_min_seller(self):
         response = self.client.get(
             reverse("category_page", kwargs={"slug": self.category_1.slug}),
             {"min_price": 50, "seller": 2}
@@ -421,6 +473,8 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
             response,
             self.product_price_555_cat_3_sel_3.product_name
         )
+
+    def test_combined_search_seller(self):    
         response = self.client.get(
             reverse("category_page", kwargs={"slug": self.category_1.slug}),
             {"search": "testproduct", "seller": 2}
@@ -438,6 +492,8 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
             response,
             self.product_price_555_cat_3_sel_3.product_name
         )
+
+    def test_combined_price_max_seller(self):
         response = self.client.get(
             reverse("category_page", kwargs={"slug": self.category_3.slug}),
             {"price_max": 560, "seller": 3}
@@ -463,4 +519,15 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
         self.assertContains(
             response,
             _('No products found.')
+        )
+
+    def test_seller_filter_always_visible_on_category_page(self):
+        response = self.client.get(
+            reverse(
+                "category_page",
+                kwargs={"slug": self.category_1.slug},
+            )
+        )
+        self.assertTrue(
+            response.context["filter"].show_seller_filter
         )
