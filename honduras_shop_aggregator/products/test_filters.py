@@ -100,7 +100,7 @@ class TestProductSearch(BaseTestCase):
     def test_global_search_empty_queryset(self):
         response = self.client.get(
             reverse('product_list'),
-            {"search": "non-existent product"}
+            {"search": "nonexistent product"}
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -343,7 +343,7 @@ class TestProductFilters(BaseTestCase):
     def test_combined_category_search(self):
         response = self.client.get(
             reverse('product_list'),
-            {"category": 1, "search": "oth"}
+            {"category": 1, "search": "other"}
             # there is 'other' in names of 2 products
         )
         self.assertEqual(response.status_code, 200)
@@ -477,7 +477,7 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
     def test_combined_search_seller(self):    
         response = self.client.get(
             reverse("category_page", kwargs={"slug": self.category_1.slug}),
-            {"search": "testproduct", "seller": 2}
+            {"search": "product", "seller": 3}
         )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(

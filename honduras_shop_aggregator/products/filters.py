@@ -1,16 +1,18 @@
 import numbers
-import re
 
 import django_filters
 from django import forms
-from django.db.models import Case, Count, IntegerField, Q, When
+from django.contrib.postgres.lookups import Unaccent
+from django.contrib.postgres.search import (SearchQuery, SearchRank,
+                                            SearchVector, TrigramSimilarity)
+from django.db.models import CharField, Count, F, FloatField, Q, Value
 from django.utils.translation import gettext_lazy as _
-from unidecode import unidecode
 
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.models import Seller
 
+CharField.register_lookup(Unaccent)
 
 class ProductFilter(django_filters.FilterSet):
 
@@ -54,24 +56,87 @@ class ProductFilter(django_filters.FilterSet):
         fields = ['category', 'seller', 'price_min', 'price_max', 'sort']
 
     def filter_search(self, queryset, name, value):
+        value = value.strip()
+
         if not value:
             return queryset
-        normalized_value = unidecode(value.strip().lower())
-        cleaned_value = re.sub(r"[^\w\s]|_", " ", normalized_value)
-        terms = cleaned_value.split()
-        for term in terms:
-            queryset = queryset.filter(
-                Q(product_name__icontains=term) |
-                Q(description__icontains=term)
+
+        terms = value.split()
+
+        name_vector = SearchVector(
+            "product_name",
+            weight="A",
+            config="spanish",
+        )
+
+        description_vector = SearchVector(
+            "description",
+            weight="B",
+            config="spanish",
+        )
+
+        annotations = {}
+        combined_filter = Q()
+
+        for index, term in enumerate(terms):
+            search_query = SearchQuery(
+                term,
+                search_type="websearch",
+                config="spanish",
             )
+
+            name_rank = SearchRank(
+                name_vector,
+                search_query,
+            )
+
+            description_rank = SearchRank(
+                description_vector,
+                search_query,
+            )
+
+            similarity = TrigramSimilarity(
+                "product_name",
+                term,
+            )
+
+            annotations[f"name_rank_{index}"] = name_rank
+            annotations[f"description_rank_{index}"] = description_rank
+            annotations[f"similarity_{index}"] = similarity
+
+            # EACH term must match.
+            combined_filter &= (
+                Q(**{f"name_rank_{index}__gt": 0})
+                | Q(**{f"description_rank_{index}__gt": 0})
+                | Q(**{f"similarity_{index}__gt": 0.15})
+            )
+
+        queryset = queryset.annotate(**annotations)
+
+        queryset = queryset.filter(combined_filter)
+
+        # Sum relevance from all search terms.
+        relevance = Value(
+            0,
+            output_field=FloatField(),
+        )
+
+        for index in range(len(terms)):
+            relevance = (
+                relevance
+                + F(f"name_rank_{index}")
+                + F(f"description_rank_{index}")
+                + F(f"similarity_{index}")
+            )
+
         queryset = queryset.annotate(
-            name_exact=Case(
-                When(product_name__iexact=value.strip(), then=1),
-                default=0,
-                output_field=IntegerField()
-            )
-        ).order_by('-name_exact', 'product_name')
-        return queryset
+            relevance=relevance,
+        )
+
+        return queryset.order_by(
+            "-relevance",
+            "-date_added",
+        )
 
     def filter_sort(self, queryset, name, value):
         if value == "price_asc":
