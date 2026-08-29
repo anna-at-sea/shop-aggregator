@@ -119,6 +119,49 @@ class TestProductSearch(BaseTestCase):
             self.testproduct.product_name
         )
 
+    def test_global_search_full_text_search(self):
+        response = self.client.get(
+            reverse("product_list"),
+            {"search": "cámara"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Cámara Digital",
+        )
+
+    def test_global_search_accent_and_case_insensitive(self):
+        response = self.client.get(
+            reverse("product_list"),
+            {"search": "CAMARA"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Cámara Digital",
+        )
+
+    def test_global_search_trigram_similarity(self):
+        response = self.client.get(
+            reverse("product_list"),
+            {"search": "camara dijital"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Cámara Digital",
+        )
+
+    def test_global_search_synonym(self):
+        response = self.client.get(
+            reverse("product_list"),
+            {"search": "computadora"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Laptop Lenovo",
+        )
 
 class TestProductFilters(BaseTestCase):
 

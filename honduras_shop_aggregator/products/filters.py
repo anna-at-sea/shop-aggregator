@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from honduras_shop_aggregator.categories.models import Category
 from honduras_shop_aggregator.products.models import Product
+from honduras_shop_aggregator.products.search_synonims import SEARCH_SYNONYMS
 from honduras_shop_aggregator.sellers.models import Seller
 
 CharField.register_lookup(Unaccent)
@@ -57,82 +58,71 @@ class ProductFilter(django_filters.FilterSet):
 
     def filter_search(self, queryset, name, value):
         value = value.strip()
-
         if not value:
             return queryset
-
-        terms = value.split()
-
+        search_groups = []
+        for term in value.split():
+            synonyms = SEARCH_SYNONYMS.get(term, {term})
+            search_groups.append(synonyms)
         name_vector = SearchVector(
             "product_name",
             weight="A",
             config="spanish",
         )
-
         description_vector = SearchVector(
             "description",
             weight="B",
             config="spanish",
         )
-
         annotations = {}
         combined_filter = Q()
-
-        for index, term in enumerate(terms):
-            search_query = SearchQuery(
-                term,
-                search_type="websearch",
-                config="spanish",
-            )
-
-            name_rank = SearchRank(
-                name_vector,
-                search_query,
-            )
-
-            description_rank = SearchRank(
-                description_vector,
-                search_query,
-            )
-
-            similarity = TrigramSimilarity(
-                "product_name",
-                term,
-            )
-
-            annotations[f"name_rank_{index}"] = name_rank
-            annotations[f"description_rank_{index}"] = description_rank
-            annotations[f"similarity_{index}"] = similarity
-
-            # EACH term must match.
-            combined_filter &= (
-                Q(**{f"name_rank_{index}__gt": 0})
-                | Q(**{f"description_rank_{index}__gt": 0})
-                | Q(**{f"similarity_{index}__gt": 0.15})
-            )
-
-        queryset = queryset.annotate(**annotations)
-
-        queryset = queryset.filter(combined_filter)
-
-        # Sum relevance from all search terms.
         relevance = Value(
             0,
             output_field=FloatField(),
         )
-
-        for index in range(len(terms)):
-            relevance = (
-                relevance
-                + F(f"name_rank_{index}")
-                + F(f"description_rank_{index}")
-                + F(f"similarity_{index}")
-            )
-
+        annotation_index = 0
+        for group in search_groups:
+            group_filter = Q()
+            for term in group:
+                search_query = SearchQuery(
+                    term,
+                    search_type="websearch",
+                    config="spanish",
+                )
+                name_rank = SearchRank(
+                    name_vector,
+                    search_query,
+                )
+                description_rank = SearchRank(
+                    description_vector,
+                    search_query,
+                )
+                similarity = TrigramSimilarity(
+                    "product_name",
+                    term,
+                )
+                annotations[f"name_rank_{annotation_index}"] = name_rank
+                annotations[f"description_rank_{annotation_index}"] = description_rank
+                annotations[f"similarity_{annotation_index}"] = similarity
+                term_filter = (
+                    Q(**{f"name_rank_{annotation_index}__gt": 0})
+                    | Q(**{f"description_rank_{annotation_index}__gt": 0})
+                    | Q(**{f"similarity_{annotation_index}__gt": 0.15})
+                )
+                group_filter |= term_filter
+                relevance = (
+                    relevance
+                    + F(f"name_rank_{annotation_index}")
+                    + F(f"description_rank_{annotation_index}")
+                    + F(f"similarity_{annotation_index}")
+                )
+                annotation_index += 1
+            combined_filter &= group_filter
+        queryset = queryset.annotate(**annotations)
+        queryset = queryset.filter(combined_filter)
         queryset = queryset.annotate(
             relevance=relevance,
         )
-
         return queryset.order_by(
             "-relevance",
             "-date_added",

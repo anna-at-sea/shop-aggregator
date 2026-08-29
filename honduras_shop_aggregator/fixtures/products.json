@@ -83,5 +83,32 @@
         "category": 1,
         "origin_city": 2
       }
+    },
+    {
+      "model": "products.product",
+      "pk": 7,
+      "fields": {
+        "product_name": "Cámara Digital",
+        "description": "Cámara digital compacta para fotografía",
+        "product_price": 200,
+        "slug": "camara-digital",
+        "seller": 3,
+        "stock_quantity": 1,
+        "category": 1,
+        "origin_city": 1
+      }
+    },
+    {
+      "model": "products.product",
+      "pk": 8,
+      "fields": {
+        "product_name": "Laptop Lenovo",
+        "product_price": 700,
+        "slug": "laptop-lenovo",
+        "seller": 3,
+        "stock_quantity": 1,
+        "category": 1,
+        "origin_city": 1
+      }
     }
 ]
