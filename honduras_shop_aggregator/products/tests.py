@@ -4,7 +4,6 @@ import os
 import shutil
 import tempfile
 
-from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
@@ -505,12 +504,6 @@ class TestImageUpload(BaseTestCase):
         self.product = Product.objects.get(pk=1)
         self.seller = self.product.seller
         self.user = self.seller.user
-        placeholder_src = os.path.join(
-            settings.BASE_DIR, 'media', 'products', 'placeholder.png'
-        )
-        placeholder_dest = os.path.join(TEMP_MEDIA_ROOT, 'products', 'placeholder.png')
-        os.makedirs(os.path.dirname(placeholder_dest), exist_ok=True)
-        shutil.copyfile(placeholder_src, placeholder_dest)
 
     def tearDown(self):
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
@@ -553,8 +546,6 @@ class TestImageUpload(BaseTestCase):
                 (1200, 1200),
                 msg="Image should be resized to 1200x1200"
             )
-        placeholder_path = os.path.join(TEMP_MEDIA_ROOT, 'products', 'placeholder.png')
-        self.assertTrue(os.path.exists(placeholder_path))
 
     def test_image_upload_too_big(self):
         self.seller.is_verified = True
@@ -571,7 +562,7 @@ class TestImageUpload(BaseTestCase):
             _("Image size should not exceed 15 MB.")
         )
         self.product.refresh_from_db()
-        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertFalse(self.product.image)
 
     def test_image_upload_wrong_format(self):
         self.seller.is_verified = True
@@ -591,17 +582,22 @@ class TestImageUpload(BaseTestCase):
             )
         )
         self.product.refresh_from_db()
-        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertFalse(self.product.image)
 
     def test_placeholder_is_used_by_default(self):
         self.seller.is_verified = True
         self.seller.save()
         self.login_user(self.user)
-        self.client.post(
-            reverse('product_update_image', kwargs={'slug': self.product.slug})
+        response = self.client.post(
+            reverse('product_update_image', kwargs={'slug': self.product.slug}),
+            follow=True
         )
         self.product.refresh_from_db()
-        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertFalse(self.product.image)
+        self.assertContains(
+            response,
+            "/static/images/product_placeholder.png"
+        )
 
     def test_old_image_replaced_on_new_upload(self):
         self.seller.is_verified = True
@@ -644,7 +640,7 @@ class TestImageUpload(BaseTestCase):
             follow=True
         )
         self.product.refresh_from_db()
-        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertFalse(self.product.image)
         self.assertRedirectWithMessage(
             response,
             'index',
@@ -663,7 +659,7 @@ class TestImageUpload(BaseTestCase):
             follow=True
         )
         self.product.refresh_from_db()
-        self.assertEqual(self.product.image.name, 'products/placeholder.png')
+        self.assertFalse(self.product.image)
         self.assertRedirectWithMessage(
             response,
             'index',

@@ -106,7 +106,6 @@ class Product(models.Model):
         validators=[validate_image],
         blank=True,
         null=True,
-        default='products/placeholder.png',
         help_text=_("Upload JPEG or PNG image up to 15MB.")
     )
 
@@ -119,7 +118,6 @@ class Product(models.Model):
         )
 
     def save(self, *args, **kwargs):
-
         if not self.slug:
             base_slug = slugify(self.product_name)
             slug = base_slug
@@ -128,31 +126,19 @@ class Product(models.Model):
                 slug = f"{base_slug}-{num}"
                 num += 1
             self.slug = slug
-
         self.full_clean()
-
         old_image_path = None
         old_image_name = None
         if self.pk:
             try:
                 old = Product.objects.get(pk=self.pk)
                 old_image_name = old.image.name
-                if (
-                    old.image
-                    and old.image != self.image
-                    and old.image.name != 'products/placeholder.png'
-                ):
+                if old.image and old.image != self.image:
                     old_image_path = old.image.path
             except Product.DoesNotExist:
                 pass
-
         super().save(*args, **kwargs)
-
-        if (
-            self.image
-            and self.image.name != 'products/placeholder.png'
-            and self.image.name != old_image_name
-        ):
+        if self.image and self.image.name != old_image_name:
             process_image(self.image.path)
             if old_image_path and os.path.exists(old_image_path):
                 os.remove(old_image_path)

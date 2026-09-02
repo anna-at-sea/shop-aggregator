@@ -44,7 +44,7 @@
 
                         <img
                             id="cover-preview"
-                            src="{{ product.image.url }}"
+                            src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/product_placeholder.png' %}{% endif %}"
                             class="img-fluid rounded border mb-3"
                             style="max-height:300px; object-fit:contain;"
                         >

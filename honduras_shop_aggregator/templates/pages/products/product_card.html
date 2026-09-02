@@ -17,7 +17,7 @@
                         <!-- Cover image -->
                         <div class="carousel-item active">
                             <img
-                                src="{{ product.image.url }}"
+                                src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/product_placeholder.png' %}{% endif %}"
                                 alt="{{ product.product_name }}"
                                 class="img-fluid w-100 product-image-preview"
                                 style="max-height:500px; object-fit:contain; cursor: zoom-in;"
@@ -227,8 +227,8 @@
             data-bs-interval="false">
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img
-                        src="{{ product.image.url }}"
+                    <img 
+                        src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/product_placeholder.png' %}{% endif %}"
                         class="img-fluid w-100"
                         style="
                             max-height:calc(100vh - 120px);
