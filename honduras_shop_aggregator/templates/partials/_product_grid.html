@@ -50,7 +50,15 @@
                 <p class="card-text mb-0 text-muted small">
                     {% if not product.stock_quantity or not product.is_active or product.is_deleted %}{% else %}
                         {% if current_city == product.origin_city %}
-                            <span class="text-success">{% translate "Available in your city" %}</span>
+                            {% if current_city.name == "Otra ubicación" %}
+                                <span class="text-success">
+                                    {% translate "Delivery from" %} {{ product.origin_city.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-success">
+                                    {% translate "Available in your city" %}
+                                </span>
+                            {% endif %}
                         {% else %}
                             {% if current_city in product.delivery_cities.all %}
                                 <span class="text-success">{% translate "Delivery from" %} {{ product.origin_city.name }}</span>

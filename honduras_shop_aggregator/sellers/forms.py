@@ -17,6 +17,9 @@ class SellerCreateForm(forms.ModelForm):
             'description',
             'image'
         ]
+        widgets = {
+            'delivery_cities': forms.CheckboxSelectMultiple,
+        }
 
 
 class SellerUpdateForm(forms.ModelForm):
@@ -29,6 +32,9 @@ class SellerUpdateForm(forms.ModelForm):
     class Meta:
         model = Seller
         fields = ['store_name', 'city', 'delivery_cities', 'description', 'image']
+        widgets = {
+            'delivery_cities': forms.CheckboxSelectMultiple,
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)

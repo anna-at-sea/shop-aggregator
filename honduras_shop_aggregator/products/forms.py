@@ -24,6 +24,9 @@ class ProductCreateForm(forms.ModelForm):
             'is_active',
             'stock_quantity'
         ]
+        widgets = {
+            'delivery_cities': forms.CheckboxSelectMultiple,
+        }
 
 
 class ProductImageUpdateForm(forms.ModelForm):
@@ -59,6 +62,9 @@ class ProductUpdateForm(forms.ModelForm):
             'is_active',
             'stock_quantity'
         ]
+        widgets = {
+            'delivery_cities': forms.CheckboxSelectMultiple,
+        }
 
 
 class ProductDeleteForm(forms.ModelForm):

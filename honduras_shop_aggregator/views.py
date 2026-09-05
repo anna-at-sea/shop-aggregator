@@ -31,7 +31,6 @@ class IndexView(SuccessMessageMixin, ListView):
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
             ).distinct()
         page = self.request.GET.get("page", "1")
-        print(f'page: {page}')
         if page == "1":
             seed = random.randint(0, 9999999)
             self.request.session["shuffle_seed"] = seed

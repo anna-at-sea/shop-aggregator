@@ -11,7 +11,7 @@ def city_context(request):
         selected_city = capital_city
         request.session['city_pk'] = selected_city.pk
         request.session['city_name'] = selected_city.name
-    cities = City.objects.all().order_by('name').exclude(pk=selected_city.pk)
+    cities = City.objects.all().order_by('pk').exclude(pk=selected_city.pk)
     return {
         'current_city': selected_city,
         'cities': cities
