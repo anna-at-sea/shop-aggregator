@@ -38,13 +38,13 @@ class Seller(models.Model):
         max_length=255
     )
     website = HttpsURLField(
-        _("website"),
+        _("Website or social media"),
         blank=False,
         unique=True,
         error_messages={
-            "unique": _("A store with that website already exists.")
+            "unique": _("A store with that website or social media already exists.")
         },
-        help_text=_("Start with http:// or https://")
+        help_text=_("Add your store website or a public Instagram/Facebook page.")
     )
     description = models.TextField(
         _("description"),
