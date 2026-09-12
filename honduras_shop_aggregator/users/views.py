@@ -43,7 +43,7 @@ class UserProfileView(
             profile_user = context['user']
             products = Product.objects.filter(
                 likes__user=profile_user
-            )
+            ).order_by("-likes__created_at", "-pk")
             for product in products:
                 product.is_liked = True
             paginator = Paginator(products, self.paginate_by)
@@ -87,6 +87,12 @@ class AnonymousProfileView(
             context = super().get_context_data(**kwargs)
             product_pks = self.request.session.get('liked_products', [])
             products = Product.objects.filter(pk__in=product_pks)
+            products_by_pk = {product.pk: product for product in products}
+            products = [
+                products_by_pk[pk]
+                for pk in reversed(product_pks)
+                if pk in products_by_pk
+            ]
             for product in products:
                 product.is_liked = True
             context['products'] = products
