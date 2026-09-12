@@ -21,6 +21,10 @@ class SellerCreateForm(forms.ModelForm):
             'delivery_cities': forms.CheckboxSelectMultiple,
         }
 
+    def clean_description(self):
+        description = self.cleaned_data.get('description', '')
+        return description.lstrip()
+
 
 class SellerUpdateForm(forms.ModelForm):
     password_confirm = forms.CharField(
@@ -49,6 +53,10 @@ class SellerUpdateForm(forms.ModelForm):
         ):
             raise forms.ValidationError(_("Incorrect password."))
         return password
+
+    def clean_description(self):
+        description = self.cleaned_data.get('description', '')
+        return description.lstrip()
 
 
 class SellerDeleteForm(forms.ModelForm):

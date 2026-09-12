@@ -1296,10 +1296,10 @@ class TestProductVariations(BaseTestCase):
                 kwargs={"slug": self.product.slug},
             )
         )
-        self.assertContains(response, "Available Options")
-        self.assertContains(response, "Size")
+        self.assertContains(response, _("Available Options"))
+        self.assertContains(response, _("Size"))
         self.assertContains(response, "Extra Large")
-        self.assertContains(response, "Color")
+        self.assertContains(response, _("Color"))
         self.assertContains(response, "Blue")
 
     def test_removed_variations_are_not_displayed(self):

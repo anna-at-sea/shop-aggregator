@@ -34,7 +34,7 @@
         <!-- Main Menu dropdown -->
             <div class="dropdown">
                 <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="mainMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    🛒 {% translate "Menu" %}
+                    <i class="bi bi-cart3"></i> {% translate "Menu" %}
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="mainMenuDropdown">
                     <li><a class="dropdown-item" href="{% url 'product_list' %}">{% translate "Products" %}</a></li>
@@ -48,7 +48,7 @@
         <!-- City selector -->
             <div class="dropdown">
                 <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="cityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    📍 {{ current_city }}
+                    <i class="bi bi-geo-alt"></i> {{ current_city }}
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="cityDropdown">
                     {% for city in cities %}
@@ -62,9 +62,9 @@
             {% if user.is_authenticated %}
                 <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                 {% if mode == 'seller' %}
-                👤 {{ user.seller.store_name|truncatechars:15 }}
+                <i class="bi bi-person"></i> {{ user.seller.store_name|truncatechars:15 }}
                 {% else %}
-                👤 {{ user.username|truncatechars:15 }}
+                <i class="bi bi-person"></i> {{ user.username|truncatechars:15 }}
                 {% endif %}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
@@ -74,11 +74,11 @@
                     {% csrf_token %}
                     {% if mode == 'seller' %}
                         <button type="submit" name="mode" value="user" class="dropdown-item text-center">
-                        🔁 {% translate "Switch to User Mode" %}
+                        <i class="bi bi-arrow-left-right"></i> {% translate "Switch to User Mode" %}
                         </button>
                     {% else %}
                         <button type="submit" name="mode" value="seller" class="dropdown-item text-center">
-                        🛍️ {% translate "Switch to Seller Mode" %}
+                        <i class="bi bi-shop"></i> {% translate "Switch to Seller Mode" %}
                         </button>
                     {% endif %}
                     </form>
@@ -92,7 +92,7 @@
                 {% else %}
                     {% if seller_features_enabled and user.is_seller %}
                     <li class="dropdown-header text-muted small seller-tool">{% translate "Seller tools" %}</li>
-                    <li><a class="dropdown-item seller-tool" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Manage my products" %}</a></li>
+                    <li><a class="dropdown-item seller-tool" href="{% url 'seller_profile' user.seller.store_name %}">{% translate "Manage my store" %}</a></li>
                     <li><a class="dropdown-item seller-tool" href="{% url 'product_create' %}">{% translate "Add new product" %}</a></li>
                     {% endif %}
                 {% endif %}
@@ -107,7 +107,7 @@
                 </ul>
             {% else %}
                 <button class="btn btn-transparent dropdown-toggle text-white border-0 shadow-none" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.9rem;">
-                👤 {% translate "Profile" %}
+                <i class="bi bi-person"></i> {% translate "Profile" %}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                     <li><a class="dropdown-item" href="{% url 'anonymous_profile' %}">{% translate "Saved products" %}</a></li>

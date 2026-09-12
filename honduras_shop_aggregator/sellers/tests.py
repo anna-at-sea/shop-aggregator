@@ -431,7 +431,9 @@ class TestSellerCreate(BaseTestCase):
         )
         form = response.context['form']
         self.assertFormError(
-            form, 'website', _('A store with that website already exists.')
+            form,
+            'website',
+            _('A store with that website or social media already exists.')
         )
         self.assertEqual(response.status_code, 200)
 

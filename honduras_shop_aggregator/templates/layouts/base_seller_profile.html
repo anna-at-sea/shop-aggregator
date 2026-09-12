@@ -11,65 +11,78 @@
 <div class="container mt-4">
     {% include "partials/back_button.html" %}
     <div class="card border-0 p-4">
-        <div class="row align-items-stretch myb-3">
-            
-            <!-- Left side: seller profile -->
-            <div class="col-md-4 text-center d-flex flex-column">
-                <!-- Avatar -->
+        <div class="d-flex align-items-start gap-4">
+
+            <!-- Avatar -->
+            <div class="flex-shrink-0">
                 <img {% if seller.image %}
                         src="{{ seller.image.url }}"
                     {% else %}
                         src="{% static 'images/placeholder.jpg' %}"
                     {% endif %}
-                    class="rounded-circle mx-auto border border-2 border-secondary mb-3"
+                    class="rounded-circle border border-2 border-secondary"
                     alt="Store Avatar"
                     style="width: 120px; height: 120px; object-fit: cover;">
-
-                <!-- Store Name -->
-                <h3 class="text-secondary mb-2">{{ seller.store_name }}</h3>
-
-                <!-- Website -->
-                {% if seller.website %}
-                <p class="mb-1">
-                    <a href="{{ seller.website }}" target="_blank" class="text-decoration-none">
-                        🌐 {{ seller.website }}
-                    </a>
-                </p>
-                {% endif %}
-
-                {% if seller.city %}
-                <p class="text-muted">
-                    📍 {{ seller.city }}
-                </p>
-                {% endif %}
-
-                <!-- Meta info -->
-                <p class="text-muted mb-1">
-                    {% translate "Registered On" %}: {{ seller.date_registered }}
-                </p>
-
-                <!-- Verification -->
-                <p class="mb-3">
-                    <strong>{% translate "Verification Status" %}:</strong>
-                    {% if seller.is_verified %}
-                        <span class="text-success">{% translate "Verified" %}</span>
-                    {% else %}
-                        <span class="text-warning">{% translate "Pending Verification" %}</span>
-                    {% endif %}
-                </p>
-
-                <!-- Owner controls -->
-                {% block owner_settings %}{% endblock %}
             </div>
 
-            <!-- Right side: description -->
-            <div class="col-md-8 d-flex flex-column">
-                <h4 class="text-secondary">{% translate "Store Description" %}</h4>
-                <div id="store-description" class="border rounded p-3 bg-light flex-grow-1 description-truncate" style="white-space: pre-wrap; min-height: 150px;">{{ seller.description }}</div>
-                <button id="toggle-description-btn" class="description-toggle-btn" type="button">
-                    <span class="btn-text">{% translate "Show more" %}</span>
-                    <i class="bi bi-chevron-down btn-icon"></i>
-                </button>
+            <!-- Store information -->
+            <div class="flex-grow-1">
+
+                <!-- Name + settings -->
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <h3 class="text-secondary mb-2">
+                            {{ seller.store_name }}
+
+                            {% if seller.is_verified %}
+                                <i class="bi bi-patch-check-fill text-success"
+                                title="{% translate 'Verified' %}"></i>
+                            {% endif %}
+                        </h3>
+
+                        <div class="text-muted small">
+                            {% if seller.city %}
+                                <span>
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ seller.city }}
+                                </span>
+                            {% endif %}
+
+                            {% if seller.city and seller.website %}
+                                <span class="mx-2">·</span>
+                            {% endif %}
+
+                            {% if seller.website %}
+                                <a href="{{ seller.website }}"
+                                target="_blank"
+                                class="text-decoration-none text-secondary">
+                                    <i class="bi bi-globe2"></i>
+                                    {{ seller.website_domain }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Owner settings -->
+                    {% block owner_settings %}{% endblock %}
+                </div>
+
+                <!-- Description -->
+                {% if seller.description %}
+                    <div id="store-description"
+                        class="mt-4 description-truncate"
+                        style="white-space: pre-wrap;">{{ seller.description }}</div>
+
+                    <button id="toggle-description-btn"
+                            class="description-toggle-btn"
+                            type="button">
+                        <span class="btn-text">
+                            {% translate "Show more" %}
+                        </span>
+                        <i class="bi bi-chevron-down btn-icon"></i>
+                    </button>
+                {% endif %}
+
             </div>
 
         </div>

@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -77,6 +78,12 @@ class Seller(models.Model):
     )
     is_deleted = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def website_domain(self):
+        if not self.website:
+            return ""
+        return urlparse(self.website).netloc.removeprefix("www.")
 
     def clean(self):
         if self.pk:
