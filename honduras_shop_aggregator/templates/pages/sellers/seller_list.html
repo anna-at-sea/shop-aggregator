@@ -9,6 +9,32 @@
 <div class="container mt-4">
     <h1 class="text-dark mb-4">{% translate "Sellers" %}</h1>
   
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-11">
+            <input
+                type="text"
+                class="form-control"
+                name="search"
+                placeholder="{% translate 'Search stores...' %}"
+                value="{{ request.GET.search }}">
+        </div>
+
+        <div class="col-md-1 d-grid">
+            <button class="btn btn-danger">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+    {% if request.GET.search %}
+        <a
+            href="{% url 'seller_list' %}"
+            class="btn btn-outline-secondary btn-sm mb-4">
+
+            {% translate "Reset search" %}
+
+        </a>
+    {% endif %}
+
     {% if sellers %}
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for seller in sellers %}
@@ -16,7 +42,11 @@
             <a href="{% url 'public_seller_profile' seller.store_name %}" class="text-decoration-none text-dark">
             <div class="card h-100 shadow-sm border-0 card-hover">
               <!-- Avatar -->
-              <img src="{% static 'images/store_placeholder.jpg' %}" 
+              <img {% if seller.image %}
+                        src="{{ seller.image.url }}"
+                   {% else %}
+                        src="{% static 'images/store_placeholder.jpg' %}"
+                   {% endif %}
                    class="card-img-top rounded-circle mx-auto mt-3" 
                    alt="{{ seller.store_name }}" style="width: 100px; height: 100px; object-fit: cover;">
               

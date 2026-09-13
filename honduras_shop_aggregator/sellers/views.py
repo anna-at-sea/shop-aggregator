@@ -26,7 +26,13 @@ class SellerListView(SuccessMessageMixin, ListView):
     context_object_name = 'sellers'
 
     def get_queryset(self):
-        return Seller.objects.filter(is_deleted=False)
+        sellers = Seller.objects.filter(is_deleted=False)
+        search = self.request.GET.get("search", "").strip()
+        if search:
+            sellers = sellers.filter(
+                store_name__unaccent__icontains=search
+            )
+        return sellers
 
 
 class BecomeSellerView(TemplateView):
@@ -69,10 +75,10 @@ class SellerProfileView(
                 seller=profile_seller,
                 is_deleted=False
             )
-            search = self.request.GET.get("search")
+            search = self.request.GET.get("search", "").strip()
             if search:
                 products = products.filter(
-                    product_name__icontains=search
+                    product_name__unaccent__icontains=search
                 )
             status = self.request.GET.get("status")
             if status == "active":
@@ -163,6 +169,11 @@ class PublicSellerProfileView(
                 liked_products = self.request.session.get('liked_products', [])
                 for product in products:
                     product.is_liked = product.pk in liked_products
+            search = self.request.GET.get("search", "").strip()
+            if search:
+                products = products.filter(
+                    product_name__unaccent__icontains=search
+                )
             paginator = Paginator(products, self.paginate_by)
             page = self.request.GET.get('page')
             try:

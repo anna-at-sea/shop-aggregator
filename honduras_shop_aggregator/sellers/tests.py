@@ -233,6 +233,34 @@ class TestPublicSellerProfileRead(BaseTestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_public_seller_profile_search(self):
+        response = self.client.get(
+            reverse(
+                "public_seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"search": self.active_product.product_name},
+        )
+        self.assertContains(response, self.active_product.product_name)
+        for other in Product.objects.filter(
+            seller=self.seller,
+            is_active=True,
+            is_deleted=False,
+        ).exclude(pk=self.active_product.pk):
+            self.assertNotContains(response, other.product_name)
+
+    def test_public_seller_profile_search_is_accent_insensitive(self):
+        self.active_product.product_name = "Café Molido"
+        self.active_product.save()
+        response = self.client.get(
+            reverse(
+                "public_seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            ),
+            {"search": "cafe"},
+        )
+        self.assertContains(response, self.active_product.product_name)
+
 
 class TestSellerListRead(BaseTestCase):
 
@@ -265,6 +293,26 @@ class TestSellerListRead(BaseTestCase):
         response = self.client.get(reverse('seller_list'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("No sellers found."))
+
+    def test_seller_list_search(self):
+        response = self.client.get(
+            reverse("seller_list"),
+            {"search": self.seller.store_name},
+        )
+        self.assertContains(response, self.seller.store_name)
+        for other in Seller.objects.filter(is_deleted=False).exclude(
+            pk=self.seller.pk
+        ):
+            self.assertNotContains(response, other.store_name)
+
+    def test_seller_list_search_is_accent_insensitive(self):
+        self.seller.store_name = "José Store"
+        self.seller.save()
+        response = self.client.get(
+            reverse("seller_list"),
+            {"search": "jose"},
+        )
+        self.assertContains(response, self.seller.store_name)
 
 
 class TestBecomeSellerPage(BaseTestCase):

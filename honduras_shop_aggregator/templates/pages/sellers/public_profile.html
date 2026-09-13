@@ -3,4 +3,35 @@
 
 {% block product_title %}{% translate "Available Products" %}{% endblock %}
 
+{% block search %}
+
+<form method="get" class="row g-2 mb-4">
+
+    <div class="col-md-11">
+        <input
+            type="text"
+            class="form-control"
+            name="search"
+            placeholder="{% translate 'Search products in this store...' %}"
+            value="{{ request.GET.search }}">
+    </div>
+
+    <div class="col-md-1 d-grid">
+        <button class="btn btn-danger">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+
+</form>
+
+<a
+    href="{% url 'public_seller_profile' seller.store_name %}"
+    class="btn btn-outline-secondary btn-sm mb-4">
+
+    {% translate "Reset search" %}
+
+</a>
+
+{% endblock %}
+
 {% block product_grid %}{% include "partials/_product_grid.html" %}{% endblock %}
