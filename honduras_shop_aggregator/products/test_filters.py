@@ -468,6 +468,69 @@ class TestProductFilters(BaseTestCase):
         self.assertIn("products_count", data)
         self.assertIn("has_next", data)
 
+    def test_ajax_load_more_keeps_filters(self):
+        for i in range(25):
+            Product.objects.create(
+                product_name=f"Filtered Product {i}",
+                description="",
+                product_price=100,
+                seller=self.product_price_10_cat_1_sel_3.seller,
+                category=self.product_price_10_cat_1_sel_3.category,
+                origin_city=self.product_price_10_cat_1_sel_3.origin_city,
+                stock_quantity=10,
+                is_active=True,
+                is_deleted=False,
+            )
+        filters = {
+            "category": 1,
+            "price_max": 100,
+        }
+        # Get page 1 to inspect its products.
+        response = self.client.get(
+            reverse("product_list"),
+            filters,
+        )
+        page_1_products = response.context["page_obj"].object_list
+        # User applies filters.
+        response = self.client.get(
+            reverse("product_list"),
+            filters,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["has_next"])
+        self.assertEqual(data["next_page"], 2)
+        # User clicks "Load More".
+        # This is the request the JS should make.
+        params = response.wsgi_request.GET.copy()
+        params["page"] = data["next_page"]
+        response = self.client.get(
+            reverse("product_list"),
+            params,
+        )
+        page_2_products = response.context["page_obj"].object_list
+        # Verify the AJAX response for page 2.
+        response = self.client.get(
+            reverse("product_list"),
+            params,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        # There is no third page.
+        self.assertFalse(data["has_next"])
+        # Every product on page 2 still satisfies the filters.
+        for product in page_2_products:
+            self.assertEqual(product.category_id, 1)
+            self.assertLessEqual(product.product_price, 100)
+            self.assertTrue(product.is_active)
+            self.assertFalse(product.is_deleted)
+        # No duplicates between page 1 and page 2.
+        page_1_ids = {product.pk for product in page_1_products}
+        page_2_ids = {product.pk for product in page_2_products}
+        self.assertTrue(page_1_ids.isdisjoint(page_2_ids))
+
 
 class TestSearchAndFiltersInCategories(BaseTestCase):
 
