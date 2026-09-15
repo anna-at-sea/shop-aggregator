@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
@@ -1431,3 +1432,45 @@ class TestProductSoftDelete(BaseTestCase):
             response, 'index',
             _("You don&#x27;t have permission to access this product.")
         )
+
+    def test_product_link_can_be_reused_after_soft_delete(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        original_link = self.product.product_link
+        # Same link cannot be used while the original product is not deleted.
+        with self.assertRaises(ValidationError) as context:
+            Product.objects.create(
+                product_name="Replacement Product",
+                product_link=original_link,
+                seller=self.seller,
+                category=self.product.category,
+                origin_city=self.product.origin_city,
+                product_price=100,
+                stock_quantity=10,
+                is_active=True,
+            )
+        self.assertIn(
+            _("This product is already listed."),
+            str(context.exception),
+        )
+        # Soft-delete the original product.
+        self.client.post(
+            reverse('product_delete', kwargs={'slug': self.product.slug}),
+            {'password_confirm': 'correct_password'},
+            follow=True
+        )
+        self.product.refresh_from_db()
+        # The same link can now be used.
+        new_product = Product.objects.create(
+            product_name="Replacement Product",
+            product_link=original_link,
+            seller=self.seller,
+            category=self.product.category,
+            origin_city=self.product.origin_city,
+            product_price=100,
+            stock_quantity=10,
+            is_active=True,
+        )
+        self.assertEqual(new_product.product_link, original_link)
+        self.assertTrue(self.product.is_deleted)

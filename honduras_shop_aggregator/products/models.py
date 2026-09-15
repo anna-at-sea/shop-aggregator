@@ -29,6 +29,13 @@ class Product(models.Model):
     class Meta:
         ordering = ['-date_added']
         verbose_name = "Product"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product_link"],
+                condition=models.Q(is_deleted=False),
+                name="unique_active_product_link",
+            ),
+        ]
 
     users = models.ManyToManyField(
         User,
@@ -72,10 +79,6 @@ class Product(models.Model):
         _("product link"),
         blank=True,
         null=True,
-        unique=True,
-        error_messages={
-            "unique": _("This product is already listed.")
-        },
         help_text=_("Start with http:// or https://")
     )
     product_price = models.DecimalField(
@@ -149,6 +152,14 @@ class Product(models.Model):
             raise ValidationError({'product_price': _("Price must be greater than 0.")})
 
         if self.product_link:
+            existing = Product.objects.filter(
+                product_link=self.product_link,
+                is_deleted=False,
+            ).exclude(pk=self.pk)
+            if existing.exists():
+                raise ValidationError(
+                    {'product_link': _("This product is already listed.")}
+                )
             seller_website = self.seller.website
             if seller_website and not self.product_link.startswith(seller_website):
                 raise ValidationError(
@@ -174,22 +185,6 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
-# after adding soft deletion (filed is_deleted / date_deleted:
-# Remove unique=True from the product_link field,
-# add to clean():
-# def clean(self):
-#     super().clean()
-    
-#     if self.product_link:
-#         existing = Product.objects.filter(
-#             product_link=self.product_link,
-#             is_deleted=False
-#         ).exclude(pk=self.pk)
-#         if existing.exists():
-#             raise ValidationError({'product_link': _("This product is already .")})
-# + add to the flash message that if product is not active then
-# you may change is_activesetting or if you want to replace that 
-# card with the new one first delete that product
 
 class ProductImage(models.Model):
 
