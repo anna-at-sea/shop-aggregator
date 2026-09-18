@@ -143,8 +143,9 @@ class Product(models.Model):
         super().save(*args, **kwargs)
         if self.image and self.image.name != old_image_name:
             process_image(self.image.path)
-            if old_image_path and os.path.exists(old_image_path):
-                os.remove(old_image_path)
+        if old_image_path and os.path.exists(old_image_path):
+            os.remove(old_image_path)
+
     def clean(self):
         super().clean()
 

@@ -96,29 +96,18 @@ class Seller(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()
-
         old_image_path = None
         old_image_name = None
         if self.pk:
             try:
                 old = Seller.objects.get(pk=self.pk)
                 old_image_name = old.image.name
-                if (
-                    old.image
-                    and old.image != self.image
-                    and old.image.name != 'sellers/placeholder.jpg'
-                ):
+                if old.image and old.image != self.image:
                     old_image_path = old.image.path
-            except User.DoesNotExist:
+            except Seller.DoesNotExist:
                 pass
-
         super().save(*args, **kwargs)
-
-        if (
-            self.image
-            and self.image.name != 'sellers/placeholder.jpg'
-            and self.image.name != old_image_name
-        ):
+        if self.image and self.image.name != old_image_name:
             try:
                 img_path = self.image.path
                 if not os.path.exists(img_path):
@@ -134,10 +123,10 @@ class Seller(models.Model):
                 img = img.crop((left, top, right, bottom))
                 img = img.resize(output_size, Image.Resampling.LANCZOS)
                 img.save(img_path)
-                if old_image_path and os.path.exists(old_image_path):
-                    os.remove(old_image_path)
             except Exception as e:
                 raise ValidationError(_("Image processing failed") + f": {e}")
+        if old_image_path and os.path.exists(old_image_path):
+            os.remove(old_image_path)
 
     def __str__(self):
         return self.store_name

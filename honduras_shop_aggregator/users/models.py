@@ -55,22 +55,14 @@ class User(AbstractUser):
             try:
                 old = User.objects.get(pk=self.pk)
                 old_image_name = old.image.name
-                if (
-                    old.image
-                    and old.image != self.image
-                    and old.image.name != 'users/placeholder.jpg'
-                ):
+                if old.image and old.image != self.image:
                     old_image_path = old.image.path
             except User.DoesNotExist:
                 pass
 
         super().save(*args, **kwargs)
 
-        if (
-            self.image
-            and self.image.name != 'users/placeholder.jpg'
-            and self.image.name != old_image_name
-        ):
+        if self.image and self.image.name != old_image_name:
             try:
                 img_path = self.image.path
                 if not os.path.exists(img_path):
@@ -86,10 +78,12 @@ class User(AbstractUser):
                 img = img.crop((left, top, right, bottom))
                 img = img.resize(output_size, Image.Resampling.LANCZOS)
                 img.save(img_path)
-                if old_image_path and os.path.exists(old_image_path):
-                    os.remove(old_image_path)
             except Exception as e:
                 raise ValidationError(_("Image processing failed") + f": {e}")
+
+        if old_image_path and os.path.exists(old_image_path):
+            os.remove(old_image_path)
+
 
     def __str__(self):
         return self.username

@@ -400,6 +400,12 @@ class TestSellerCreate(BaseTestCase):
                 content=img_file.read(),
                 content_type='image/jpeg'
             )
+        with open(os.path.join(IMAGE_PATH, "test_img_new.jpg"), 'rb') as img_file:
+            self.new_image = SimpleUploadedFile(
+                name='test_image_new.jpg',
+                content=img_file.read(),
+                content_type='image/jpeg'
+            )
 
     def test_create_seller_success(self):
         self.login_user(self.user_without_store)
@@ -442,6 +448,52 @@ class TestSellerCreate(BaseTestCase):
             _("Store is registered and awaiting verification"),
             {'store_name': self.user_without_store.seller.store_name}
         )
+
+    def test_replace_or_delete_seller_image_deletes_old_file(self):
+        data = self.complete_seller_data.copy()
+        data['image'] = self.success_image
+        self.login_user(self.user_without_store)
+        self.client.post(
+            reverse('seller_create'),
+            data,
+            format='multipart',
+            follow=True
+        )
+        seller = Seller.objects.get(store_name='complete_seller')
+        old_image_path = seller.image.path
+        self.assertTrue(os.path.exists(old_image_path))
+        response = self.client.post(
+            reverse('seller_update', kwargs={'store_name': seller.store_name}),
+            data={
+                'image': self.new_image,
+                'store_name': seller.store_name,
+                'website': seller.website,
+                'description': seller.description,
+                'password_confirm': 'correct_password'
+            },
+            format='multipart',
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        seller.refresh_from_db()
+        new_image_path = seller.image.path
+        self.assertNotEqual(new_image_path, old_image_path)
+        self.assertTrue(os.path.exists(new_image_path))
+        self.assertFalse(os.path.exists(old_image_path))
+        response = self.client.post(
+            reverse('seller_update', kwargs={'store_name': seller.store_name}),
+            data={
+                'store_name': seller.store_name,
+                'website': seller.website,
+                'description': seller.description,
+                'image-clear': 'on',
+                'password_confirm': 'correct_password'
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        seller.refresh_from_db()
+        self.assertFalse(os.path.exists(new_image_path))
 
     def test_create_seller_unauthorized(self):
         response = self.client.post(

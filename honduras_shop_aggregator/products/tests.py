@@ -630,6 +630,30 @@ class TestImageUpload(BaseTestCase):
         self.assertNotEqual(
             old_hash, new_hash, _("Image content should change after new upload")
         )
+        self.assertFalse(
+            os.path.exists(old_image_path),
+            _("The old image file should be deleted after replacement")
+        )
+
+    def test_image_delete_removes_file(self):
+        self.seller.is_verified = True
+        self.seller.save()
+        self.login_user(self.user)
+        self.client.post(
+            reverse(
+                'product_update_image',
+                kwargs={'slug': self.product.slug}
+            ),
+            data={'image': self.success_image},
+            follow=True
+        )
+        self.product.refresh_from_db()
+        image_path = self.product.image.path
+        self.assertTrue(os.path.exists(image_path))
+        self.product.image = None
+        self.product.save()
+        self.assertFalse(self.product.image)
+        self.assertFalse(os.path.exists(image_path))
 
     def test_image_upload_by_non_verified_seller(self):
         self.seller.is_verified = False
@@ -706,6 +730,10 @@ class TestImageUpload(BaseTestCase):
             image=self.success_image,
         )
         image_path = image.image.path
+        self.assertTrue(
+            ProductImage.objects.filter(pk=image.pk).exists()
+        )
+        self.assertTrue(os.path.exists(image_path))
         self.seller.is_verified = True
         self.seller.save()
         self.login_user(self.user)

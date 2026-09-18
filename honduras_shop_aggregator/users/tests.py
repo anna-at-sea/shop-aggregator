@@ -137,6 +137,12 @@ class TestUserCreate(BaseTestCase):
                 content=img_file.read(),
                 content_type='image/jpeg'
             )
+        with open(os.path.join(IMAGE_PATH, "test_img_new.jpg"), 'rb') as img_file:
+            self.new_image = SimpleUploadedFile(
+                name='test_image_new.jpg',
+                content=img_file.read(),
+                content_type='image/jpeg'
+            )
 
     def test_create_user_success(self):
         response = self.client.post(
@@ -169,6 +175,60 @@ class TestUserCreate(BaseTestCase):
         self.assertRedirectWithMessage(
             response, 'login', _("User is registered successfully")
         )
+
+    def test_replace_or_delete_user_image_deletes_old_file(self):
+        data = self.complete_user_data.copy()
+        data['image'] = self.success_image
+        self.client.post(
+            reverse('user_create'),
+            data,
+            format='multipart',
+            follow=True
+        )
+        user = User.objects.get(username='complete_user')
+        old_image_path = user.image.path
+        self.assertTrue(os.path.exists(old_image_path))
+        self.login_user(user)
+        response = self.client.post(
+            reverse('user_update', kwargs={'username': user.username}),
+            data={
+                'image': self.new_image,
+                'username': user.username,
+                'email': user.email,
+                'password_confirm': 'correct_password'
+            },
+            format='multipart',
+            follow=True
+        )
+        self.assertRedirectWithMessage(
+            response,
+            'user_profile',
+            _("User is updated successfully"),
+            {'username': user.username}
+        )
+        user.refresh_from_db()
+        new_image_path = user.image.path
+        self.assertNotEqual(new_image_path, old_image_path)
+        self.assertTrue(os.path.exists(new_image_path))
+        self.assertFalse(os.path.exists(old_image_path))
+        response = self.client.post(
+            reverse('user_update', kwargs={'username': user.username}),
+            data={
+                'username': user.username,
+                'email': user.email,
+                'image-clear': 'on',
+                'password_confirm': 'correct_password'
+            },
+            follow=True
+        )
+        self.assertRedirectWithMessage(
+            response,
+            'user_profile',
+            _("User is updated successfully"),
+            {'username': user.username}
+        )
+        user.refresh_from_db()
+        self.assertFalse(os.path.exists(new_image_path))
 
     def test_create_user_missing_field(self):
         response = self.client.post(

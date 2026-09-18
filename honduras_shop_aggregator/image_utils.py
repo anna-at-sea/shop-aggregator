@@ -25,7 +25,6 @@ def image_upload_path(instance, filename):
         name = instance.store_name
     else:
         name = f"{model_name}-{instance.pk or 'unassigned'}"
-    print(f"{folder}/{name}.{extension.lower()}")
     return f"{folder}/{name}.{extension.lower()}"
 
 
