@@ -564,7 +564,7 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
     def test_combined_price_min_seller(self):
         response = self.client.get(
             reverse("category_page", kwargs={"slug": self.category_1.slug}),
-            {"min_price": 50, "seller": 2}
+            {"price_min": 50, "seller": 2}
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -637,3 +637,52 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
         self.assertTrue(
             response.context["filter"].show_seller_filter
         )
+
+    def test_search_is_limited_to_category(self):
+        response = self.client.get(
+            reverse(
+                "category_page",
+                kwargs={"slug": self.category_1.slug},
+            ),
+            {"search": "other"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            self.product_price_50_cat_1_sel_2.product_name,
+        )
+        self.assertNotContains(
+            response,
+            self.product_price_555_cat_3_sel_3.product_name,
+        )
+
+    def test_sorting_is_limited_to_category(self):
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        response = self.client.get(url, {"sort": "price_asc"})
+        self.assertEqual(response.status_code, 200)
+        products = list(response.context["object_list"])
+        prices = [product.product_price for product in products]
+        self.assertEqual(prices, sorted(prices))
+        response = self.client.get(url, {"sort": "price_desc"})
+        products = list(response.context["object_list"])
+        prices = [product.product_price for product in products]
+        self.assertEqual(prices, sorted(prices, reverse=True))
+
+    def test_ajax_filter_response(self):
+        response = self.client.get(
+            reverse(
+                "category_page",
+                kwargs={"slug": self.category_1.slug},
+            ),
+            {"price_max": 100},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("products_html", data)
+        self.assertIn("filter_html", data)
+        self.assertIn("products_count", data)
+        self.assertIn("has_next", data)

@@ -26,7 +26,7 @@ class SellerListView(SuccessMessageMixin, ListView):
     context_object_name = 'sellers'
 
     def get_queryset(self):
-        sellers = Seller.objects.filter(is_deleted=False)
+        sellers = Seller.objects.filter(is_deleted=False, is_verified=True)
         search = self.request.GET.get("search", "").strip()
         if search:
             sellers = sellers.filter(
@@ -149,7 +149,10 @@ class PublicSellerProfileView(
 
     def get_object(self):
         return get_object_or_404(
-            Seller, store_name=self.kwargs["store_name"], is_deleted=False
+            Seller,
+            store_name=self.kwargs["store_name"],
+            is_deleted=False,
+            is_verified=True
         )
 
     def get_context_data(self, **kwargs):

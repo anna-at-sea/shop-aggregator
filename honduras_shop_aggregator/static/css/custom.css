@@ -193,9 +193,8 @@ main {
 }
 
 .mobile-filter-panel .card {
-  max-height: 90%;
-  overflow-y: auto;
-  border-radius: 12px;
+    max-height: none;
+    overflow: visible;
 }
 
 /* Modern card styling */

@@ -184,6 +184,8 @@ class TestPublicSellerProfileRead(BaseTestCase):
 
     def setUp(self):
         self.seller = Seller.objects.get(pk=3)
+        self.seller.is_verified = True
+        self.seller.save()
         self.user = User.objects.get(pk=1)  # not self.seller.user
         self.active_product = Product.objects.get(pk=1)
         self.unavailable_product = Product.objects.get(pk=2)
@@ -233,6 +235,17 @@ class TestPublicSellerProfileRead(BaseTestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_unverified_seller_profile_returns_404(self):
+        self.seller.is_verified = False
+        self.seller.save()
+        response = self.client.get(
+            reverse(
+                "public_seller_profile",
+                kwargs={"store_name": self.seller.store_name},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_public_seller_profile_search(self):
         response = self.client.get(
             reverse(
@@ -266,6 +279,8 @@ class TestSellerListRead(BaseTestCase):
 
     def setUp(self):
         self.seller = Seller.objects.get(pk=1)
+        self.seller.is_verified = True
+        self.seller.save()
         self.user = User.objects.get(pk=1)
 
     def test_read_seller_list_unauthorized(self):
@@ -284,6 +299,13 @@ class TestSellerListRead(BaseTestCase):
         self.seller.save()
         self.login_user(self.user)
         response = self.client.get(reverse('seller_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.seller.store_name)
+
+    def test_unverified_seller_not_visible_in_seller_list(self):
+        self.seller.is_verified = False
+        self.seller.save()
+        response = self.client.get(reverse("seller_list"))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.seller.store_name)
 

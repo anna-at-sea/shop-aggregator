@@ -1,18 +1,17 @@
 function bindLoadMoreButton() {
     const productList = document.getElementById("product-list");
     const loadMoreBtn = document.getElementById("load-more-btn");
-    if (!loadMoreBtn) {
+
+    if (!loadMoreBtn || !productList) {
         return;
     }
+
     loadMoreBtn.onclick = function () {
         const nextPage = this.dataset.nextPage;
-        const form = document.querySelector(
-            ".filter-sidebar form"
-        );
-        const params = new URLSearchParams(
-            new FormData(form)
-        );
+
+        const params = new URLSearchParams(window.location.search);
         params.set("page", nextPage);
+
         fetch(`?${params.toString()}`, {
             headers: {
                 "X-Requested-With": "XMLHttpRequest"
@@ -24,11 +23,12 @@ function bindLoadMoreButton() {
                 "beforeend",
                 data.products_html
             );
+
             attachLikeEvents();
+
             if (data.has_next) {
                 this.dataset.nextPage = data.next_page;
-            }
-            else {
+            } else {
                 this.remove();
             }
         });
