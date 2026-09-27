@@ -3,7 +3,10 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from honduras_shop_aggregator.categories.models import Category
+from honduras_shop_aggregator.categories.views import CategoryPageView
+from honduras_shop_aggregator.cities.models import City
 from honduras_shop_aggregator.products.models import Product
+from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.utils import BaseTestCase
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
@@ -540,9 +543,23 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
         self.product_price_10_cat_1_sel_3 = Product.objects.get(pk=1)
         self.product_price_50_cat_1_sel_2 = Product.objects.get(pk=4)
         self.product_price_555_cat_3_sel_3 = Product.objects.get(pk=5)
+        self.paginate_by = CategoryPageView.paginate_by
         session = self.client.session
         session['city_pk'] = 1
         session.save()
+
+    def create_extra_products(self, count=5):
+        return [
+            Product.objects.create(
+                product_name=f"Category Product {i}",
+                product_price=10 + i,
+                stock_quantity=5,
+                seller=Seller.objects.get(pk=3),
+                category=self.category_1,
+                origin_city=City.objects.get(pk=1),
+            )
+            for i in range(count)
+        ]
 
     def test_category_filter_not_applied_on_category_page(self):
         url = reverse("category_page", kwargs={"slug": self.category_1.slug})
@@ -686,3 +703,60 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
         self.assertIn("filter_html", data)
         self.assertIn("products_count", data)
         self.assertIn("has_next", data)
+
+    def test_load_more_pages_do_not_overlap(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        page_1_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        response = self.client.get(url, {"page": 2})
+        self.assertEqual(response.status_code, 200)
+        page_2_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+
+    def test_ajax_load_more_response(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        response = self.client.get(
+            url,
+            {"page": 2},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("products_html", data)
+        self.assertIn("filter_html", data)
+        self.assertIn("products_count", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+
+    def test_no_load_more_on_last_page(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        last_page = response.context["paginator"].num_pages
+        response = self.client.get(url, {"page": last_page})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+        self.assertFalse(response.context["page_obj"].has_next())

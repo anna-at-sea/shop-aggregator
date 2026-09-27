@@ -12,8 +12,14 @@
     <div class="row">
         <div class="col-md-5 product-gallery-column">
             <div class="border rounded shadow-sm p-2 bg-white">
+                
                 <div id="productCarousel" class="carousel slide">
                     <div class="carousel-inner">
+                        {% if not product.is_available %}
+                            <div class="unavailable-overlay">
+                                <span>{% translate "Not available" %}</span>
+                            </div>
+                        {% endif %}
                         <!-- Cover image -->
                         <div class="carousel-item active">
                             <img
@@ -66,6 +72,7 @@
                         </div>
                     {% endif %}
                 </div>
+                
             </div>
         </div>
 

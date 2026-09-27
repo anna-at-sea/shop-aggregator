@@ -25,7 +25,8 @@ class IndexView(SuccessMessageMixin, ListView):
         queryset = queryset.filter(
             is_active=True, stock_quantity__gt=0, is_deleted=False
         )
-        city_pk = self.request.session.get('city_pk')
+        city_pk = self.request.session.get('city_pk', 1)
+        # this runs before context_processors, so default needs to be set
         if city_pk:
             queryset = queryset.filter(
                 Q(origin_city=city_pk) | Q(delivery_cities=city_pk)
@@ -38,7 +39,6 @@ class IndexView(SuccessMessageMixin, ListView):
         else:
             seed = self.request.session.get("shuffle_seed", 1)
         products = list(queryset)
-        # this needs to be changed when number of products grows
         random.Random(seed).shuffle(products)
         return products
 

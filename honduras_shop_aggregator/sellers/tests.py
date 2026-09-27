@@ -11,6 +11,8 @@ from PIL import Image
 
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.models import Seller
+from honduras_shop_aggregator.sellers.views import (PublicSellerProfileView,
+                                                    SellerProfileView)
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase
 
@@ -27,6 +29,22 @@ class TestPrivateSellerProfileRead(BaseTestCase):
         self.unavailable_product = Product.objects.get(pk=2)
         self.out_of_stock_product = Product.objects.get(pk=3)
         self.other_seller_product = Product.objects.get(pk=4)
+
+    def create_extra_products(self, count):
+        products = []
+        for i in range(count):
+            product = Product.objects.create(
+                product_name=f"Private Profile Product {i}",
+                product_price=10 + i,
+                stock_quantity=5,
+                seller=self.seller,
+                category=self.active_product.category,
+                origin_city=self.active_product.origin_city,
+                is_active=True,
+                is_deleted=False,
+            )
+            products.append(product)
+        return products
 
     def test_read_profile_unauthorized(self):
         response = self.client.get(reverse(
@@ -179,6 +197,68 @@ class TestPrivateSellerProfileRead(BaseTestCase):
         self.assertIn(_("Edit Product"), html)
         self.assertIn("product-active-toggle", html)
 
+    def test_load_more_pages_do_not_overlap(self):
+        self.login_user(self.user)
+        self.create_extra_products(SellerProfileView.paginate_by + 5)
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        page_1_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        response = self.client.get(url, {"page": 2})
+        self.assertEqual(response.status_code, 200)
+        page_2_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+
+    def test_load_more_button_visibility(self):
+        self.login_user(self.user)
+        self.create_extra_products(SellerProfileView.paginate_by + 5)
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(url, {"page": last_page})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+
+    def test_seller_profile_ajax_last_page(self):
+        self.login_user(self.user)
+        self.create_extra_products(SellerProfileView.paginate_by + 5)
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(
+            url,
+            {"page": last_page},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("products_html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+        self.assertFalse(data["has_next"])
+        self.assertIsNone(data["next_page"])
+
 
 class TestPublicSellerProfileRead(BaseTestCase):
 
@@ -191,6 +271,22 @@ class TestPublicSellerProfileRead(BaseTestCase):
         self.unavailable_product = Product.objects.get(pk=2)
         self.out_of_stock_product = Product.objects.get(pk=3)
         self.other_seller_product = Product.objects.get(pk=4)
+
+    def create_extra_products(self, count):
+        products = []
+        for i in range(count):
+            product = Product.objects.create(
+                product_name=f"Public Profile Product {i}",
+                product_price=10 + i,
+                stock_quantity=5,
+                seller=self.seller,
+                category=self.active_product.category,
+                origin_city=self.active_product.origin_city,
+                is_active=True,
+                is_deleted=False,
+            )
+            products.append(product)
+        return products
 
     def test_read_public_profile_unauthorized(self):
         response = self.client.get(reverse(
@@ -273,6 +369,65 @@ class TestPublicSellerProfileRead(BaseTestCase):
             {"search": "cafe"},
         )
         self.assertContains(response, self.active_product.product_name)
+
+    def test_load_more_pages_do_not_overlap(self):
+        self.create_extra_products(PublicSellerProfileView.paginate_by + 5)
+        url = reverse(
+            "public_seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        page_1_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        response = self.client.get(url, {"page": 2})
+        self.assertEqual(response.status_code, 200)
+        page_2_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+
+    def test_load_more_button_visibility(self):
+        self.create_extra_products(PublicSellerProfileView.paginate_by + 5)
+        url = reverse(
+            "public_seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(url, {"page": last_page})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+
+    def test_public_seller_profile_ajax_last_page(self):
+        self.create_extra_products(PublicSellerProfileView.paginate_by + 5)
+        url = reverse(
+            "public_seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(
+            url,
+            {"page": last_page},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("products_html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+        self.assertFalse(data["has_next"])
+        self.assertIsNone(data["next_page"])
 
 
 class TestSellerListRead(BaseTestCase):

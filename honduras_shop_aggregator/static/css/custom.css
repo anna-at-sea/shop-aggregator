@@ -49,6 +49,7 @@ main {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 100;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.5);
@@ -57,9 +58,11 @@ main {
     justify-content: center;
     align-items: center;
     font-weight: bold;
+    border-radius: 0.375rem;
+    pointer-events: none;
   }
 
-  .search-input {
+.search-input {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     margin: 0;

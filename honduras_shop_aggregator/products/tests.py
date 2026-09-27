@@ -20,6 +20,7 @@ from honduras_shop_aggregator.products.views import ProductFilterView
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase, get_file_hash
+from honduras_shop_aggregator.views import IndexView
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
 IMAGE_PATH = 'honduras_shop_aggregator/static/images'
@@ -156,6 +157,7 @@ class TestProductListRead(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("html", data)
+        self.assertIn("products_html", data)
         self.assertIn("has_next", data)
         self.assertIn("next_page", data)
         if self.pages_count == 2:
@@ -164,12 +166,93 @@ class TestProductListRead(BaseTestCase):
         else:
             self.assertIsNotNone(data["next_page"])
             self.assertTrue(data["has_next"])
-        self.assertIn("Product 4", data["html"])  # belongs to page 2
-        self.assertNotIn("Product 5", data["html"])  # belongs to page 1
+        self.assertIn("Product 4", data["products_html"])  # belongs to page 2
+        self.assertNotIn("Product 5", data["products_html"])  # belongs to page 1
 
     def test_no_load_more_on_last_page(self):
         self.create_extra_products(self.paginate_by + 5)
         response = self.client.get(reverse("product_list"), {"page": self.pages_count})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+
+
+class TestIndexRead(BaseTestCase):
+
+    def setUp(self):
+        self.paginate_by = IndexView().paginate_by
+
+    def create_extra_products(self, count=5):
+        return [
+            Product.objects.create(
+                product_name=f"Product {i}",
+                product_price=10 + i,
+                stock_quantity=5,
+                seller=Seller.objects.get(pk=3),
+                category=Category.objects.get(pk=1),
+                origin_city=City.objects.get(pk=1),
+            )
+            for i in range(count)
+        ]
+
+    def test_load_more_initial_load_returns_first_batch(self):
+        self.create_extra_products(self.paginate_by + 5)
+        response = self.client.get(
+            reverse("index"),
+            {"page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        self.assertEqual(
+            len(response.context["products"]),
+            self.paginate_by,
+        )
+
+    def test_load_more_second_page_returns_next_batch(self):
+        self.create_extra_products(self.paginate_by + 5)
+        response = self.client.get(
+            reverse("index"),
+            {"page": 1},
+        )
+        page_1_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        response = self.client.get(
+            reverse("index"),
+            {"page": 2},
+        )
+        page_2_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        self.assertTrue(
+                page_1_ids.isdisjoint(page_2_ids)
+            )
+        response = self.client.get(
+            reverse("index"),
+            {"page": 2},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("products_html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+
+    def test_no_load_more_on_last_page(self):
+        self.create_extra_products(self.paginate_by + 5)
+        # First request establishes the shuffle seed.
+        response = self.client.get(
+            reverse("index"),
+            {"page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        last_page = response.context["paginator"].num_pages
+        response = self.client.get(
+            reverse("index"),
+            {"page": last_page},
+        )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, _("Load More"))
 

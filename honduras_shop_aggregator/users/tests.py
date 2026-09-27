@@ -10,7 +10,14 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from PIL import Image
 
+from honduras_shop_aggregator.categories.models import Category
+from honduras_shop_aggregator.cities.models import City
+from honduras_shop_aggregator.likedproducts.models import LikedProduct
+from honduras_shop_aggregator.products.models import Product
+from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.users.models import User
+from honduras_shop_aggregator.users.views import (AnonymousProfileView,
+                                                  UserProfileView)
 from honduras_shop_aggregator.utils import BaseTestCase
 
 FIXTURE_PATH = 'honduras_shop_aggregator/fixtures/'
@@ -116,6 +123,182 @@ class TestUserProfileRead(BaseTestCase):
     def test_read_nonexistent(self):
         response = self.client.get('/wrong_url/')
         self.assertEqual(response.status_code, 404)
+
+
+class TestUserProfileProducts(BaseTestCase):
+
+    def setUp(self):
+        self.user = User.objects.get(pk=1)
+        self.paginate_by = UserProfileView.paginate_by
+        self.login_user(self.user)
+        self.seller = Seller.objects.get(pk=3)
+        self.category = Category.objects.get(pk=1)
+        self.city = City.objects.get(pk=1)
+
+    def create_and_like_products(self, count, user=None):
+        user = user or self.user
+        products = []
+        for i in range(count):
+            product = Product.objects.create(
+                product_name=f"Profile Product {i}",
+                product_price=10 + i,
+                stock_quantity=5,
+                seller=self.seller,
+                category=self.category,
+                origin_city=self.city,
+            )
+            LikedProduct.objects.create(
+                user=user,
+                product=product,
+            )
+            products.append(product)
+        return products
+
+    def test_load_more_pages_do_not_overlap(self):
+        self.create_and_like_products(self.paginate_by + 5)
+        url = reverse(
+            "user_profile",
+            kwargs={"username": self.user.username},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        page_1_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        response = self.client.get(url, {"page": 2})
+        self.assertEqual(response.status_code, 200)
+        page_2_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+
+    def test_load_more_button_visibility(self):
+        self.create_and_like_products(self.paginate_by + 5)
+        url = reverse(
+            "user_profile",
+            kwargs={"username": self.user.username},
+        )
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(url, {"page": last_page})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+
+    def test_ajax_load_more_response(self):
+        self.create_and_like_products(self.paginate_by + 5)
+        url = reverse(
+            "user_profile",
+            kwargs={"username": self.user.username},
+        )
+        response = self.client.get(
+            url,
+            {"page": 2},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("products_html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+
+
+class TestAnonymousProfileProducts(BaseTestCase):
+
+    def setUp(self):
+        self.paginate_by = AnonymousProfileView.paginate_by
+        self.seller = Seller.objects.get(pk=3)
+        self.category = Category.objects.get(pk=1)
+        self.city = City.objects.get(pk=1)
+
+    def create_liked_products(self, count):
+        products = []
+        for i in range(count):
+            product = Product.objects.create(
+                product_name=f"Anonymous Product {i}",
+                product_price=10 + i,
+                stock_quantity=5,
+                seller=self.seller,
+                category=self.category,
+                origin_city=self.city,
+            )
+            products.append(product)
+        session = self.client.session
+        session["liked_products"] = [
+            product.pk for product in products
+        ]
+        session.save()
+        return products
+
+    def test_load_more_pages_do_not_overlap(self):
+        self.create_liked_products(self.paginate_by + 5)
+        url = reverse("anonymous_profile")
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        page_1_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        response = self.client.get(url, {"page": 2})
+        self.assertEqual(response.status_code, 200)
+        page_2_ids = {
+            product.pk
+            for product in response.context["products"]
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+
+    def test_liked_products_are_ordered_newest_first(self):
+        count = 3
+        products = self.create_liked_products(count)
+        response = self.client.get(reverse("anonymous_profile"))
+        self.assertEqual(response.status_code, 200)
+        product_ids = [
+            product.pk
+            for product in response.context["products"]
+        ]
+        self.assertEqual(
+            product_ids[:3],
+            [products[count-1].pk, products[count-2].pk, products[count-3].pk],
+        )
+
+    def test_load_more_button_visibility(self):
+        self.create_liked_products(self.paginate_by + 5)
+        url = reverse("anonymous_profile")
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(url, {"page": last_page})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+
+    def test_ajax_load_more_response(self):
+        self.create_liked_products(self.paginate_by + 5)
+        url = reverse("anonymous_profile")
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        last_page = response.context["page_obj"].paginator.num_pages
+        response = self.client.get(
+            url,
+            {"page": last_page},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("products_html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+        self.assertFalse(data["has_next"])
+        self.assertIsNone(data["next_page"])
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)

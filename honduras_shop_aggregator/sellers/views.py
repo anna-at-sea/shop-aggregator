@@ -129,6 +129,7 @@ class SellerProfileView(
             page_obj = context["page_obj"]
             return JsonResponse({
                 "html": html,
+                "products_html": html,
                 "has_next": page_obj.has_next(),
                 "next_page": (
                     page_obj.next_page_number() if page_obj.has_next() else None
@@ -201,6 +202,7 @@ class PublicSellerProfileView(
             page_obj = context["page_obj"]
             return JsonResponse({
                 "html": html,
+                "products_html": html,
                 "has_next": page_obj.has_next(),
                 "next_page": (
                     page_obj.next_page_number() if page_obj.has_next() else None

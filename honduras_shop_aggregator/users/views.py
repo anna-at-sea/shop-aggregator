@@ -42,7 +42,8 @@ class UserProfileView(
             context = super().get_context_data(**kwargs)
             profile_user = context['user']
             products = Product.objects.filter(
-                likes__user=profile_user
+                likes__user=profile_user,
+                is_deleted=False
             ).order_by("-likes__created_at", "-pk")
             for product in products:
                 product.is_liked = True
@@ -70,6 +71,7 @@ class UserProfileView(
             page_obj = context["page_obj"]
             return JsonResponse({
                 "html": html,
+                "products_html": html,
                 "has_next": page_obj.has_next(),
                 "next_page": (
                     page_obj.next_page_number() if page_obj.has_next() else None
@@ -82,21 +84,58 @@ class AnonymousProfileView(
     SuccessMessageMixin, TemplateView
 ):
     template_name = 'pages/users/profile.html'
+    paginate_by = 20
 
     def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            product_pks = self.request.session.get('liked_products', [])
-            products = Product.objects.filter(pk__in=product_pks)
-            products_by_pk = {product.pk: product for product in products}
-            products = [
-                products_by_pk[pk]
-                for pk in reversed(product_pks)
-                if pk in products_by_pk
-            ]
-            for product in products:
-                product.is_liked = True
-            context['products'] = products
-            return context
+        context = super().get_context_data(**kwargs)
+        product_pks = self.request.session.get('liked_products', [])
+        products = Product.objects.filter(
+            pk__in=product_pks,
+            is_deleted=False,
+        )
+        products_by_pk = {product.pk: product for product in products}
+        products = [
+            products_by_pk[pk]
+            for pk in reversed(product_pks)
+            if pk in products_by_pk
+        ]
+        for product in products:
+            product.is_liked = True
+        paginator = Paginator(products, self.paginate_by)
+        page = self.request.GET.get('page')
+        try:
+            products = paginator.page(page)
+        except PageNotAnInteger:
+            products = paginator.page(1)
+        except EmptyPage:
+            products = paginator.page(paginator.num_pages)
+        context['products'] = products
+        context['page_obj'] = products
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+        request = self.request
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "partials/_product_grid.html",
+                {
+                    "products": context["products"],
+                    "request": request,
+                },
+                request=request,
+            )
+            page_obj = context["page_obj"]
+            return JsonResponse({
+                "html": html,
+                "products_html": html,
+                "has_next": page_obj.has_next(),
+                "next_page": (
+                    page_obj.next_page_number()
+                    if page_obj.has_next()
+                    else None
+                ),
+            })
+        return super().render_to_response(context, **response_kwargs)
 
 
 class UserLoginView(SuccessMessageMixin, LoginView):
