@@ -24,15 +24,43 @@ class SellerListView(SuccessMessageMixin, ListView):
     model = Seller
     template_name = 'pages/sellers/seller_list.html'
     context_object_name = 'sellers'
+    paginate_by = 24
 
     def get_queryset(self):
-        sellers = Seller.objects.filter(is_deleted=False, is_verified=True)
+        sellers = Seller.objects.filter(
+            is_deleted=False,
+            is_verified=True,
+        )
         search = self.request.GET.get("search", "").strip()
         if search:
             sellers = sellers.filter(
                 store_name__unaccent__icontains=search
             )
-        return sellers
+        return sellers.order_by("-date_registered", "-pk")
+
+    def render_to_response(self, context, **response_kwargs):
+        request = self.request
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            html = render_to_string(
+                "partials/_seller_grid.html",
+                {
+                    "sellers": context["sellers"],
+                    "request": request,
+                },
+                request=request,
+            )
+            page_obj = context["page_obj"]
+            return JsonResponse({
+                "html": html,
+                "sellers_html": html,
+                "has_next": page_obj.has_next(),
+                "next_page": (
+                    page_obj.next_page_number()
+                    if page_obj.has_next()
+                    else None
+                ),
+            })
+        return super().render_to_response(context, **response_kwargs)
 
 
 class BecomeSellerView(TemplateView):

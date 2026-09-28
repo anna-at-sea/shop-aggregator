@@ -3,12 +3,13 @@
 {% load static %}
 
 {% block title %}{% translate "Sellers" %} | Cangrejal{% endblock %}
+
 {% block content %}
 {% include "partials/flash_message.html" %}
 
 <div class="container mt-4">
     <h1 class="text-dark mb-4">{% translate "Sellers" %}</h1>
-  
+
     <form method="get" class="row g-2 mb-4">
         <div class="col-md-11">
             <input
@@ -25,6 +26,7 @@
             </button>
         </div>
     </form>
+
     {% if request.GET.search %}
         <a
             href="{% url 'seller_list' %}"
@@ -36,43 +38,70 @@
     {% endif %}
 
     {% if sellers %}
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-        {% for seller in sellers %}
-          <div class="col">
-            <a href="{% url 'public_seller_profile' seller.store_name %}" class="text-decoration-none text-dark">
-            <div class="card h-100 shadow-sm border-0 card-hover">
-              <!-- Avatar -->
-              <img {% if seller.image %}
-                        src="{{ seller.image.url }}"
-                   {% else %}
-                        src="{% static 'images/store_placeholder.jpg' %}"
-                   {% endif %}
-                   class="card-img-top rounded-circle mx-auto mt-3" 
-                   alt="{{ seller.store_name }}" style="width: 100px; height: 100px; object-fit: cover;">
-              
-              <div class="card-body d-flex flex-column">
-                <!-- Store Name -->
-                <h5 class="card-title text-center mb-2">
-                    {{ seller.store_name }}
-                </h5>
 
-                <!-- Truncated Description -->
-                {% if seller.description %}
-                <p class="text-muted text-center mb-0" style="white-space: pre-wrap; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical;">
-                  {{ seller.description }}
-                </p>
-                {% else %}
-                <p class="text-muted text-center mb-0">{% translate "No description provided." %}</p>
-                {% endif %}
-              </div>
+        <div id="seller-list">
+            {% include "partials/_seller_grid.html" %}
+        </div>
+
+        {% if is_paginated and page_obj.has_next %}
+            <div class="text-center mt-4 mb-4">
+                <button
+                    id="load-more-sellers-btn"
+                    class="btn btn-outline-danger"
+                    data-next-page="{{ page_obj.next_page_number }}">
+
+                    {% translate "Load More" %}
+
+                </button>
             </div>
-            </a>
-          </div>
-        {% endfor %}
-      </div>
+        {% endif %}
+
     {% else %}
-      <p class="text-muted">{% translate "No sellers found." %}</p>
+
+        <p class="text-muted">
+            {% translate "No sellers found." %}
+        </p>
+
     {% endif %}
 </div>
+
+<script>
+    function bindSellerLoadMoreButton() {
+        const sellerList = document.getElementById("seller-list");
+        const loadMoreBtn = document.getElementById("load-more-sellers-btn");
+
+        if (!loadMoreBtn || !sellerList) {
+            return;
+        }
+
+        loadMoreBtn.onclick = function () {
+            const nextPage = this.dataset.nextPage;
+
+            const params = new URLSearchParams(window.location.search);
+            params.set("page", nextPage);
+
+            fetch(`?${params.toString()}`, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                sellerList.insertAdjacentHTML(
+                    "beforeend",
+                    data.sellers_html
+                );
+
+                if (data.has_next) {
+                    this.dataset.nextPage = data.next_page;
+                } else {
+                    this.remove();
+                }
+            });
+        };
+    }
+
+    bindSellerLoadMoreButton();
+</script>
 
 {% endblock %}

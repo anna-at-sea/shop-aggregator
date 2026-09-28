@@ -12,6 +12,7 @@ from PIL import Image
 from honduras_shop_aggregator.products.models import Product
 from honduras_shop_aggregator.sellers.models import Seller
 from honduras_shop_aggregator.sellers.views import (PublicSellerProfileView,
+                                                    SellerListView,
                                                     SellerProfileView)
 from honduras_shop_aggregator.users.models import User
 from honduras_shop_aggregator.utils import BaseTestCase
@@ -438,6 +439,23 @@ class TestSellerListRead(BaseTestCase):
         self.seller.save()
         self.user = User.objects.get(pk=1)
 
+    def create_extra_sellers(self, count):
+        sellers = []
+        for i in range(count):
+            seller = Seller.objects.create(
+                user=User.objects.create_user(
+                    username=f"pagination_seller_{i}",
+                    email=f"email_{i}@test.com",
+                    password="correct_password"
+                ),
+                store_name=f"Pagination Store {i}",
+                website=f"https://test-store-{i}.com",
+                is_verified=True,
+                is_deleted=False,
+            )
+            sellers.append(seller)
+        return sellers
+
     def test_read_seller_list_unauthorized(self):
         response = self.client.get(reverse('seller_list'))
         self.assertEqual(response.status_code, 200)
@@ -490,6 +508,89 @@ class TestSellerListRead(BaseTestCase):
             {"search": "jose"},
         )
         self.assertContains(response, self.seller.store_name)
+
+    def test_load_more_pages_do_not_overlap(self):
+        self.create_extra_sellers(SellerListView.paginate_by + 5)
+        url = reverse("seller_list")
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        page_1_ids = {
+            seller.pk
+            for seller in response.context["sellers"]
+        }
+        response = self.client.get(url, {"page": 2})
+        self.assertEqual(response.status_code, 200)
+        page_2_ids = {
+            seller.pk
+            for seller in response.context["sellers"]
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+
+    def test_load_more_button_visibility(self):
+        self.create_extra_sellers(SellerListView.paginate_by + 5)
+        url = reverse("seller_list")
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Load More"))
+        last_page = response.context["paginator"].num_pages
+        response = self.client.get(url, {"page": last_page})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Load More"))
+
+    def test_seller_list_ajax_last_page(self):
+        self.create_extra_sellers(SellerListView.paginate_by + 5)
+        url = reverse("seller_list")
+        response = self.client.get(url, {"page": 1})
+        self.assertEqual(response.status_code, 200)
+        last_page = response.context["paginator"].num_pages
+        response = self.client.get(
+            url,
+            {"page": last_page},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("html", data)
+        self.assertIn("sellers_html", data)
+        self.assertIn("has_next", data)
+        self.assertIn("next_page", data)
+        self.assertFalse(data["has_next"])
+        self.assertIsNone(data["next_page"])
+
+    def test_seller_list_search_pagination(self):
+        self.create_extra_sellers(SellerListView.paginate_by + 5)
+        url = reverse("seller_list")
+        search = "Pagination"
+        response = self.client.get(
+            url,
+            {"search": search, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        page_1_sellers = list(response.context["sellers"])
+        response = self.client.get(
+            url,
+            {"search": search, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        page_2_sellers = list(response.context["sellers"])
+        page_1_ids = {
+            seller.pk
+            for seller in page_1_sellers
+        }
+        page_2_ids = {
+            seller.pk
+            for seller in page_2_sellers
+        }
+        self.assertTrue(
+            page_1_ids.isdisjoint(page_2_ids)
+        )
+        for seller in page_1_sellers + page_2_sellers:
+            self.assertIn(
+                search.lower(),
+                seller.store_name.lower(),
+            )
 
 
 class TestBecomeSellerPage(BaseTestCase):
