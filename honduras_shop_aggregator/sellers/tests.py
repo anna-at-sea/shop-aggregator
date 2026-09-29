@@ -260,6 +260,109 @@ class TestPrivateSellerProfileRead(BaseTestCase):
         self.assertFalse(data["has_next"])
         self.assertIsNone(data["next_page"])
 
+    def test_seller_profile_search_is_applied_on_page_2(self):
+        self.login_user(self.user)
+        self.create_extra_products(
+            SellerProfileView.paginate_by + 5
+        )
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        search = "Private Profile Product"
+        response = self.client.get(
+            url,
+            {"search": search, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"search": search, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertIn(
+                search.lower(),
+                product.product_name.lower(),
+            )
+
+    def test_seller_profile_active_filter_is_applied_on_page_2(self):
+        self.login_user(self.user)
+        self.create_extra_products(
+            SellerProfileView.paginate_by + 5
+        )
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(
+            url,
+            {"status": "active", "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"status": "active", "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertTrue(product.is_active)
+            self.assertGreater(product.stock_quantity, 0)
+
+    def test_seller_profile_inactive_filter_is_applied_on_page_2(self):
+        self.login_user(self.user)
+        products = self.create_extra_products(
+            SellerProfileView.paginate_by + 5
+        )
+        Product.objects.filter(
+            pk__in=[product.pk for product in products]
+        ).update(is_active=False)
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(
+            url,
+            {"status": "inactive", "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"status": "inactive", "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertFalse(product.is_active)
+
+    def test_seller_profile_out_filter_is_applied_on_page_2(self):
+        self.login_user(self.user)
+        products = self.create_extra_products(
+            SellerProfileView.paginate_by + 5
+        )
+        Product.objects.filter(
+            pk__in=[product.pk for product in products]
+        ).update(stock_quantity=0)
+        url = reverse(
+            "seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        response = self.client.get(
+            url,
+            {"status": "out", "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"status": "out", "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertEqual(product.stock_quantity, 0)
+
 
 class TestPublicSellerProfileRead(BaseTestCase):
 
@@ -430,6 +533,32 @@ class TestPublicSellerProfileRead(BaseTestCase):
         self.assertFalse(data["has_next"])
         self.assertIsNone(data["next_page"])
 
+    def test_public_seller_profile_search_is_applied_on_page_2(self):
+        self.create_extra_products(
+            PublicSellerProfileView.paginate_by + 5
+        )
+        url = reverse(
+            "public_seller_profile",
+            kwargs={"store_name": self.seller.store_name},
+        )
+        search = "Public Profile Product"
+        response = self.client.get(
+            url,
+            {"search": search, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"search": search, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertIn(
+                search.lower(),
+                product.product_name.lower(),
+            )
+
 
 class TestSellerListRead(BaseTestCase):
 
@@ -568,6 +697,7 @@ class TestSellerListRead(BaseTestCase):
             {"search": search, "page": 1},
         )
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
         page_1_sellers = list(response.context["sellers"])
         response = self.client.get(
             url,

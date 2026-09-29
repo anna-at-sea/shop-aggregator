@@ -33,7 +33,7 @@
                         {% if seller.description %}
                             <p
                                 class="text-muted mb-0"
-                                style="white-space: pre-wrap; text-align: justify;">{{ seller.description }}</p>
+                                style="white-space: pre-wrap; text-align: justify; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical;">{{ seller.description }}</p>
                         {% else %}
                             <p class="text-muted text-center mb-0">
                                 {% translate "No description provided." %}

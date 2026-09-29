@@ -760,3 +760,92 @@ class TestSearchAndFiltersInCategories(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, _("Load More"))
         self.assertFalse(response.context["page_obj"].has_next())
+
+    def test_search_is_applied_on_page_2(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        search = "Category Product"
+        response = self.client.get(
+            url,
+            {"search": search, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"search": search, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        page_2_products = response.context["products"]
+        for product in page_2_products:
+            self.assertIn(
+                search.lower(),
+                product.product_name.lower(),
+            )
+
+    def test_seller_filter_is_applied_on_page_2(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        response = self.client.get(
+            url,
+            {"seller": 3, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"seller": 3, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertEqual(product.seller_id, 3)
+
+
+    def test_price_min_filter_is_applied_on_page_2(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        price_min = 15
+        response = self.client.get(
+            url,
+            {"price_min": price_min, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"price_min": price_min, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertGreaterEqual(product.product_price, price_min)
+
+
+    def test_price_max_filter_is_applied_on_page_2(self):
+        self.create_extra_products(self.paginate_by + 5)
+        url = reverse(
+            "category_page",
+            kwargs={"slug": self.category_1.slug},
+        )
+        price_max = 40
+        response = self.client.get(
+            url,
+            {"price_max": price_max, "page": 1},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page_obj"].has_next())
+        response = self.client.get(
+            url,
+            {"price_max": price_max, "page": 2},
+        )
+        self.assertEqual(response.status_code, 200)
+        for product in response.context["products"]:
+            self.assertLessEqual(product.product_price, price_max)
