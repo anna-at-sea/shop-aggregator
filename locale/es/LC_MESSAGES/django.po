@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 13:26+0000\n"
+"POT-Creation-Date: 2026-10-01 11:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,7 +132,7 @@ msgstr ""
 #: honduras_shop_aggregator/sellers/tests.py:1144
 #: honduras_shop_aggregator/users/forms.py:51
 #: honduras_shop_aggregator/users/forms.py:75
-#: honduras_shop_aggregator/users/tests.py:710
+#: honduras_shop_aggregator/users/tests.py:813
 msgid "Incorrect password."
 msgstr "Contraseña incorrecta."
 
@@ -266,10 +266,10 @@ msgstr "Especifica el tipo de variación."
 #: honduras_shop_aggregator/templates/pages/products/product_list.html:71
 #: honduras_shop_aggregator/templates/pages/sellers/seller_list.html:53
 #: honduras_shop_aggregator/templates/pages/users/profile.html:138
-#: honduras_shop_aggregator/users/tests.py:187
-#: honduras_shop_aggregator/users/tests.py:191
-#: honduras_shop_aggregator/users/tests.py:277
-#: honduras_shop_aggregator/users/tests.py:281
+#: honduras_shop_aggregator/users/tests.py:290
+#: honduras_shop_aggregator/users/tests.py:294
+#: honduras_shop_aggregator/users/tests.py:380
+#: honduras_shop_aggregator/users/tests.py:384
 msgid "Load More"
 msgstr "Ver más"
 
@@ -316,10 +316,10 @@ msgstr ""
 #: honduras_shop_aggregator/products/tests.py:1145
 #: honduras_shop_aggregator/sellers/tests.py:918
 #: honduras_shop_aggregator/sellers/tests.py:1019
-#: honduras_shop_aggregator/users/tests.py:421
-#: honduras_shop_aggregator/users/tests.py:483
-#: honduras_shop_aggregator/users/tests.py:582
-#: honduras_shop_aggregator/users/tests.py:592
+#: honduras_shop_aggregator/users/tests.py:524
+#: honduras_shop_aggregator/users/tests.py:586
+#: honduras_shop_aggregator/users/tests.py:685
+#: honduras_shop_aggregator/users/tests.py:695
 msgid "This field is required."
 msgstr "Este campo es obligatorio."
 
@@ -435,7 +435,7 @@ msgstr "¿Estás seguro de que quieres eliminar el producto "
 
 #: honduras_shop_aggregator/products/views.py:472
 #: honduras_shop_aggregator/sellers/views.py:368
-#: honduras_shop_aggregator/users/views.py:334
+#: honduras_shop_aggregator/users/views.py:333
 msgid "Yes, delete"
 msgstr "Sí, eliminar"
 
@@ -739,6 +739,21 @@ msgstr "¿Ya tienes una cuenta?"
 #: honduras_shop_aggregator/templates/layouts/base_form.html:62
 msgid "Log in here"
 msgstr "Inicia sesión aquí"
+
+#: honduras_shop_aggregator/templates/layouts/base_form.html:66
+#: honduras_shop_aggregator/templates/partials/navbar_desktop.html:115
+#: honduras_shop_aggregator/templates/partials/navbar_mobile.html:142
+#: honduras_shop_aggregator/templates/registration/password_reset_complete.html:23
+#: honduras_shop_aggregator/users/views.py:148
+#: honduras_shop_aggregator/users/views.py:149
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: honduras_shop_aggregator/templates/layouts/base_form.html:69
+#: honduras_shop_aggregator/templates/registration/password_reset_form.html:15
+#: honduras_shop_aggregator/users/tests.py:102
+msgid "Forgot your password?"
+msgstr "¿Olvidaste tu contraseña?"
 
 #: honduras_shop_aggregator/templates/layouts/base_seller_profile.html:39
 msgid "Verified"
@@ -1207,13 +1222,6 @@ msgstr "Cerrar sesión"
 msgid "Saved products"
 msgstr "Productos guardados"
 
-#: honduras_shop_aggregator/templates/partials/navbar_desktop.html:115
-#: honduras_shop_aggregator/templates/partials/navbar_mobile.html:142
-#: honduras_shop_aggregator/users/views.py:148
-#: honduras_shop_aggregator/users/views.py:149
-msgid "Log in"
-msgstr "Iniciar sesión"
-
 #: honduras_shop_aggregator/templates/partials/product_variations_form.html:6
 msgid "Product Variations"
 msgstr "Variaciones del producto"
@@ -1238,6 +1246,113 @@ msgstr "Valor"
 msgid "Remove"
 msgstr "Eliminar"
 
+#: honduras_shop_aggregator/templates/registration/password_reset_complete.html:4
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:4
+#: honduras_shop_aggregator/templates/registration/password_reset_done.html:4
+#: honduras_shop_aggregator/templates/registration/password_reset_form.html:4
+msgid "Password reset"
+msgstr "Restablecimiento de contraseña"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_complete.html:15
+msgid "Password changed"
+msgstr "Contraseña cambiada"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_complete.html:19
+msgid "Your password has been successfully changed."
+msgstr "Tu contraseña se ha cambiado correctamente."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:17
+msgid "Set a new password"
+msgstr "Establece una nueva contraseña"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:21
+msgid "Enter your new password below."
+msgstr "Ingresa tu nueva contraseña a continuación."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:38
+msgid "New password"
+msgstr "Nueva contraseña"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:53
+msgid "Confirm new password"
+msgstr "Confirma la nueva contraseña"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:64
+#: honduras_shop_aggregator/users/views.py:268
+msgid "Change password"
+msgstr "Cambiar contraseña"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:71
+#: honduras_shop_aggregator/users/tests.py:190
+msgid "Invalid reset link"
+msgstr "Enlace de restablecimiento no válido"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:75
+msgid "This password reset link is invalid or has already been used."
+msgstr "Este enlace de restablecimiento de contraseña no es válido o ya se ha utilizado."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_confirm.html:82
+msgid "Request a new link"
+msgstr "Solicitar un nuevo enlace"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_done.html:15
+msgid "Check your email"
+msgstr "Revisa tu correo electrónico"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_done.html:19
+msgid ""
+"If an account exists with that email address, we've sent a password reset "
+"link."
+msgstr ""
+"Si existe una cuenta con esa dirección de correo electrónico, hemos enviado un enlace "
+"para restablecer la contraseña."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_done.html:23
+#: honduras_shop_aggregator/templates/registration/password_reset_form.html:46
+msgid "Back to login"
+msgstr "Volver a iniciar sesión"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_email.html:3
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"Cangrejal account."
+msgstr ""
+"Recibes este correo electrónico porque solicitaste restablecer la contraseña de tu "
+"cuenta de Cangrejal."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_email.html:5
+msgid "Please click the link below to choose a new password:"
+msgstr "Haz clic en el siguiente enlace para elegir una nueva contraseña:"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_email.html:9
+msgid ""
+"If you didn't request a password reset, you can safely ignore this email."
+msgstr ""
+"Si no solicitaste restablecer la contraseña, puedes ignorar este correo electrónico."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_email.html:11
+msgid "Cangrejal"
+msgstr "Cangrejal"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_form.html:19
+msgid ""
+"Enter your email address and we'll send you a link to reset your password."
+msgstr ""
+"Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer "
+"tu contraseña."
+
+#: honduras_shop_aggregator/templates/registration/password_reset_form.html:27
+msgid "Email address"
+msgstr "Correo electrónico"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_form.html:40
+msgid "Send reset link"
+msgstr "Enviar enlace de restablecimiento"
+
+#: honduras_shop_aggregator/templates/registration/password_reset_subject.txt:3
+msgid "Cangrejal password reset"
+msgstr "Restablecimiento de contraseña de Cangrejal"
+
 #: honduras_shop_aggregator/users/forms.py:26
 msgid "Enter password to apply changes"
 msgstr "Ingresa tu contraseña para aplicar los cambios"
@@ -1259,82 +1374,86 @@ msgid "email address"
 msgstr "correo electrónico"
 
 #: honduras_shop_aggregator/users/models.py:22
-#: honduras_shop_aggregator/users/tests.py:443
-#: honduras_shop_aggregator/users/tests.py:506
+#: honduras_shop_aggregator/users/tests.py:546
+#: honduras_shop_aggregator/users/tests.py:609
 msgid "A user with that email already exists."
 msgstr "Ya existe un usuario con ese correo electrónico."
 
-#: honduras_shop_aggregator/users/tests.py:37
+#: honduras_shop_aggregator/users/tests.py:41
 msgid "User login failed"
 msgstr "Error al iniciar sesión del usuario"
 
-#: honduras_shop_aggregator/users/tests.py:43
+#: honduras_shop_aggregator/users/tests.py:47
 msgid "User login should have failed but it passed"
 msgstr ""
 "La sesión del usuario debería haber fallado, pero se permitió el acceso"
 
-#: honduras_shop_aggregator/users/tests.py:54
-#: honduras_shop_aggregator/users/tests.py:65
+#: honduras_shop_aggregator/users/tests.py:58
+#: honduras_shop_aggregator/users/tests.py:69
 #: honduras_shop_aggregator/users/views.py:160
 msgid "You are logged in"
 msgstr "Has iniciado sesión"
 
-#: honduras_shop_aggregator/users/tests.py:72
+#: honduras_shop_aggregator/users/tests.py:76
 msgid "User should be logged out"
 msgstr "El usuario debería haber cerrado sesión"
 
-#: honduras_shop_aggregator/users/tests.py:81
+#: honduras_shop_aggregator/users/tests.py:85
 #: honduras_shop_aggregator/users/views.py:183
 msgid "You are logged out"
 msgstr "Has cerrado sesión"
 
-#: honduras_shop_aggregator/users/tests.py:120
-#: honduras_shop_aggregator/users/tests.py:520
-#: honduras_shop_aggregator/users/tests.py:618
-#: honduras_shop_aggregator/users/tests.py:728
+#: honduras_shop_aggregator/users/tests.py:117
+msgid "password"
+msgstr "contraseña"
+
+#: honduras_shop_aggregator/users/tests.py:223
+#: honduras_shop_aggregator/users/tests.py:623
+#: honduras_shop_aggregator/users/tests.py:721
+#: honduras_shop_aggregator/users/tests.py:831
 msgid "You don&#x27;t have permission to view or edit other user."
 msgstr "No tienes permiso para ver o editar a otro usuario."
 
-#: honduras_shop_aggregator/users/tests.py:338
-#: honduras_shop_aggregator/users/tests.py:359
+#: honduras_shop_aggregator/users/tests.py:441
+#: honduras_shop_aggregator/users/tests.py:462
 #: honduras_shop_aggregator/users/views.py:196
 msgid "User is registered successfully"
 msgstr "El usuario se registró con éxito"
 
-#: honduras_shop_aggregator/users/tests.py:389
-#: honduras_shop_aggregator/users/tests.py:410
-#: honduras_shop_aggregator/users/tests.py:472
+#: honduras_shop_aggregator/users/tests.py:492
+#: honduras_shop_aggregator/users/tests.py:513
+#: honduras_shop_aggregator/users/tests.py:575
 #: honduras_shop_aggregator/users/views.py:227
 msgid "User is updated successfully"
 msgstr "El usuario se actualizó con éxito"
 
-#: honduras_shop_aggregator/users/tests.py:433
-#: honduras_shop_aggregator/users/tests.py:494
+#: honduras_shop_aggregator/users/tests.py:536
+#: honduras_shop_aggregator/users/tests.py:597
 msgid "A user with that username already exists."
 msgstr "Ya existe un usuario con ese nombre de usuario."
 
-#: honduras_shop_aggregator/users/tests.py:557
+#: honduras_shop_aggregator/users/tests.py:660
 #: honduras_shop_aggregator/users/views.py:263
 msgid "Password is changed successfully"
 msgstr "La contraseña se cambió con éxito"
 
-#: honduras_shop_aggregator/users/tests.py:571
+#: honduras_shop_aggregator/users/tests.py:674
 msgid "Your old password was entered incorrectly. Please enter it again."
 msgstr ""
 "Tu contraseña anterior fue ingresada incorrectamente. Por favor, ingrésala "
 "nuevamente."
 
-#: honduras_shop_aggregator/users/tests.py:603
+#: honduras_shop_aggregator/users/tests.py:706
 msgid "The two password fields didn’t match."
 msgstr "Los dos campos de contraseña no coinciden."
 
-#: honduras_shop_aggregator/users/tests.py:658
-#: honduras_shop_aggregator/users/views.py:314
+#: honduras_shop_aggregator/users/tests.py:761
+#: honduras_shop_aggregator/users/views.py:313
 msgid "Account deleted successfully"
 msgstr "Cuenta eliminada con éxito"
 
-#: honduras_shop_aggregator/users/tests.py:693
-#: honduras_shop_aggregator/users/views.py:296
+#: honduras_shop_aggregator/users/tests.py:796
+#: honduras_shop_aggregator/users/views.py:295
 msgid "This account is linked to a store and cannot be deleted"
 msgstr "Esta cuenta está vinculada a una tienda y no puede ser eliminada."
 
@@ -1342,23 +1461,19 @@ msgstr "Esta cuenta está vinculada a una tienda y no puede ser eliminada."
 msgid "Update user"
 msgstr "Actualizar usuario"
 
-#: honduras_shop_aggregator/users/views.py:268
-msgid "Change password"
-msgstr "Cambiar contraseña"
-
 #: honduras_shop_aggregator/users/views.py:269
 msgid "Change"
 msgstr "Cambiar"
 
-#: honduras_shop_aggregator/users/views.py:329
+#: honduras_shop_aggregator/users/views.py:328
 msgid "Are you sure you want to delete "
 msgstr "¿Estás seguro de que quieres eliminar "
 
-#: honduras_shop_aggregator/users/views.py:330
+#: honduras_shop_aggregator/users/views.py:329
 msgid "Deleting your account will also remove all your saved products. "
 msgstr "Eliminar tu cuenta también eliminará todos tus productos guardados. "
 
-#: honduras_shop_aggregator/users/views.py:331
+#: honduras_shop_aggregator/users/views.py:330
 msgid "This action is permanent and cannot be undone."
 msgstr "Esta acción es permanente y no se puede deshacer."
 

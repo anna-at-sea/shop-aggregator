@@ -30,6 +30,9 @@ DEBUG = os.getenv('DEBUG', False)
 DATABASE_URL = os.getenv('DATABASE_URL')
 SELLER_FEATURES_ENABLED = True
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "noreply@cangrejal.com"
+
 ALLOWED_HOSTS = [
     'webserver',
     '127.0.0.1',
@@ -74,7 +77,7 @@ ROOT_URLCONF = 'honduras_shop_aggregator.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'honduras_shop_aggregator' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

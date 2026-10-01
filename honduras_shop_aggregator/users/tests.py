@@ -4,9 +4,13 @@ import tempfile
 from os.path import join
 
 from django.contrib import auth
+from django.contrib.auth.tokens import default_token_generator
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
 from PIL import Image
 
@@ -85,6 +89,105 @@ class TestAuthentication(BaseTestCase):
             follow=True
         )
         self.assertRedirectWithMessage(response)
+
+
+class TestPasswordReset(BaseTestCase):
+
+    def setUp(self):
+        self.user = User.objects.get(pk=1)
+
+    def test_password_reset_page(self):
+        response = self.client.get(reverse("password_reset"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Forgot your password?"))
+
+    def test_password_reset_sends_email(self):
+        response = self.client.post(
+            reverse("password_reset"),
+            {"email": self.user.email},
+        )
+        self.assertRedirects(
+            response,
+            reverse("password_reset_done"),
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to, [self.user.email])
+        self.assertIn("Cangrejal", email.body)
+        self.assertIn(_("password"), email.subject.lower())
+
+    def test_password_reset_unknown_email_does_not_send_email(self):
+        response = self.client.post(
+            reverse("password_reset"),
+            {"email": "doesnotexist@example.com"},
+        )
+        self.assertRedirects(
+            response,
+            reverse("password_reset_done"),
+        )
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_password_reset_changes_password(self):
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = default_token_generator.make_token(self.user)
+        url = reverse(
+            "password_reset_confirm",
+            kwargs={
+                "uidb64": uid,
+                "token": token,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        reset_url = response.url
+        response = self.client.get(reset_url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(
+            reset_url,
+            {
+                "new_password1": "NewStrongPassword123!",
+                "new_password2": "NewStrongPassword123!",
+            },
+        )
+        self.assertRedirects(
+            response,
+            reverse("password_reset_complete"),
+        )
+        self.user.refresh_from_db()
+        self.assertTrue(
+            self.user.check_password("NewStrongPassword123!")
+        )
+
+    def test_password_reset_token_cannot_be_reused(self):
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = default_token_generator.make_token(self.user)
+        url = reverse(
+            "password_reset_confirm",
+            kwargs={
+                "uidb64": uid,
+                "token": token,
+            },
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        reset_url = response.url
+        response = self.client.get(reset_url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(
+            reset_url,
+            {
+                "new_password1": "NewStrongPassword123!",
+                "new_password2": "NewStrongPassword123!",
+            },
+        )
+        self.assertRedirects(
+            response,
+            reverse("password_reset_complete"),
+        )
+        # The same token should no longer be valid.
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Invalid reset link"))
 
 
 class TestUserProfileRead(BaseTestCase):

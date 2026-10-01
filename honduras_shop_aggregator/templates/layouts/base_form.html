@@ -63,6 +63,14 @@
     </p>
 {% endif %}
 
+{% if heading == _("Log in") %}
+    <p class="text-center mt-3">
+        <a href="{% url 'password_reset' %}" class="text-decoration-none small">
+            {% translate "Forgot your password?" %}
+        </a>
+    </p>
+{% endif %}
+
 <script>
     function handleBack(event) {
       event.preventDefault();

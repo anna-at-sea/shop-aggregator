@@ -287,7 +287,6 @@ class UserSoftDeleteView(
         return self.object
 
     def form_valid(self, form):
-        print("FORM VALID")
         user = self.get_object()
         if user.is_seller:
             messages.add_message(
