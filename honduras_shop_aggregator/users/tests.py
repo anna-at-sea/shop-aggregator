@@ -69,6 +69,26 @@ class TestAuthentication(BaseTestCase):
             _("You are logged in")
         )
 
+    def test_anonymous_user_can_access_login(self):
+        response = self.client.get(
+            reverse("login")
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Log in"))
+
+
+    def test_logged_in_user_cannot_access_login(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse("login"),
+            follow=True,
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "index",
+            _("You are already logged in."),
+        )
+
     def test_logout(self):
         self.login_user(self.user)
         self.client.logout()
@@ -761,6 +781,42 @@ class TestUserCreate(BaseTestCase):
             form, 'email', _('A user with that email already exists.')
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_anonymous_user_can_access_registration(self):
+        response = self.client.get(
+            reverse("user_create")
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Registration"))
+
+    def test_logged_in_user_cannot_access_registration(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse("user_create"),
+            follow=True,
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "index",
+            _("You are already logged in."),
+        )
+
+    def test_logged_in_user_cannot_create_account(self):
+        username = self.complete_user_data["username"]
+        self.login_user(self.user)
+        response = self.client.post(
+            reverse("user_create"),
+            self.complete_user_data,
+            follow=True,
+        )
+        self.assertFalse(
+            User.objects.filter(username=username).exists()
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "index",
+            _("You are already logged in."),
+        )
 
 
 class TestUserUpdate(BaseTestCase):

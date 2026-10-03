@@ -26,6 +26,18 @@ class UserLoginRequiredMixin(LoginRequiredMixin):
         return redirect('login')
 
 
+class AnonymousRequiredMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.info(
+                request,
+                _("You are already logged in.")
+            )
+            return redirect("index")
+
+        return super().dispatch(request, *args, **kwargs)
+
+
 class UserPermissionMixin:
 
     def dispatch(self, request, *args, **kwargs):

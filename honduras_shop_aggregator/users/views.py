@@ -164,7 +164,7 @@ class AnonymousProfileView(
         return super().render_to_response(context, **response_kwargs)
 
 
-class UserLoginView(SuccessMessageMixin, LoginView):
+class UserLoginView(utils.AnonymousRequiredMixin, SuccessMessageMixin, LoginView):
     template_name = 'layouts/base_form.html'
     authentication_form = EmailOrUsernameAuthenticationForm
 
@@ -211,7 +211,7 @@ class UserLogoutView(LogoutView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class UserFormCreateView(CreateView):
+class UserFormCreateView(utils.AnonymousRequiredMixin, CreateView):
     model = User
     form_class = UserCreateForm
     template_name = 'layouts/base_form.html'
