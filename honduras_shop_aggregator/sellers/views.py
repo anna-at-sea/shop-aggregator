@@ -75,6 +75,8 @@ class BecomeSellerView(TemplateView):
             context["state"] = "seller"
         elif user.has_deleted_store:
             context["state"] = "deleted_seller"
+        elif not user.email_verified:
+            context["state"] = "email_unverified"
         else:
             context["state"] = "user"
         return context
@@ -247,7 +249,19 @@ class SellerFormCreateView(
     template_name = 'layouts/base_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and hasattr(request.user, 'seller'):
+        if not request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+
+        if not request.user.email_verified:
+            messages.warning(
+                request,
+                _(
+                    "Please verify your email address before creating a store."
+                )
+            )
+            return redirect("become_seller")
+
+        if hasattr(request.user, 'seller'):
             messages.add_message(
                 self.request,
                 messages.ERROR,
@@ -261,11 +275,11 @@ class SellerFormCreateView(
             )
             if request.user.seller.is_deleted:
                 return redirect('index')
-            else:
-                return redirect(
-                    'seller_profile', store_name=request.user.seller.store_name
-                )
-            
+            return redirect(
+                'seller_profile',
+                store_name=request.user.seller.store_name
+            )
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_message(self, *args, **kwargs):

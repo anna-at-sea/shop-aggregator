@@ -17,6 +17,21 @@ urlpatterns = [
         name='user_create'
     ),
     path(
+        'email-verification/',
+        views.EmailVerificationSentView.as_view(),
+        name='email_verification_sent'
+    ),
+    path(
+        'email-verification/resend/',
+        views.EmailVerificationResendView.as_view(),
+        name='email_verification_resend'
+    ),
+    path(
+        'email-verification/<uidb64>/<token>/',
+        views.EmailVerificationConfirmView.as_view(),
+        name='email_verification_confirm'
+    ),
+    path(
         '<str:username>/update/',
         views.UserFormUpdateView.as_view(),
         name='user_update'

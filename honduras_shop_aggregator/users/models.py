@@ -22,6 +22,9 @@ class User(AbstractUser):
             "unique": _("A user with that email already exists.")
         },
     )
+    email_verified = models.BooleanField(
+        default=False
+    )
     preferred_delivery_city = models.ForeignKey(
         City,
         on_delete=models.PROTECT,

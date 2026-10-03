@@ -115,6 +115,21 @@
                 </div>
 
 
+            {% elif state == "email_unverified" %}
+
+                <h3>{% translate "Verify your email first" %}</h3>
+
+                <p class="text-muted mb-4">
+                    {% translate "Please verify your email address before creating a store. This helps protect your account and allows you to recover it if needed." %}
+                </p>
+
+                <a
+                    href="{% url 'email_verification_resend' %}"
+                    class="btn btn-outline-danger btn-lg px-5"
+                >
+                    {% translate "Resend verification email" %}
+                </a>
+
             {% else %}
 
                 <h3>{% translate "Everything is ready!" %}</h3>
@@ -123,8 +138,10 @@
                     {% translate "Let's create your store." %}
                 </p>
 
-                <a href="{% url 'seller_create' %}"
-                   class="btn btn-danger btn-lg px-5">
+                <a
+                    href="{% url 'seller_create' %}"
+                    class="btn btn-danger btn-lg px-5"
+                >
                     {% translate "Create my store" %}
                 </a>
 

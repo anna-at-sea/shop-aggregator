@@ -757,6 +757,8 @@ class TestBecomeSellerPage(BaseTestCase):
         self.assertRedirects(response, reverse("become_seller"))
 
     def test_become_seller_logged_in(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         response = self.client.get(reverse('become_seller'))
         self.assertEqual(response.status_code, 200)
@@ -783,6 +785,25 @@ class TestBecomeSellerPage(BaseTestCase):
             _("Please create a new user account if you wish to open another store.")
         )
         self.assertNotContains(response, _("Create my store"))
+
+    def test_become_seller_unverified_user(self):
+        self.login_user(self.user_without_store)
+        response = self.client.get(
+            reverse("become_seller")
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _("Verify your email first"),
+        )
+        self.assertContains(
+            response,
+            _("Resend verification email"),
+        )
+        self.assertNotContains(
+            response,
+            _("Create my store"),
+        )
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
@@ -816,6 +837,8 @@ class TestSellerCreate(BaseTestCase):
             )
 
     def test_create_seller_success(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         response = self.client.post(
             reverse('seller_create'), self.complete_seller_data, follow=True
@@ -835,6 +858,8 @@ class TestSellerCreate(BaseTestCase):
     def test_create_seller_with_profile_picture(self):
         data = self.complete_seller_data.copy()
         data['image'] = self.success_image
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         response = self.client.post(
             reverse('seller_create'),
@@ -860,6 +885,8 @@ class TestSellerCreate(BaseTestCase):
     def test_replace_or_delete_seller_image_deletes_old_file(self):
         data = self.complete_seller_data.copy()
         data['image'] = self.success_image
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         self.client.post(
             reverse('seller_create'),
@@ -910,6 +937,8 @@ class TestSellerCreate(BaseTestCase):
         self.assertRedirectWithMessage(response)
 
     def test_create_seller_missing_field(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         response = self.client.post(
             reverse('seller_create'), self.missing_field_seller_data
@@ -922,6 +951,8 @@ class TestSellerCreate(BaseTestCase):
         )
 
     def test_create_duplicate_store_name(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         response = self.client.post(
             reverse('seller_create'), self.duplicate_store_name_data
@@ -933,6 +964,8 @@ class TestSellerCreate(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_create_duplicate_website(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
         self.login_user(self.user_without_store)
         response = self.client.post(
             reverse('seller_create'), self.duplicate_website_data
@@ -946,6 +979,8 @@ class TestSellerCreate(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_create_duplicate_user_seller(self):
+        self.user.email_verified = True
+        self.user.save()
         self.login_user(self.user)
         response = self.client.post(
             reverse('seller_create'), self.complete_seller_data, follow=True
@@ -963,6 +998,48 @@ class TestSellerCreate(BaseTestCase):
                     "a new one."
             ),
             {'store_name': self.user.seller.store_name}
+        )
+
+    def test_unverified_user_cannot_create_seller(self):
+        self.login_user(self.user_without_store)
+        response = self.client.post(
+            reverse("seller_create"),
+            self.complete_seller_data,
+            follow=True,
+        )
+        self.assertFalse(
+            Seller.objects.filter(
+                store_name="complete_seller"
+            ).exists()
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "become_seller",
+            _("Please verify your email address before creating a store."),
+        )
+
+    def test_verified_user_can_create_seller(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
+        self.login_user(self.user_without_store)
+        response = self.client.post(
+            reverse("seller_create"),
+            self.complete_seller_data,
+            follow=True,
+        )
+        seller = Seller.objects.get(
+            store_name="complete_seller"
+        )
+        self.assertEqual(
+            seller.user,
+            self.user_without_store,
+        )
+        self.assertFalse(seller.is_verified)
+        self.assertRedirectWithMessage(
+            response,
+            "seller_profile",
+            _("Store is registered and awaiting verification"),
+            {"store_name": seller.store_name},
         )
 
 
@@ -1216,6 +1293,8 @@ class TestSellerDelete(BaseTestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_user_cannot_create_new_seller_after_deletion(self):
+        self.user.email_verified = True
+        self.user.save()
         self.login_user(self.user)
         self.seller.is_deleted = True
         self.seller.save()

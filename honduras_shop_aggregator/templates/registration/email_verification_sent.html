@@ -1,0 +1,78 @@
+{% extends "layouts/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Check your email" %} | Cangrejal{% endblock %}
+
+{% block content %}
+{% include "partials/flash_message.html" %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-5">
+
+                    <i class="bi bi-envelope-check display-3 text-danger"></i>
+
+                    <h1 class="h3 mt-4 mb-3">
+                        {% translate "Check your email" %}
+                    </h1>
+
+                    {% if not user.is_authenticated %}
+                    <p class="text-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        {% translate "Your account has been created successfully." %}
+                    </p>
+                    {% endif %}
+
+                    <p class="text-muted">
+                        {% translate "We've sent a verification link to your email address." %}
+                    </p>
+
+                    {% if not user.is_authenticated %}
+                    <p class="text-muted">
+                        {% translate "We recommend verifying your email because it will help you recover your account if you forget your password." %}
+                    </p>
+
+                    <p class="text-muted">
+                        {% translate "You can still log in and use your account without verifying your email." %}
+                    </p>
+                    {% endif %}
+
+                    {% if user.is_authenticated and not user.email_verified %}
+
+                        <a
+                            href="{% url 'email_verification_resend' %}"
+                            class="btn btn-outline-danger mt-3"
+                        >
+                            {% translate "Resend verification email" %}
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{% url 'login' %}"
+                            class="btn btn-danger mt-3"
+                        >
+                            {% translate "Log in" %}
+                        </a>
+
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a
+                            href="{% url 'index' %}"
+                            class="text-decoration-none text-secondary"
+                        >
+                            {% translate "Back to home" %}
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

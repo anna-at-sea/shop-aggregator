@@ -1,14 +1,18 @@
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.mail import send_mail
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -20,6 +24,28 @@ from honduras_shop_aggregator.users.forms import (
     EmailOrUsernameAuthenticationForm, UserCreateForm, UserDeleteForm,
     UserUpdateForm)
 from honduras_shop_aggregator.users.models import User
+
+
+def send_verification_email(request, user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    send_mail(
+        _("Verify your Cangrejal email address"),
+        render_to_string(
+            "registration/email_verification_email.html",
+            {
+                "user": user,
+                "uid": uid,
+                "token": token,
+                "domain": request.get_host(),
+                "protocol": "https" if request.is_secure() else "http",
+            },
+            request=request,
+        ),
+        None,
+        [user.email],
+        html_message=None,
+    )
 
 
 class UserProfileView(
@@ -185,18 +211,25 @@ class UserLogoutView(LogoutView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class UserFormCreateView(
-    SuccessMessageMixin, CreateView
-):
+class UserFormCreateView(CreateView):
     model = User
     form_class = UserCreateForm
     template_name = 'layouts/base_form.html'
 
-    def get_success_message(self, *args, **kwargs):
-        return _("User is registered successfully")
-
     def get_success_url(self):
-        return reverse_lazy('login')
+        return reverse_lazy('email_verification_sent')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        send_verification_email(
+            self.request,
+            self.object
+        )
+        messages.success(
+            self.request,
+            _("Your account has been created successfully.")
+        )
+        return response
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -205,6 +238,86 @@ class UserFormCreateView(
             'button_text': _("Register")
         })
         return context
+
+
+class EmailVerificationSentView(
+    TemplateView
+):
+    template_name = "registration/email_verification_sent.html"
+
+
+class EmailVerificationConfirmView(TemplateView):
+    template_name = "registration/email_verification_confirm.html"
+
+    def get(self, request, *args, **kwargs):
+        uidb64 = kwargs["uidb64"]
+        token = kwargs["token"]
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(
+                pk=uid,
+                is_deleted=False,
+                is_active=True,
+            )
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return self.render_invalid(request)
+        if user.email_verified:
+            messages.info(
+                request,
+                _("Your email address is already verified.")
+            )
+            if request.user.is_authenticated and request.user.pk == user.pk:
+                return redirect(
+                    "user_profile",
+                    username=request.user.username
+                )
+            return redirect("login")
+        if not default_token_generator.check_token(user, token):
+            return self.render_invalid(request)
+        user.email_verified = True
+        user.save(update_fields=["email_verified"])
+        messages.success(
+            request,
+            _("Your email address has been verified successfully.")
+        )
+        if request.user.is_authenticated and request.user.pk == user.pk:
+            return redirect(
+                "user_profile",
+                username=request.user.username
+            )
+        return redirect("login")
+
+    def render_invalid(self, request):
+        return render(
+            request,
+            "registration/email_verification_confirm.html",
+            {
+                "invalid_link": True,
+            },
+        )
+
+
+class EmailVerificationResendView(
+    utils.UserLoginRequiredMixin,
+    TemplateView
+):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        if user.email_verified:
+            messages.info(
+                request,
+                _("Your email address is already verified.")
+            )
+            return redirect(
+                "user_profile",
+                username=user.username
+            )
+        send_verification_email(request, user)
+        messages.success(
+            request,
+            _("A new verification email has been sent.")
+        )
+        return redirect("email_verification_sent")
 
 
 class UserFormUpdateView(

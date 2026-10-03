@@ -13,5 +13,16 @@ class CustomUserAdmin(UserAdmin):
         "seller"
     )
     search_fields = ("username", "email")
-    list_filter = ("is_active",)
+    list_filter = ("is_active", "email_verified",)
     ordering = ("date_joined",)
+
+    fieldsets = UserAdmin.fieldsets + (
+        (
+            None,
+            {
+                "fields": (
+                    "email_verified",
+                ),
+            },
+        ),
+    )

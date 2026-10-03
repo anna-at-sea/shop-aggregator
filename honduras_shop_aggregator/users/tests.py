@@ -190,6 +190,175 @@ class TestPasswordReset(BaseTestCase):
         self.assertContains(response, _("Invalid reset link"))
 
 
+class TestEmailVerification(BaseTestCase):
+
+    def setUp(self):
+        self.user = User.objects.get(pk=1)
+
+    def get_verification_url(self):
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = default_token_generator.make_token(self.user)
+        return reverse(
+            "email_verification_confirm",
+            kwargs={
+                "uidb64": uid,
+                "token": token,
+            },
+        )
+
+    def test_verification_sent_page(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse("email_verification_sent")
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _("Check your email")
+        )
+        self.assertContains(
+            response,
+            _("We've sent a verification link to your email address.")
+        )
+        self.assertNotContains(
+            response,
+            _("You can still log in and use your account without verifying your email.")
+        )
+
+    def test_registration_sends_verification_email(self):
+        data = {
+            "first_name": "Test",
+            "last_name": "User",
+            "username": "verification_user",
+            "email": "verification@example.com",
+            "password1": "correct_password123!",
+            "password2": "correct_password123!",
+        }
+        response = self.client.post(
+            reverse("user_create"),
+            data,
+            follow=True,
+        )
+        user = User.objects.get(
+            username="verification_user"
+        )
+        self.assertFalse(user.email_verified)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].to,
+            ["verification@example.com"],
+        )
+        self.assertIn(
+            _("Verify your Cangrejal email address"),
+            mail.outbox[0].subject,
+        )
+        self.assertContains(
+            response,
+            _("Check your email")
+        )
+        self.assertContains(
+            response,
+            _("You can still log in and use your account without verifying your email.")
+        )
+
+    def test_valid_verification_token_verifies_email(self):
+        url = self.get_verification_url()
+        response = self.client.get(url)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.email_verified)
+        self.assertRedirects(
+            response,
+            reverse("login"),
+        )
+
+    def test_valid_verification_token_redirects_logged_in_user_to_profile(self):
+        self.login_user(self.user)
+        self.user.refresh_from_db()
+        url = self.get_verification_url()
+        response = self.client.get(url, follow=True)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.email_verified)
+        self.assertRedirects(
+            response,
+            reverse(
+                "user_profile",
+                kwargs={"username": self.user.username},
+            ),
+        )
+
+    def test_invalid_verification_token(self):
+        url = reverse(
+            "email_verification_confirm",
+            kwargs={
+                "uidb64": urlsafe_base64_encode(
+                    force_bytes(self.user.pk)
+                ),
+                "token": "invalid-token",
+            },
+        )
+        response = self.client.get(url)
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.email_verified)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            _("Invalid verification link"),
+        )
+
+    def test_already_verified_email(self):
+        self.user.email_verified = True
+        self.user.save()
+        self.login_user(self.user)
+        url = self.get_verification_url()
+        response = self.client.get(url, follow=True)
+        self.assertRedirectWithMessage(
+            response,
+            "user_profile",
+            _("Your email address is already verified."),
+            {"username": self.user.username},
+        )
+
+    def test_resend_verification_email(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse("email_verification_resend"),
+            follow=True,
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "email_verification_sent",
+            _("A new verification email has been sent."),
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].to,
+            [self.user.email],
+        )
+
+    def test_verified_user_cannot_resend_verification_email(self):
+        self.user.email_verified = True
+        self.user.save()
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse("email_verification_resend"),
+            follow=True,
+        )
+        self.assertRedirectWithMessage(
+            response,
+            "user_profile",
+            _("Your email address is already verified."),
+            {"username": self.user.username},
+        )
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_resend_verification_requires_login(self):
+        response = self.client.get(
+            reverse("email_verification_resend"),
+            follow=True,
+        )
+        self.assertRedirectWithMessage(response)
+
+
 class TestUserProfileRead(BaseTestCase):
 
     def setUp(self):
@@ -226,6 +395,42 @@ class TestUserProfileRead(BaseTestCase):
     def test_read_nonexistent(self):
         response = self.client.get('/wrong_url/')
         self.assertEqual(response.status_code, 404)
+
+    def test_unverified_user_sees_email_verification_warning(self):
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "user_profile",
+                kwargs={"username": self.user.username},
+            )
+        )
+        self.assertContains(
+            response,
+            _("Your email address is not verified."),
+        )
+        self.assertContains(
+            response,
+            _("Resend verification email"),
+        )
+
+    def test_verified_user_does_not_see_email_verification_warning(self):
+        self.user.email_verified = True
+        self.user.save()
+        self.login_user(self.user)
+        response = self.client.get(
+            reverse(
+                "user_profile",
+                kwargs={"username": self.user.username},
+            )
+        )
+        self.assertNotContains(
+            response,
+            _("Your email address is not verified."),
+        )
+        self.assertNotContains(
+            response,
+            _("Resend verification email"),
+        )
 
 
 class TestUserProfileProducts(BaseTestCase):
@@ -438,8 +643,13 @@ class TestUserCreate(BaseTestCase):
         self.assertIsNotNone(user)
         self.assertTrue(User.objects.filter(username="complete_user").exists())
         self.assertRedirectWithMessage(
-            response, 'login', _("User is registered successfully")
+            response,
+            'email_verification_sent',
+            _("Your account has been created successfully.")
         )
+        user.refresh_from_db()
+        self.assertFalse(user.email_verified)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_create_user_with_profile_picture(self):
         data = self.complete_user_data.copy()
@@ -459,8 +669,13 @@ class TestUserCreate(BaseTestCase):
         self.assertIsNotNone(user.image)
         self.assertEqual(user.image.name, f'users/{user.username}.jpg')
         self.assertRedirectWithMessage(
-            response, 'login', _("User is registered successfully")
+            response,
+            'email_verification_sent',
+            _("Your account has been created successfully.")
         )
+        user.refresh_from_db()
+        self.assertFalse(user.email_verified)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_replace_or_delete_user_image_deletes_old_file(self):
         data = self.complete_user_data.copy()

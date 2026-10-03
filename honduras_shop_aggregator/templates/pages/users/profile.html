@@ -120,6 +120,22 @@
 
 {% endif %}
 
+{% if user.is_authenticated and not user.email_verified %}
+    <div class="alert alert-warning mt-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+            <i class="bi bi-envelope-exclamation me-1"></i>
+            {% translate "Your email address is not verified. Verifying it helps you recover your account if you forget your password." %}
+        </div>
+
+        <a
+            href="{% url 'email_verification_resend' %}"
+            class="btn btn-sm btn-outline-dark"
+        >
+            {% translate "Resend verification email" %}
+        </a>
+    </div>
+{% endif %}
+
     <div class="row mt-4">
         <div class="col">
             <div>
