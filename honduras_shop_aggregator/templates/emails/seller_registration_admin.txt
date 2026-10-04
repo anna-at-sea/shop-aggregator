@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% blocktranslate with store_name=seller.store_name %}
+A new seller has registered a store on Cangrejal and is waiting for verification.
+{% endblocktranslate %}
+
+{% translate "Store:" %} {{ seller.store_name }}
+{% translate "Store website:" %} {{ seller.website }}
+{% translate "Seller username:" %} {{ seller.user.username }}
+{% translate "Seller email:" %} {{ seller.user.email }}
+
+{% translate "Please review the seller profile and verify the store in the admin panel." %}
+
+{% translate "Review seller in admin:" %}
+{{ admin_url }}

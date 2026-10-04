@@ -3,6 +3,7 @@ import os
 import tempfile
 from os.path import join
 
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
@@ -1040,6 +1041,57 @@ class TestSellerCreate(BaseTestCase):
             "seller_profile",
             _("Store is registered and awaiting verification"),
             {"store_name": seller.store_name},
+        )
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        SELLER_ADMIN_EMAIL="admin@example.com",
+    )
+    def test_create_seller_sends_admin_email(self):
+        self.user_without_store.email_verified = True
+        self.user_without_store.save()
+        self.login_user(self.user_without_store)
+        self.client.post(
+            reverse("seller_create"),
+            self.complete_seller_data,
+            follow=True,
+        )
+        seller = Seller.objects.get(
+            store_name=self.complete_seller_data["store_name"]
+        )
+        self.assertFalse(seller.is_verified)
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(
+            email.to,
+            ["admin@example.com"],
+        )
+        self.assertEqual(
+            email.subject,
+            _("New seller registration requires review"),
+        )
+        self.assertIn(
+            seller.store_name,
+            email.body,
+        )
+        self.assertIn(
+            seller.website,
+            email.body,
+        )
+        self.assertIn(
+            seller.user.username,
+            email.body,
+        )
+        self.assertIn(
+            seller.user.email,
+            email.body,
+        )
+        self.assertIn(
+            reverse(
+                "admin:sellers_seller_change",
+                args=[seller.pk],
+            ),
+            email.body,
         )
 
 

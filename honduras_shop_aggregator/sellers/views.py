@@ -300,7 +300,12 @@ class SellerFormCreateView(
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        utils.send_seller_registration_email(
+            self.request,
+            self.object,
+        )
+        return response
 
 
 class SellerFormUpdateView(

@@ -30,8 +30,9 @@ DEBUG = os.getenv('DEBUG', False)
 DATABASE_URL = os.getenv('DATABASE_URL')
 SELLER_FEATURES_ENABLED = True
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "noreply@cangrejal.com"
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+SELLER_ADMIN_EMAIL = os.getenv('SELLER_ADMIN_EMAIL')
 
 ALLOWED_HOSTS = [
     'webserver',

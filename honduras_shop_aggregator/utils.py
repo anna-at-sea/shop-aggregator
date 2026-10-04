@@ -1,8 +1,11 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import get_messages
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -146,3 +149,25 @@ class ProductFilterMixin:
             available_products=queryset,
             category_locked=bool(self.get_category_slug()),
         )
+
+
+def send_seller_registration_email(request, seller):
+    admin_url = request.build_absolute_uri(
+        reverse(
+            "admin:sellers_seller_change",
+            args=[seller.pk],
+        )
+    )
+    send_mail(
+        _("New seller registration requires review"),
+        render_to_string(
+            "emails/seller_registration_admin.txt",
+            {
+                "seller": seller,
+                "admin_url": admin_url,
+            },
+            request=request,
+        ),
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.SELLER_ADMIN_EMAIL],
+    )
