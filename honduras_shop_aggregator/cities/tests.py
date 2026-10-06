@@ -38,6 +38,16 @@ class TestDefaultSessionCity(BaseTestCase):
         self.assertEqual(self.client.session.get('city_pk'), 2)
         self.assertContains(response, 'Second City')
 
+    def test_invalid_session_city_falls_back_to_capital(self):
+        session = self.client.session
+        session['city_pk'] = 99999
+        session.save()
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session.get('city_pk'), 1)
+        self.assertContains(response, 'Capital')
+        self.assertContains(response, _('Select your city'))
+
 
 class TestSetCity(BaseTestCase):
 
@@ -164,3 +174,55 @@ class TestCityProtect(BaseTestCase):
         self.assertEqual(self.user_2.preferred_delivery_city, self.city_2)
         with self.assertRaises(ProtectedError):
             self.city_2.delete()
+
+
+class TestCitySelectionModal(BaseTestCase):
+
+    def setUp(self):
+        self.user_with_city = User.objects.get(username='userwithpreferredcity')
+
+    def test_city_selection_modal_for_first_anonymous_visit(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _('Select your city'))
+        self.assertContains(response, 'Capital')
+        self.assertContains(response, 'Second City')
+
+    def test_city_selection_modal_not_shown_after_city_selected(self):
+        self.client.get(
+            reverse('set_city', kwargs={'city_pk': 2})
+        )
+        response = self.client.get(reverse('index'))
+        self.assertNotContains(response, _('Select your city'))
+
+    def test_city_selection_modal_not_shown_for_user_with_preferred_city(self):
+        self.client.post(
+            reverse('login'),
+            {
+                'username': self.user_with_city.username,
+                'password': 'correct_password',
+            },
+            follow=True,
+        )
+        response = self.client.get(reverse('index'))
+        self.assertEqual(self.client.session.get('city_pk'), 2)
+        self.assertNotContains(response, _('Select your city'))
+
+    def test_logout_resets_city_to_capital(self):
+        self.client.post(
+            reverse('login'),
+            {
+                'username': self.user_with_city.username,
+                'password': 'correct_password',
+            },
+            follow=True,
+        )
+        self.assertEqual(self.client.session.get('city_pk'), 2)
+        response = self.client.post(
+            reverse('logout'),
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.client.session.get('city_pk'), 1)
+        self.assertContains(response, 'Capital')
+        self.assertNotContains(response, _('Select your city'))

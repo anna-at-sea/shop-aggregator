@@ -203,12 +203,16 @@ class UserLogoutView(LogoutView):
     next_page = reverse_lazy('index')
 
     def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        capital_city = City.objects.get(pk=1)
+        request.session['city_pk'] = capital_city.pk
+        request.session['city_name'] = capital_city.name
         messages.add_message(
             request,
             messages.INFO,
             _("You are logged out")
         )
-        return super().dispatch(request, *args, **kwargs)
+        return response
 
 
 class UserFormCreateView(utils.AnonymousRequiredMixin, CreateView):

@@ -5,16 +5,23 @@ from honduras_shop_aggregator.cities.models import City
 
 def city_context(request):
     capital_city = City.objects.get(pk=1)
-    if request.session.get('city_pk'):
-        selected_city = City.objects.get(pk=request.session.get('city_pk'))
+    city_pk = request.session.get('city_pk')
+    if city_pk:
+        selected_city = City.objects.filter(pk=city_pk).first()
+    else:
+        selected_city = None
+    if selected_city:
+        city_selection_required = False
     else:
         selected_city = capital_city
         request.session['city_pk'] = selected_city.pk
         request.session['city_name'] = selected_city.name
+        city_selection_required = True
     cities = City.objects.all().order_by('pk').exclude(pk=selected_city.pk)
     return {
         'current_city': selected_city,
-        'cities': cities
+        'cities': cities,
+        'city_selection_required': city_selection_required
     }
 
 

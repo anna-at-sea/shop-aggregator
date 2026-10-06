@@ -86,6 +86,51 @@
         </div>
     </div>
 
+    {% if city_selection_required %}
+    <div
+        class="modal fade"
+        id="citySelectionModal"
+        tabindex="-1"
+        aria-labelledby="citySelectionModalLabel"
+        aria-hidden="true"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-sm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="citySelectionModalLabel">
+                        {% trans "Select your city" %}
+                    </h5>
+                </div>
+
+                <div class="modal-body">
+                    <p class="text-muted mb-3">
+                        {% trans "Choose your city to see products and sellers available in your area." %}
+                    </p>
+
+                    <div class="list-group">
+                        <a
+                            href="{% url 'set_city' current_city.pk %}"
+                            class="list-group-item list-group-item-action"
+                        >
+                            {{ current_city.name }}
+                        </a>
+                        {% for city in cities %}
+                            <a
+                                href="{% url 'set_city' city.pk %}"
+                                class="list-group-item list-group-item-action"
+                            >
+                                {{ city.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <script>
         function showToast(message, type="success") {
             const toastEl = document.getElementById("ajaxToast");
@@ -99,6 +144,17 @@
             const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
             toast.show();
         }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modalElement = document.getElementById("citySelectionModal");
+
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        });
     </script>
 
 </body>

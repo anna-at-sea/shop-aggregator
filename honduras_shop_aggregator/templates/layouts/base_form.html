@@ -64,9 +64,18 @@
 {% endif %}
 
 {% if heading == _("Log in") %}
-    <p class="text-center mt-3">
+    <p class="text-center mt-3 mb-1">
         <a href="{% url 'password_reset' %}" class="text-decoration-none small">
             {% translate "Forgot your password?" %}
+        </a>
+    </p>
+
+    <p class="text-center mt-2">
+        <span class="small text-muted">
+            {% translate "Don't have an account yet?" %}
+        </span>
+        <a href="{% url 'user_create' %}" class="text-decoration-none small">
+            {% translate "Register" %}
         </a>
     </p>
 {% endif %}
